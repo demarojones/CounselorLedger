@@ -125,7 +125,7 @@ CREATE INDEX idx_reason_subcategories_sort ON reason_subcategories(category_id, 
 -- ============================================================================
 -- Stores all counseling interactions with students or contacts
 CREATE TABLE interactions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   counselor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   student_id UUID REFERENCES students(id) ON DELETE CASCADE,
@@ -135,7 +135,7 @@ CREATE TABLE interactions (
   custom_reason TEXT,
   start_time TIMESTAMPTZ NOT NULL,
   duration_minutes INT NOT NULL CHECK (duration_minutes > 0),
-  end_time TIMESTAMPTZ GENERATED ALWAYS AS (start_time + (duration_minutes || ' minutes')::INTERVAL) STORED,
+  end_time TIMESTAMPTZ,
   notes TEXT,
   needs_follow_up BOOLEAN DEFAULT FALSE,
   follow_up_date TIMESTAMPTZ,
@@ -145,8 +145,25 @@ CREATE TABLE interactions (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   CHECK (student_id IS NOT NULL OR contact_id IS NOT NULL),
-  CHECK (NOT (student_id IS NOT NULL AND contact_id IS NOT NULL))
+  CHECK (student_id IS NULL OR contact_id IS NULL)
 );
+
+CREATE OR REPLACE FUNCTION set_end_time()
+RETURNS trigger AS $$
+BEGIN
+  NEW.end_time :=
+    NEW.start_time + NEW.duration_minutes * INTERVAL '1 minute';
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+CREATE TRIGGER trg_set_end_time
+BEFORE INSERT OR UPDATE OF start_time, duration_minutes
+ON interactions
+FOR EACH ROW
+EXECUTE FUNCTION set_end_time();
+
+
 
 CREATE INDEX idx_interactions_tenant ON interactions(tenant_id);
 CREATE INDEX idx_interactions_counselor ON interactions(tenant_id, counselor_id);

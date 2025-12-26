@@ -161,7 +161,8 @@ src/
 │   │   ├── InteractionForm.tsx
 │   │   ├── InteractionList.tsx
 │   │   ├── InteractionDetail.tsx
-│   │   └── ReasonSelector.tsx
+│   │   ├── ReasonSelector.tsx
+│   │   └── RegardingStudentSelector.tsx
 │   ├── calendar/
 │   │   ├── CalendarView.tsx
 │   │   ├── EventModal.tsx
@@ -253,25 +254,32 @@ const { data: { user } } = await supabase.auth.getUser()
 // List interactions (RLS auto-filters by tenant)
 const { data } = await supabase
   .from('interactions')
-  .select('*, student(*), category(*)')
+  .select('*, student(*), contact(*), regarding_student:regardingStudentId(*), category(*)')
   .order('startTime', { ascending: false })
 
-// Create interaction
+// Create contact interaction with regarding student
 await supabase
   .from('interactions')
-  .insert({ studentId, categoryId, startTime, durationMinutes, notes })
+  .insert({ 
+    contactId, 
+    regardingStudentId, 
+    categoryId, 
+    startTime, 
+    durationMinutes, 
+    notes 
+  })
 
-// Update interaction
-await supabase
+// Get student interaction history (including contact interactions about this student)
+const { data } = await supabase
   .from('interactions')
-  .update({ notes, durationMinutes })
-  .eq('id', interactionId)
-
-// Delete interaction
-await supabase
-  .from('interactions')
-  .delete()
-  .eq('id', interactionId)
+  .select(`
+    *,
+    contact(*),
+    category(*),
+    subcategory(*)
+  `)
+  .or(`studentId.eq.${studentId},regardingStudentId.eq.${studentId}`)
+  .order('startTime', { ascending: false })
 
 // Complex query with joins
 const { data } = await supabase
@@ -279,7 +287,8 @@ const { data } = await supabase
   .select(`
     *,
     interactions(count),
-    interactions(durationMinutes)
+    interactions(durationMinutes),
+    regarding_interactions:interactions!regardingStudentId(count)
   `)
   .eq('needsFollowUp', true)
 ```
@@ -398,6 +407,7 @@ CREATE TABLE interactions (
   counselor_id UUID NOT NULL REFERENCES users(id),
   student_id UUID REFERENCES students(id),
   contact_id UUID REFERENCES contacts(id),
+  regarding_student_id UUID REFERENCES students(id), -- New field for contact interactions
   category_id UUID NOT NULL REFERENCES reason_categories(id),
   subcategory_id UUID REFERENCES reason_subcategories(id),
   custom_reason TEXT,
@@ -411,13 +421,15 @@ CREATE TABLE interactions (
   is_follow_up_complete BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  CHECK (student_id IS NOT NULL OR contact_id IS NOT NULL)
+  CHECK (student_id IS NOT NULL OR contact_id IS NOT NULL),
+  CHECK (contact_id IS NULL OR regarding_student_id IS NULL OR regarding_student_id IS NOT NULL) -- regarding_student_id only valid for contact interactions
 );
 
 CREATE INDEX idx_interactions_tenant ON interactions(tenant_id);
 CREATE INDEX idx_interactions_counselor ON interactions(tenant_id, counselor_id);
 CREATE INDEX idx_interactions_student ON interactions(tenant_id, student_id);
 CREATE INDEX idx_interactions_contact ON interactions(tenant_id, contact_id);
+CREATE INDEX idx_interactions_regarding_student ON interactions(tenant_id, regarding_student_id);
 CREATE INDEX idx_interactions_time ON interactions(tenant_id, start_time);
 
 -- Row Level Security Policies
@@ -506,6 +518,7 @@ interface Interaction {
   counselorId: string;
   studentId?: string;
   contactId?: string;
+  regardingStudentId?: string; // New field for contact interactions
   categoryId: string;
   subcategoryId?: string;
   customReason?: string;
@@ -522,6 +535,7 @@ interface Interaction {
   counselor?: User;
   student?: Student;
   contact?: Contact;
+  regardingStudent?: Student; // New relation for contact interactions
   category?: ReasonCategory;
   subcategory?: ReasonSubcategory;
 }
@@ -530,6 +544,7 @@ interface InteractionFormData {
   type: 'student' | 'contact';
   studentId?: string;
   contactId?: string;
+  regardingStudentId?: string; // New field for contact interactions
   categoryId: string;
   subcategoryId?: string;
   customReason?: string;
@@ -610,6 +625,46 @@ interface ReportFilters {
   counselorId?: string;
 }
 ```
+
+## Correctness Properties
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Core System Properties
+
+Property 1: Multi-tenant data isolation
+*For any* authenticated user, all data queries should only return records belonging to their tenant
+**Validates: Requirements 9.3**
+
+Property 2: Role-based access control
+*For any* user action, the system should only allow operations permitted by their role (admin vs counselor)
+**Validates: Requirements 12.2**
+
+Property 3: Interaction data integrity
+*For any* interaction, it must have either a student_id OR a contact_id, but not both null
+**Validates: Requirements 2.1**
+
+Property 4: Time calculation consistency
+*For any* interaction with start time and duration, the calculated end time should equal start time plus duration
+**Validates: Requirements 2.3**
+
+### Contact Interaction "Regarding" Properties
+
+Property 5: Regarding student dropdown completeness
+*For any* tenant's student list, the "Regarding" dropdown should display all active students with searchable filtering
+**Validates: Requirements 11.2**
+
+Property 6: Contact interaction regarding persistence
+*For any* contact interaction saved with a regarding student, retrieving that interaction should return the same regarding student association
+**Validates: Requirements 11.4**
+
+Property 7: Student history inclusion
+*For any* student, their interaction history should include both direct student interactions and contact interactions where they are the regarding student
+**Validates: Requirements 11.5**
+
+Property 8: Regarding student report filtering
+*For any* student used as a "regarding" filter in contact interaction reports, all returned interactions should have that student as the regarding student
+**Validates: Requirements 11.6**
 
 ## Error Handling
 
@@ -751,6 +806,22 @@ app.use((err, req, res, next) => {
 4. Test data validation and error handling
 5. Test calendar drag-and-drop functionality
 6. Test report generation with various filters
+7. Test "Regarding" field functionality in contact interactions
+8. Test student history aggregation including regarding interactions
+
+### Property-Based Testing Requirements
+
+The system MUST use **fast-check** as the property-based testing library for JavaScript/TypeScript. Each property-based test MUST:
+- Run a minimum of 100 iterations
+- Be tagged with a comment referencing the design document property
+- Use the format: `**Feature: contact-interaction-regarding-field, Property {number}: {property_text}**`
+- Focus on universal properties that should hold across all inputs
+
+**Property-Based Tests Required:**
+- Property 5: Test that regarding student dropdown shows all students with working search
+- Property 6: Test that contact interactions with regarding students persist correctly
+- Property 7: Test that student history includes both direct and regarding interactions
+- Property 8: Test that report filtering by regarding student works correctly
 
 ## Security Considerations
 

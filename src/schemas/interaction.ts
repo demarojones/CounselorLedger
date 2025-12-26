@@ -7,6 +7,7 @@ export const interactionFormSchema = z
     }),
     studentId: z.string().optional(),
     contactId: z.string().optional(),
+    regardingStudentId: z.string().optional(),
     categoryId: z.string().min(1, 'Category is required'),
     subcategoryId: z.string().optional(),
     customReason: z.string().optional(),

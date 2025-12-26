@@ -16,12 +16,13 @@ interface StudentListProps {
   students: Student[];
   interactions: Interaction[];
   onStudentClick?: (studentId: string) => void;
+  onEditStudent?: (student: Student) => void;
 }
 
 type SortField = 'name' | 'studentId' | 'gradeLevel' | 'interactionCount' | 'totalTimeSpent';
 type SortDirection = 'asc' | 'desc';
 
-export function StudentList({ students, interactions, onStudentClick }: StudentListProps) {
+export function StudentList({ students, interactions, onStudentClick, onEditStudent }: StudentListProps) {
   const navigate = useNavigate();
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -217,13 +218,27 @@ export function StudentList({ students, interactions, onStudentClick }: StudentL
                     ) : null}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleStudentClick(student.id)}
-                    >
-                      View
-                    </Button>
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onEditStudent) {
+                            onEditStudent(student);
+                          }
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleStudentClick(student.id)}
+                      >
+                        View
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

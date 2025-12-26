@@ -103,6 +103,23 @@ export function InteractionDetail({
             </div>
           </div>
 
+          {/* Regarding Student Information (for contact interactions) */}
+          {interaction.contact && interaction.regardingStudent && (
+            <div className="space-y-2 p-3 bg-blue-50 rounded-md border-l-4 border-blue-200">
+              <h3 className="text-sm font-medium text-blue-800">
+                Regarding Student
+              </h3>
+              <div>
+                <p className="font-medium text-blue-900">
+                  {interaction.regardingStudent.firstName} {interaction.regardingStudent.lastName}
+                </p>
+                <p className="text-sm text-blue-700">
+                  {interaction.regardingStudent.studentId} - Grade {interaction.regardingStudent.gradeLevel}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Category Information */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-muted-foreground">

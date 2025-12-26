@@ -7,6 +7,7 @@ import { FormTextarea } from '@/components/common/FormTextarea';
 import { DateTimePicker } from '@/components/common/DateTimePicker';
 import { SearchableDropdown } from '@/components/common/SearchableDropdown';
 import type { SearchableDropdownOption } from '@/components/common/SearchableDropdown';
+import { RegardingStudentSelector } from './RegardingStudentSelector';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -46,6 +47,9 @@ export function InteractionForm({
   );
   const [studentId, setStudentId] = useState(initialData?.studentId || '');
   const [contactId, setContactId] = useState(initialData?.contactId || '');
+  const [regardingStudentId, setRegardingStudentId] = useState(
+    initialData?.regardingStudentId || ''
+  );
   const [categoryId, setCategoryId] = useState(initialData?.categoryId || '');
   const [subcategoryId, setSubcategoryId] = useState(
     initialData?.subcategoryId || ''
@@ -155,6 +159,7 @@ export function InteractionForm({
       type,
       studentId: type === 'student' ? studentId : undefined,
       contactId: type === 'contact' ? contactId : undefined,
+      regardingStudentId: type === 'contact' && regardingStudentId ? regardingStudentId : undefined,
       categoryId,
       subcategoryId: subcategoryId || undefined,
       customReason: isCustomSubcategory ? customReason : undefined,
@@ -196,6 +201,7 @@ export function InteractionForm({
       type,
       studentId: type === 'student' ? studentId : undefined,
       contactId: type === 'contact' ? contactId : undefined,
+      regardingStudentId: type === 'contact' && regardingStudentId ? regardingStudentId : undefined,
       categoryId,
       subcategoryId: subcategoryId || undefined,
       customReason: isCustomSubcategory ? customReason : undefined,
@@ -224,10 +230,12 @@ export function InteractionForm({
             setType(e.target.value as 'student' | 'contact');
             setStudentId('');
             setContactId('');
+            setRegardingStudentId('');
             setErrors((prev) => ({
               ...prev,
               studentId: '',
               contactId: '',
+              regardingStudentId: '',
             }));
           }}
           disabled={isLoading}
@@ -254,20 +262,33 @@ export function InteractionForm({
           emptyMessage="No students found"
         />
       ) : (
-        <SearchableDropdown
-          label="Contact"
-          placeholder="Search for a contact..."
-          options={contactOptions}
-          value={contactId}
-          onChange={(value) => {
-            setContactId(value);
-            setErrors((prev) => ({ ...prev, contactId: '' }));
-          }}
-          error={errors.contactId}
-          disabled={isLoading}
-          required
-          emptyMessage="No contacts found"
-        />
+        <>
+          <SearchableDropdown
+            label="Contact"
+            placeholder="Search for a contact..."
+            options={contactOptions}
+            value={contactId}
+            onChange={(value) => {
+              setContactId(value);
+              setErrors((prev) => ({ ...prev, contactId: '' }));
+            }}
+            error={errors.contactId}
+            disabled={isLoading}
+            required
+            emptyMessage="No contacts found"
+          />
+          
+          {/* Regarding Student Selector - only shown for contact interactions */}
+          <RegardingStudentSelector
+            value={regardingStudentId}
+            onChange={(value) => {
+              setRegardingStudentId(value || '');
+              setErrors((prev) => ({ ...prev, regardingStudentId: '' }));
+            }}
+            error={errors.regardingStudentId}
+            disabled={isLoading}
+          />
+        </>
       )}
 
       {/* Category Selection */}

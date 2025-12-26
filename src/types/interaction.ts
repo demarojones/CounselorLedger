@@ -9,6 +9,7 @@ export interface Interaction {
   counselorId: string;
   studentId?: string;
   contactId?: string;
+  regardingStudentId?: string; // NEW: For contact interactions - which student is this about
   categoryId: string;
   subcategoryId?: string;
   customReason?: string;
@@ -27,6 +28,7 @@ export interface Interaction {
   counselor?: User;
   student?: Student;
   contact?: Contact;
+  regardingStudent?: Student; // NEW: The student this contact interaction is about
   category?: ReasonCategory;
   subcategory?: ReasonSubcategory;
 }
@@ -35,6 +37,7 @@ export interface InteractionFormData {
   type: 'student' | 'contact';
   studentId?: string;
   contactId?: string;
+  regardingStudentId?: string; // NEW: For contact interactions - which student is this about
   categoryId: string;
   subcategoryId?: string;
   customReason?: string;
@@ -53,6 +56,7 @@ export interface InteractionDbResponse {
   counselor_id: string;
   student_id?: string;
   contact_id?: string;
+  regarding_student_id?: string; // NEW: For contact interactions
   category_id: string;
   subcategory_id?: string;
   custom_reason?: string;

@@ -8,3 +8,4 @@ export { FollowUpList } from './FollowUpList';
 export type { FollowUpListProps } from './FollowUpList';
 export { FollowUpCompleteModal } from './FollowUpCompleteModal';
 export type { FollowUpCompleteModalProps } from './FollowUpCompleteModal';
+export { RegardingStudentSelector } from './RegardingStudentSelector';

@@ -21,7 +21,7 @@ export const reasonCategoryFormSchema = z.object({
 
 // Reason subcategory form schema
 export const reasonSubcategoryFormSchema = z.object({
-  categoryId: z.string().uuid('Invalid category ID'),
+  categoryId: z.uuid('Invalid category ID'),
   name: z
     .string()
     .min(1, 'Subcategory name is required')

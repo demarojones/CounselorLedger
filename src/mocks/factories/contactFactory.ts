@@ -33,7 +33,7 @@ const ORGANIZATIONS = [
   'Family Services',
   'Local Hospital',
   'Community Center',
-  null, // Some contacts won't have an organization
+  'Parent/Guardian', // Some contacts won't have an organization
 ];
 
 export function createContact(tenantId: string, overrides?: Partial<MockContact>): MockContact {

@@ -119,12 +119,16 @@ export function InteractionList({
         const contactName = interaction.contact
           ? `${interaction.contact.firstName} ${interaction.contact.lastName}`.toLowerCase()
           : '';
+        const regardingStudentName = interaction.regardingStudent
+          ? `${interaction.regardingStudent.firstName} ${interaction.regardingStudent.lastName}`.toLowerCase()
+          : '';
         const categoryName = interaction.category?.name.toLowerCase() || '';
         const notes = interaction.notes?.toLowerCase() || '';
 
         return (
           studentName.includes(query) ||
           contactName.includes(query) ||
+          regardingStudentName.includes(query) ||
           categoryName.includes(query) ||
           notes.includes(query)
         );
@@ -210,7 +214,11 @@ export function InteractionList({
       return `${interaction.student.firstName} ${interaction.student.lastName}`;
     }
     if (interaction.contact) {
-      return `${interaction.contact.firstName} ${interaction.contact.lastName}`;
+      const contactName = `${interaction.contact.firstName} ${interaction.contact.lastName}`;
+      if (interaction.regardingStudent) {
+        return `${contactName} (re: ${interaction.regardingStudent.firstName} ${interaction.regardingStudent.lastName})`;
+      }
+      return contactName;
     }
     return 'Unknown';
   };

@@ -149,6 +149,7 @@ export function InteractionHistory({
               <TableHead>Date</TableHead>
               <TableHead>Time</TableHead>
               <TableHead>Duration</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Notes</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -157,39 +158,60 @@ export function InteractionHistory({
           <TableBody>
             {filteredInteractions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
+                <TableCell colSpan={7} className="text-center text-muted-foreground">
                   No interactions found
                 </TableCell>
               </TableRow>
             ) : (
-              filteredInteractions.map((interaction) => (
-                <TableRow key={interaction.id}>
-                  <TableCell className="font-medium">
-                    {formatDate(interaction.startTime)}
-                  </TableCell>
-                  <TableCell>{formatTime(interaction.startTime)}</TableCell>
-                  <TableCell>{formatDuration(interaction.durationMinutes)}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                      {getCategoryName(interaction.categoryId)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="max-w-xs truncate text-sm text-muted-foreground">
-                      {interaction.notes || '—'}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onInteractionClick?.(interaction.id)}
-                    >
-                      View
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+              filteredInteractions.map((interaction) => {
+                // Determine if this is a direct interaction or a regarding interaction
+                const isDirect = interaction.studentId !== undefined;
+                const isRegarding = interaction.contactId !== undefined && interaction.regardingStudentId !== undefined;
+                
+                return (
+                  <TableRow key={interaction.id} className={isRegarding ? 'bg-blue-50' : ''}>
+                    <TableCell className="font-medium">
+                      {formatDate(interaction.startTime)}
+                    </TableCell>
+                    <TableCell>{formatTime(interaction.startTime)}</TableCell>
+                    <TableCell>{formatDuration(interaction.durationMinutes)}</TableCell>
+                    <TableCell>
+                      {isDirect ? (
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                          Direct
+                        </span>
+                      ) : isRegarding ? (
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                          Contact (Regarding)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                          Other
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
+                        {getCategoryName(interaction.categoryId)}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="max-w-xs truncate text-sm text-muted-foreground">
+                        {interaction.notes || '—'}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onInteractionClick?.(interaction.id)}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>

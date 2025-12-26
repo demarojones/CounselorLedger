@@ -10,6 +10,7 @@ export interface MockInteraction {
   counselorId: string;
   studentId?: string;
   contactId?: string;
+  regardingStudentId?: string; // NEW: For contact interactions - which student is this about
   categoryId: string;
   subcategoryId?: string;
   customReason?: string;
@@ -96,13 +97,14 @@ export function createContactInteraction(
   contactId: string,
   categoryId: string,
   subcategoryId?: string,
+  regardingStudentId?: string,
   overrides?: Partial<MockInteraction>
 ): MockInteraction {
   return createInteraction(
     tenantId,
     counselorId,
     { contactId, categoryId, subcategoryId },
-    overrides
+    { regardingStudentId, ...overrides }
   );
 }
 
@@ -134,6 +136,7 @@ export function createInteractionsForContact(
   tenantId: string,
   counselors: MockUser[],
   contact: MockContact,
+  students: MockStudent[],
   categories: MockReasonCategory[],
   subcategories: MockReasonSubcategory[],
   count: number
@@ -143,13 +146,20 @@ export function createInteractionsForContact(
     const category = faker.helpers.arrayElement(categories);
     const categorySubcategories = subcategories.filter(sub => sub.categoryId === category.id);
     const subcategory = faker.helpers.arrayElement(categorySubcategories);
+    
+    // 70% chance of having a regarding student for contact interactions
+    const regardingStudent = faker.helpers.maybe(
+      () => faker.helpers.arrayElement(students),
+      { probability: 0.7 }
+    );
 
     return createContactInteraction(
       tenantId,
       counselor.id,
       contact.id,
       category.id,
-      subcategory.id
+      subcategory.id,
+      regardingStudent?.id
     );
   });
 }
@@ -183,12 +193,19 @@ export function createRandomInteractions(
       );
     } else {
       const contact = faker.helpers.arrayElement(contacts);
+      // 70% chance of having a regarding student for contact interactions
+      const regardingStudent = faker.helpers.maybe(
+        () => faker.helpers.arrayElement(students),
+        { probability: 0.7 }
+      );
+      
       return createContactInteraction(
         tenantId,
         counselor.id,
         contact.id,
         category.id,
-        subcategory.id
+        subcategory.id,
+        regardingStudent?.id
       );
     }
   });

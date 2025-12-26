@@ -469,3 +469,78 @@
     - Add JSDoc comments to utility functions
     - Create user guide for key features
     - _Requirements: 7.1_
+
+- [x] 23. Implement "Regarding" field for contact interactions
+  - [x] 23.1 Update data models and types
+    - Add `regardingStudentId` field to Interaction interface
+    - Update InteractionFormData interface to include regarding student
+    - Add `regardingStudent` relation to populated Interaction type
+    - Update mock data factories to include regarding student associations
+    - _Requirements: 11.4_
+  
+  - [x] 23.2 Create RegardingStudentSelector component
+    - Build searchable dropdown component for selecting students
+    - Implement real-time filtering of student list
+    - Add "Add New Student" option when no match found
+    - Handle loading and error states
+    - Make component reusable for other contexts
+    - _Requirements: 11.1, 11.2, 11.3_
+  
+  - [x] 23.3 Update InteractionForm to include regarding field
+    - Add regarding student selector to contact interaction form
+    - Show/hide regarding field based on interaction type (contact only)
+    - Integrate with existing form validation
+    - Handle form submission with regarding student data
+    - _Requirements: 11.1, 11.4_
+  
+  - [x] 23.4 Update interaction display components
+    - Modify InteractionList to show regarding student for contact interactions
+    - Update InteractionDetail modal to display regarding student information
+    - Add regarding student info to calendar event tooltips
+    - Show regarding student in interaction history views
+    - _Requirements: 11.4_
+  
+  - [x] 23.5 Update student interaction history
+    - Modify student profile to include contact interactions where student is "regarding"
+    - Update interaction history query to include regarding interactions
+    - Add visual distinction between direct and regarding interactions
+    - Update interaction count calculations to include regarding interactions
+    - _Requirements: 11.5_
+  
+  - [x] 23.6 Update reporting system for regarding field
+    - Add regarding student filter to report filters component
+    - Update contact interaction reports to include regarding student data
+    - Modify report queries to filter by regarding student when selected
+    - Update export functionality to include regarding student information
+    - _Requirements: 11.6_
+  
+  - [x] 23.7 Update mock data and API handlers
+    - Modify MSW handlers to support regarding student field
+    - Update seed data to include realistic regarding student associations
+    - Add regarding student to interaction factory
+    - Update localStorage persistence to handle new field
+    - _Requirements: 11.4_
+
+- [ ]* 23.8 Write property-based tests for regarding functionality
+  - [ ]* 23.8.1 Test regarding student dropdown completeness
+    - **Feature: contact-interaction-regarding-field, Property 5: Regarding student dropdown completeness**
+    - Generate random student lists and verify dropdown shows all students with working search
+    - **Validates: Requirements 11.2**
+  
+  - [ ]* 23.8.2 Test contact interaction regarding persistence
+    - **Feature: contact-interaction-regarding-field, Property 6: Contact interaction regarding persistence**
+    - Generate random contact interactions with regarding students and verify persistence
+    - **Validates: Requirements 11.4**
+  
+  - [ ]* 23.8.3 Test student history inclusion
+    - **Feature: contact-interaction-regarding-field, Property 7: Student history inclusion**
+    - Generate random interactions and verify student history includes both direct and regarding interactions
+    - **Validates: Requirements 11.5**
+  
+  - [ ]* 23.8.4 Test regarding student report filtering
+    - **Feature: contact-interaction-regarding-field, Property 8: Regarding student report filtering**
+    - Generate random report data and verify filtering by regarding student works correctly
+    - **Validates: Requirements 11.6**
+
+- [ ] 24. Final checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

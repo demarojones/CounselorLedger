@@ -129,6 +129,19 @@ The School Counselor Ledger is a comprehensive SaaS application designed to help
 
 ### Requirement 11
 
+**User Story:** As a counselor, I want to associate contact interactions with specific students using a "Regarding" field, so that I can track when conversations with parents, teachers, or other contacts are about particular students.
+
+#### Acceptance Criteria
+
+1. WHEN a counselor creates a contact interaction THEN the system SHALL provide a "Regarding" dropdown field to select an associated student
+2. WHEN a counselor views the "Regarding" dropdown THEN the system SHALL display all existing students with searchable filtering
+3. WHEN a counselor cannot find a student in the "Regarding" dropdown THEN the system SHALL provide an option to add a new student directly from the interaction form
+4. WHEN a counselor saves a contact interaction with a "Regarding" student THEN the system SHALL store the association and display it in interaction history
+5. WHEN a counselor views a student's interaction history THEN the system SHALL include contact interactions where that student was selected in the "Regarding" field
+6. WHEN a counselor views contact interaction reports THEN the system SHALL allow filtering by the associated "Regarding" student
+
+### Requirement 12
+
 **User Story:** As a system user, I want secure authentication and authorization, so that sensitive student and counseling data remains protected.
 
 #### Acceptance Criteria

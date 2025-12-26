@@ -8,6 +8,8 @@ interface StudentProfileProps {
 }
 
 export function StudentProfile({ student, onAddInteraction }: StudentProfileProps) {
+  console.log('StudentProfile received student:', student);
+  
   const formatTime = (minutes: number): string => {
     if (minutes < 60) {
       return `${minutes} minutes`;
@@ -89,23 +91,47 @@ export function StudentProfile({ student, onAddInteraction }: StudentProfileProp
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <dt className="text-sm font-medium text-muted-foreground">Grade Level</dt>
-              <dd className="mt-1 text-sm text-gray-900">{student.gradeLevel}</dd>
+              <dt className="text-sm font-semibold text-slate-600 mb-1">Student ID</dt>
+              <dd className="text-base text-slate-900">{student.studentId || 'N/A'}</dd>
             </div>
-            {student.email && (
-              <div>
-                <dt className="text-sm font-medium text-muted-foreground">Email</dt>
-                <dd className="mt-1 text-sm text-gray-900">{student.email}</dd>
-              </div>
-            )}
-            {student.phone && (
-              <div>
-                <dt className="text-sm font-medium text-muted-foreground">Phone</dt>
-                <dd className="mt-1 text-sm text-gray-900">{student.phone}</dd>
-              </div>
-            )}
+            <div>
+              <dt className="text-sm font-semibold text-slate-600 mb-1">Full Name</dt>
+              <dd className="text-base text-slate-900">
+                {student.firstName} {student.lastName}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm font-semibold text-slate-600 mb-1">Grade Level</dt>
+              <dd className="text-base text-slate-900">
+                {student.gradeLevel ? `${student.gradeLevel}th Grade` : 'N/A'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm font-semibold text-slate-600 mb-1">Email</dt>
+              <dd className="text-base text-slate-900">
+                {student.email ? (
+                  <a href={`mailto:${student.email}`} className="text-primary hover:underline">
+                    {student.email}
+                  </a>
+                ) : (
+                  <span className="text-slate-400">Not provided</span>
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm font-semibold text-slate-600 mb-1">Phone</dt>
+              <dd className="text-base text-slate-900">
+                {student.phone ? (
+                  <a href={`tel:${student.phone}`} className="text-primary hover:underline">
+                    {student.phone}
+                  </a>
+                ) : (
+                  <span className="text-slate-400">Not provided</span>
+                )}
+              </dd>
+            </div>
           </dl>
         </CardContent>
       </Card>
@@ -117,28 +143,30 @@ export function StudentProfile({ student, onAddInteraction }: StudentProfileProp
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <dt className="text-sm font-medium text-blue-600">Total Interactions</dt>
-              <dd className="mt-2 text-3xl font-semibold text-blue-900">
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-5 border border-blue-100">
+              <dt className="text-sm font-semibold text-blue-700 mb-2">Total Interactions</dt>
+              <dd className="text-4xl font-bold text-blue-900">
                 {student.interactionCount || 0}
               </dd>
+              <p className="text-xs text-blue-600 mt-1">counseling sessions</p>
             </div>
-            <div className="bg-green-50 rounded-lg p-4">
-              <dt className="text-sm font-medium text-green-600">Total Time Spent</dt>
-              <dd className="mt-2 text-3xl font-semibold text-green-900">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-100">
+              <dt className="text-sm font-semibold text-emerald-700 mb-2">Total Time Spent</dt>
+              <dd className="text-2xl font-bold text-emerald-900">
                 {student.totalTimeSpent ? formatTime(student.totalTimeSpent) : '0 minutes'}
               </dd>
+              <p className="text-xs text-emerald-600 mt-1">of counseling time</p>
             </div>
-            <div className="bg-purple-50 rounded-lg p-4">
-              <dt className="text-sm font-medium text-purple-600">Follow-up Status</dt>
-              <dd className="mt-2 text-lg font-semibold text-purple-900">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 border border-purple-100">
+              <dt className="text-sm font-semibold text-purple-700 mb-2">Follow-up Status</dt>
+              <dd className="mt-2">
                 {student.needsFollowUp ? (
-                  <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">
-                    Needed
+                  <span className="inline-flex items-center rounded-full bg-yellow-100 px-4 py-2 text-sm font-semibold text-yellow-800 border border-yellow-200">
+                    ⚠️ Needed
                   </span>
                 ) : (
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-                    None
+                  <span className="inline-flex items-center rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-800 border border-green-200">
+                    ✓ None
                   </span>
                 )}
               </dd>

@@ -43,6 +43,7 @@ function convertInteractionFromDb(
 ): Interaction {
   const student = students.find((s) => s.id === dbInteraction.student_id);
   const contact = contacts.find((c) => c.id === dbInteraction.contact_id);
+  const regardingStudent = students.find((s) => s.id === dbInteraction.regarding_student_id);
   const category = categories.find((c) => c.id === dbInteraction.category_id);
   const subcategory = subcategories.find(
     (s) => s.id === dbInteraction.subcategory_id
@@ -54,6 +55,7 @@ function convertInteractionFromDb(
     counselorId: dbInteraction.counselor_id,
     studentId: dbInteraction.student_id,
     contactId: dbInteraction.contact_id,
+    regardingStudentId: dbInteraction.regarding_student_id,
     categoryId: dbInteraction.category_id,
     subcategoryId: dbInteraction.subcategory_id,
     customReason: dbInteraction.custom_reason,
@@ -71,6 +73,7 @@ function convertInteractionFromDb(
     updatedAt: new Date(dbInteraction.updated_at),
     student,
     contact,
+    regardingStudent,
     category,
     subcategory,
     counselor,
@@ -294,6 +297,7 @@ export function useInteractions(): UseInteractionsResult {
           counselor_id: user.id,
           student_id: data.studentId || null,
           contact_id: data.contactId || null,
+          regarding_student_id: data.regardingStudentId || null,
           category_id: data.categoryId,
           subcategory_id: data.subcategoryId || null,
           custom_reason: data.customReason || null,
@@ -339,6 +343,8 @@ export function useInteractions(): UseInteractionsResult {
           updateData.student_id = data.studentId || null;
         if (data.contactId !== undefined)
           updateData.contact_id = data.contactId || null;
+        if (data.regardingStudentId !== undefined)
+          updateData.regarding_student_id = data.regardingStudentId || null;
         if (data.categoryId !== undefined)
           updateData.category_id = data.categoryId;
         if (data.subcategoryId !== undefined)

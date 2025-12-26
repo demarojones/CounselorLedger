@@ -2,14 +2,18 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { FormSelect } from '@/components/common/FormSelect';
+import { SearchableDropdown } from '@/components/common/SearchableDropdown';
+import type { SearchableDropdownOption } from '@/components/common/SearchableDropdown';
 import { useAuth } from '@/contexts/AuthContext';
 import type { ReportFilters as ReportFiltersType } from '@/types';
+import type { Student } from '@/types/student';
 
 interface ReportFiltersProps {
   filters: ReportFiltersType;
   onFiltersChange: (filters: ReportFiltersType) => void;
   categories: Array<{ id: string; name: string }>;
   counselors?: Array<{ id: string; firstName: string; lastName: string }>;
+  students?: Student[];
   gradeLevels: string[];
 }
 
@@ -25,12 +29,20 @@ export function ReportFilters({
   onFiltersChange,
   categories,
   counselors,
+  students = [],
   gradeLevels,
 }: ReportFiltersProps) {
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
   const [localFilters, setLocalFilters] = useState<ReportFiltersType>(filters);
+
+  // Convert students to dropdown options
+  const studentOptions: SearchableDropdownOption[] = students.map((student) => ({
+    value: student.id,
+    label: `${student.firstName} ${student.lastName}`,
+    subtitle: `${student.studentId} - Grade ${student.gradeLevel}`,
+  }));
 
   const handlePresetClick = (days: number) => {
     const end = new Date();
@@ -57,6 +69,13 @@ export function ReportFilters({
     setLocalFilters({
       ...localFilters,
       counselorId: e.target.value || undefined,
+    });
+  };
+
+  const handleRegardingStudentChange = (studentId: string) => {
+    setLocalFilters({
+      ...localFilters,
+      regardingStudentId: studentId || undefined,
     });
   };
 
@@ -134,7 +153,7 @@ export function ReportFilters({
           {/* Additional Filters */}
           <div className="border-t pt-6">
             <h3 className="text-sm font-medium mb-4">Additional Filters</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Grade Level Filter */}
               <FormSelect
                 label="Grade Level"
@@ -162,6 +181,17 @@ export function ReportFilters({
                   </option>
                 ))}
               </FormSelect>
+
+              {/* Regarding Student Filter */}
+              <SearchableDropdown
+                label="Regarding Student"
+                placeholder="Filter by student..."
+                options={studentOptions}
+                value={localFilters.regardingStudentId || ''}
+                onChange={handleRegardingStudentChange}
+                emptyMessage="No students found"
+                helperText="Filter contact interactions by regarding student"
+              />
 
               {/* Counselor Filter (Admin Only) */}
               {isAdmin && counselors && (

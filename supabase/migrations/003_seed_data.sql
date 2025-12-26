@@ -8,7 +8,7 @@
 -- Create a sample school tenant
 INSERT INTO tenants (id, name, subdomain, created_at, updated_at)
 VALUES 
-  ('00000000-0000-0000-0000-000000000001', 'Demo High School', 'demo-high', NOW(), NOW())
+  ('00000000-0000-0000-0000-000000000001', 'Mayfield Elementary School', 'mayfield-elementary', NOW(), NOW())
 ON CONFLICT (subdomain) DO NOTHING;
 
 -- ============================================================================

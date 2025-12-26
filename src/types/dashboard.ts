@@ -23,6 +23,7 @@ export interface ReportFilters {
   gradeLevel?: string;
   categoryId?: string;
   counselorId?: string;
+  regardingStudentId?: string;
 }
 
 // Report data types

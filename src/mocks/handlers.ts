@@ -312,14 +312,36 @@ export const handlers = [
   http.get(`${SUPABASE_URL}/rest/v1/interactions`, ({ request }) => {
     const url = new URL(request.url);
     const order = url.searchParams.get('order');
+    const orFilter = url.searchParams.get('or');
+
+    let filteredInteractions = [...mockData.interactions];
+
+    // Handle OR filter for student queries (student_id.eq.X,regarding_student_id.eq.X)
+    if (orFilter) {
+      const orConditions = orFilter.split(',');
+      filteredInteractions = mockData.interactions.filter(interaction => {
+        return orConditions.some(condition => {
+          if (condition.startsWith('student_id.eq.')) {
+            const studentId = condition.replace('student_id.eq.', '');
+            return interaction.studentId === studentId;
+          }
+          if (condition.startsWith('regarding_student_id.eq.')) {
+            const regardingStudentId = condition.replace('regarding_student_id.eq.', '');
+            return interaction.regardingStudentId === regardingStudentId;
+          }
+          return false;
+        });
+      });
+    }
 
     // Convert to DB format (snake_case)
-    const interactions = mockData.interactions.map(i => ({
+    const interactions = filteredInteractions.map(i => ({
       id: i.id,
       tenant_id: i.tenantId,
       counselor_id: i.counselorId,
       student_id: i.studentId,
       contact_id: i.contactId,
+      regarding_student_id: i.regardingStudentId,
       category_id: i.categoryId,
       subcategory_id: i.subcategoryId,
       custom_reason: i.customReason,
@@ -357,6 +379,7 @@ export const handlers = [
         counselor_id: interaction.counselorId,
         student_id: interaction.studentId,
         contact_id: interaction.contactId,
+        regarding_student_id: interaction.regardingStudentId,
         category_id: interaction.categoryId,
         subcategory_id: interaction.subcategoryId,
         custom_reason: interaction.customReason,
@@ -389,6 +412,7 @@ export const handlers = [
       counselorId: body.counselor_id,
       studentId: body.student_id || undefined,
       contactId: body.contact_id || undefined,
+      regardingStudentId: body.regarding_student_id || undefined,
       categoryId: body.category_id,
       subcategoryId: body.subcategory_id || undefined,
       customReason: body.custom_reason || undefined,
@@ -413,6 +437,7 @@ export const handlers = [
       counselor_id: newInteraction.counselorId,
       student_id: newInteraction.studentId,
       contact_id: newInteraction.contactId,
+      regarding_student_id: newInteraction.regardingStudentId,
       category_id: newInteraction.categoryId,
       subcategory_id: newInteraction.subcategoryId,
       custom_reason: newInteraction.customReason,
@@ -444,6 +469,7 @@ export const handlers = [
         ...mockData.interactions[index],
         studentId: body.student_id !== undefined ? body.student_id : mockData.interactions[index].studentId,
         contactId: body.contact_id !== undefined ? body.contact_id : mockData.interactions[index].contactId,
+        regardingStudentId: body.regarding_student_id !== undefined ? body.regarding_student_id : mockData.interactions[index].regardingStudentId,
         categoryId: body.category_id !== undefined ? body.category_id : mockData.interactions[index].categoryId,
         subcategoryId: body.subcategory_id !== undefined ? body.subcategory_id : mockData.interactions[index].subcategoryId,
         customReason: body.custom_reason !== undefined ? body.custom_reason : mockData.interactions[index].customReason,
@@ -464,6 +490,7 @@ export const handlers = [
         counselor_id: mockData.interactions[index].counselorId,
         student_id: mockData.interactions[index].studentId,
         contact_id: mockData.interactions[index].contactId,
+        regarding_student_id: mockData.interactions[index].regardingStudentId,
         category_id: mockData.interactions[index].categoryId,
         subcategory_id: mockData.interactions[index].subcategoryId,
         custom_reason: mockData.interactions[index].customReason,

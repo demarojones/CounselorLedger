@@ -38,11 +38,11 @@ export function StudentDetail() {
 
       if (studentError) throw studentError;
 
-      // Fetch interactions for this student
+      // Fetch interactions for this student (both direct and regarding)
       const { data: interactionsData, error: interactionsError } = await supabase
         .from('interactions')
         .select('*')
-        .eq('student_id', id)
+        .or(`student_id.eq.${id},regarding_student_id.eq.${id}`)
         .order('start_time', { ascending: false });
 
       if (interactionsError) throw interactionsError;
@@ -56,19 +56,23 @@ export function StudentDetail() {
       if (categoriesError) throw categoriesError;
 
       // Transform student data
+      console.log('Raw student data from DB:', studentData);
+      
       const transformedStudent: Student = {
         id: studentData.id,
-        studentId: studentData.student_id,
-        firstName: studentData.first_name,
-        lastName: studentData.last_name,
-        gradeLevel: studentData.grade_level,
-        email: studentData.email,
-        phone: studentData.phone,
-        needsFollowUp: studentData.needs_follow_up,
-        followUpNotes: studentData.follow_up_notes,
+        studentId: studentData.student_id || '',
+        firstName: studentData.first_name || '',
+        lastName: studentData.last_name || '',
+        gradeLevel: studentData.grade_level || '',
+        email: studentData.email || null,
+        phone: studentData.phone || null,
+        needsFollowUp: studentData.needs_follow_up || false,
+        followUpNotes: studentData.follow_up_notes || null,
         createdAt: new Date(studentData.created_at),
         updatedAt: new Date(studentData.updated_at),
       };
+      
+      console.log('Transformed student:', transformedStudent);
 
       // Transform interactions data
       const transformedInteractions: Interaction[] = (
@@ -78,6 +82,7 @@ export function StudentDetail() {
         counselorId: interaction.counselor_id,
         studentId: interaction.student_id,
         contactId: interaction.contact_id,
+        regardingStudentId: interaction.regarding_student_id,
         categoryId: interaction.category_id,
         subcategoryId: interaction.subcategory_id,
         customReason: interaction.custom_reason,
