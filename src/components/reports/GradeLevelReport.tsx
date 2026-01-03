@@ -1,6 +1,15 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts';
 import type { Interaction } from '@/types';
 
 interface GradeLevelReportProps {
@@ -22,7 +31,7 @@ export function GradeLevelReport({ interactions }: GradeLevelReportProps) {
     const gradeMap = new Map<string, number>();
     let totalInteractions = 0;
 
-    interactions.forEach((interaction) => {
+    interactions.forEach(interaction => {
       if (interaction.student) {
         const grade = interaction.student.gradeLevel;
         gradeMap.set(grade, (gradeMap.get(grade) || 0) + 1);

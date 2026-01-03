@@ -1,6 +1,6 @@
 /**
  * Form Submission Utilities
- * 
+ *
  * Helper functions for handling form submissions and API calls.
  * Provides error handling, loading states, and user feedback.
  */

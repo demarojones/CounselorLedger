@@ -5,9 +5,11 @@ This directory contains all components related to contact management functionali
 ## Components
 
 ### ContactList
+
 A comprehensive table view for displaying contacts with sorting, filtering, and pagination.
 
 **Features:**
+
 - Displays contact information: name, relationship, email, phone, organization, interaction count
 - Sortable columns (click column headers to sort)
 - Real-time filtering by name, relationship, email, phone, or organization
@@ -15,15 +17,18 @@ A comprehensive table view for displaying contacts with sorting, filtering, and 
 - View and Edit action buttons for each contact
 
 **Props:**
+
 - `contacts`: Array of Contact objects
 - `interactions`: Array of Interaction objects (used to calculate interaction counts)
 - `onViewContact`: Callback when View button is clicked
 - `onEditContact`: Callback when Edit button is clicked
 
 ### ContactDetail
+
 A modal dialog that displays detailed information about a contact and their interaction history.
 
 **Features:**
+
 - Shows full contact information (email, phone, organization, notes)
 - Displays total interaction count
 - Shows recent interactions (last 5) with date, time, duration, and notes
@@ -31,6 +36,7 @@ A modal dialog that displays detailed information about a contact and their inte
 - "Edit" button to open the contact form
 
 **Props:**
+
 - `contact`: Contact object to display (or null)
 - `interactions`: Array of all interactions
 - `open`: Boolean to control modal visibility
@@ -39,9 +45,11 @@ A modal dialog that displays detailed information about a contact and their inte
 - `onEdit`: Callback when Edit button is clicked
 
 ### ContactForm
+
 A modal form for creating new contacts or editing existing ones.
 
 **Features:**
+
 - Form fields: first name, last name, relationship, email, phone, organization, notes
 - Validation for required fields (first name, last name, relationship)
 - Email format validation
@@ -50,12 +58,14 @@ A modal form for creating new contacts or editing existing ones.
 - Disabled state during submission
 
 **Props:**
+
 - `contact`: Contact object to edit (null for create mode)
 - `open`: Boolean to control modal visibility
 - `onOpenChange`: Callback when modal is opened/closed
 - `onSubmit`: Async callback with form data when form is submitted
 
 **Form Data:**
+
 ```typescript
 {
   firstName: string;
@@ -69,9 +79,11 @@ A modal form for creating new contacts or editing existing ones.
 ```
 
 ### ContactSearch
+
 A searchable dropdown component for finding and selecting contacts.
 
 **Features:**
+
 - Real-time filtering as user types
 - Searches by name, relationship, and organization
 - Displays contact name with relationship and organization as subtitle
@@ -79,6 +91,7 @@ A searchable dropdown component for finding and selecting contacts.
 - Empty state message when no results found
 
 **Props:**
+
 - `contacts`: Array of Contact objects
 - `value`: Selected contact ID
 - `onChange`: Callback with contact ID and Contact object when selection changes
@@ -134,7 +147,9 @@ function ContactsPage() {
         interactions={interactions}
         open={isDetailOpen}
         onOpenChange={setIsDetailOpen}
-        onAddInteraction={() => {/* Navigate to interaction form */}}
+        onAddInteraction={() => {
+          /* Navigate to interaction form */
+        }}
         onEdit={() => setIsFormOpen(true)}
       />
 
@@ -152,6 +167,7 @@ function ContactsPage() {
 ## Relationship Types
 
 The following relationship types are available:
+
 - Parent
 - Guardian
 - Teacher

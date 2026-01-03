@@ -41,7 +41,13 @@ const relationshipOptions: ContactRelationship[] = [
   'Other',
 ];
 
-export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {} }: ContactFormProps) {
+export function ContactForm({
+  contact,
+  open,
+  onOpenChange,
+  onSubmit,
+  errors = {},
+}: ContactFormProps) {
   const [formData, setFormData] = useState<ContactFormData>({
     firstName: '',
     lastName: '',
@@ -97,7 +103,7 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {}
   };
 
   const handleChange = (field: keyof ContactFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -112,7 +118,7 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {}
             <FormInput
               label="First Name"
               value={formData.firstName}
-              onChange={(e) => handleChange('firstName', e.target.value)}
+              onChange={e => handleChange('firstName', e.target.value)}
               error={errors.firstName}
               required
               disabled={isSubmitting}
@@ -121,7 +127,7 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {}
             <FormInput
               label="Last Name"
               value={formData.lastName}
-              onChange={(e) => handleChange('lastName', e.target.value)}
+              onChange={e => handleChange('lastName', e.target.value)}
               error={errors.lastName}
               required
               disabled={isSubmitting}
@@ -131,13 +137,13 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {}
           <FormSelect
             label="Relationship"
             value={formData.relationship}
-            onChange={(e) => handleChange('relationship', e.target.value)}
+            onChange={e => handleChange('relationship', e.target.value)}
             error={errors.relationship}
             required
             disabled={isSubmitting}
           >
             <option value="">Select relationship...</option>
-            {relationshipOptions.map((rel) => (
+            {relationshipOptions.map(rel => (
               <option key={rel} value={rel}>
                 {rel}
               </option>
@@ -149,7 +155,7 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {}
               label="Email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
+              onChange={e => handleChange('email', e.target.value)}
               error={errors.email}
               disabled={isSubmitting}
             />
@@ -158,7 +164,7 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {}
               label="Phone"
               type="tel"
               value={formData.phone}
-              onChange={(e) => handleChange('phone', e.target.value)}
+              onChange={e => handleChange('phone', e.target.value)}
               error={errors.phone}
               disabled={isSubmitting}
             />
@@ -167,7 +173,7 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {}
           <FormInput
             label="Organization"
             value={formData.organization}
-            onChange={(e) => handleChange('organization', e.target.value)}
+            onChange={e => handleChange('organization', e.target.value)}
             error={errors.organization}
             disabled={isSubmitting}
             helperText="e.g., School name, company, or department"
@@ -176,7 +182,7 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {}
           <FormTextarea
             label="Notes"
             value={formData.notes}
-            onChange={(e) => handleChange('notes', e.target.value)}
+            onChange={e => handleChange('notes', e.target.value)}
             error={errors.notes}
             disabled={isSubmitting}
             rows={4}

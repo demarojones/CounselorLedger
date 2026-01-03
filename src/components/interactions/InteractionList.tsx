@@ -46,12 +46,14 @@ export function InteractionList({
   const [studentFilter, setStudentFilter] = useState('');
   const [contactFilter, setContactFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [followUpFilter, setFollowUpFilter] = useState<'all' | 'pending' | 'overdue' | 'completed'>('all');
+  const [followUpFilter, setFollowUpFilter] = useState<'all' | 'pending' | 'overdue' | 'completed'>(
+    'all'
+  );
 
   // Student/Contact dropdown options
   const studentOptions: SearchableDropdownOption[] = useMemo(
     () =>
-      students.map((student) => ({
+      students.map(student => ({
         value: student.id,
         label: `${student.firstName} ${student.lastName}`,
         subtitle: `${student.studentId} - Grade ${student.gradeLevel}`,
@@ -61,7 +63,7 @@ export function InteractionList({
 
   const contactOptions: SearchableDropdownOption[] = useMemo(
     () =>
-      contacts.map((contact) => ({
+      contacts.map(contact => ({
         value: contact.id,
         label: `${contact.firstName} ${contact.lastName}`,
         subtitle: `${contact.relationship}${contact.organization ? ` - ${contact.organization}` : ''}`,
@@ -76,43 +78,33 @@ export function InteractionList({
     // Date range filter
     if (startDate) {
       const start = new Date(startDate);
-      filtered = filtered.filter(
-        (interaction) => new Date(interaction.startTime) >= start
-      );
+      filtered = filtered.filter(interaction => new Date(interaction.startTime) >= start);
     }
     if (endDate) {
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999); // Include the entire end date
-      filtered = filtered.filter(
-        (interaction) => new Date(interaction.startTime) <= end
-      );
+      filtered = filtered.filter(interaction => new Date(interaction.startTime) <= end);
     }
 
     // Category filter
     if (categoryFilter) {
-      filtered = filtered.filter(
-        (interaction) => interaction.categoryId === categoryFilter
-      );
+      filtered = filtered.filter(interaction => interaction.categoryId === categoryFilter);
     }
 
     // Student filter
     if (studentFilter) {
-      filtered = filtered.filter(
-        (interaction) => interaction.studentId === studentFilter
-      );
+      filtered = filtered.filter(interaction => interaction.studentId === studentFilter);
     }
 
     // Contact filter
     if (contactFilter) {
-      filtered = filtered.filter(
-        (interaction) => interaction.contactId === contactFilter
-      );
+      filtered = filtered.filter(interaction => interaction.contactId === contactFilter);
     }
 
     // Search query (searches in notes)
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((interaction) => {
+      filtered = filtered.filter(interaction => {
         const studentName = interaction.student
           ? `${interaction.student.firstName} ${interaction.student.lastName}`.toLowerCase()
           : '';
@@ -138,12 +130,10 @@ export function InteractionList({
     // Follow-up filter
     if (followUpFilter !== 'all') {
       const now = new Date();
-      filtered = filtered.filter((interaction) => {
+      filtered = filtered.filter(interaction => {
         if (followUpFilter === 'pending') {
           return (
-            interaction.needsFollowUp &&
-            !interaction.isFollowUpComplete &&
-            interaction.followUpDate
+            interaction.needsFollowUp && !interaction.isFollowUpComplete && interaction.followUpDate
           );
         }
         if (followUpFilter === 'overdue') {
@@ -162,10 +152,7 @@ export function InteractionList({
     }
 
     // Sort by most recent first
-    filtered.sort(
-      (a, b) =>
-        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
-    );
+    filtered.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
 
     return filtered;
   }, [
@@ -307,7 +294,7 @@ export function InteractionList({
             <FormInput
               placeholder="Search interactions..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
             />
 
             {/* Date Range */}
@@ -318,21 +305,13 @@ export function InteractionList({
               onChange={setStartDate}
             />
 
-            <DateTimePicker
-              label="End Date"
-              type="date"
-              value={endDate}
-              onChange={setEndDate}
-            />
+            <DateTimePicker label="End Date" type="date" value={endDate} onChange={setEndDate} />
 
             {/* Category Filter */}
             <div className="space-y-2">
-              <FormSelect
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
+              <FormSelect value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
                 <option value="">All Categories</option>
-                {categories.map((category) => (
+                {categories.map(category => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -346,7 +325,7 @@ export function InteractionList({
                 placeholder="Filter by student..."
                 options={studentOptions}
                 value={studentFilter}
-                onChange={(value) => setStudentFilter(value)}
+                onChange={value => setStudentFilter(value)}
                 emptyMessage="No students found"
               />
             )}
@@ -357,7 +336,7 @@ export function InteractionList({
                 placeholder="Filter by contact..."
                 options={contactOptions}
                 value={contactFilter}
-                onChange={(value) => setContactFilter(value)}
+                onChange={value => setContactFilter(value)}
                 emptyMessage="No contacts found"
               />
             )}
@@ -366,7 +345,9 @@ export function InteractionList({
             <div className="space-y-2">
               <FormSelect
                 value={followUpFilter}
-                onChange={(e) => setFollowUpFilter(e.target.value as 'all' | 'pending' | 'overdue' | 'completed')}
+                onChange={e =>
+                  setFollowUpFilter(e.target.value as 'all' | 'pending' | 'overdue' | 'completed')
+                }
               >
                 <option value="all">All Follow-ups</option>
                 <option value="pending">Pending Follow-ups</option>
@@ -381,8 +362,7 @@ export function InteractionList({
       {/* Results Count */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing {filteredInteractions.length} of {interactions.length}{' '}
-          interactions
+          Showing {filteredInteractions.length} of {interactions.length} interactions
         </p>
       </div>
 
@@ -411,7 +391,7 @@ export function InteractionList({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredInteractions.map((interaction) => {
+              {filteredInteractions.map(interaction => {
                 const isOverdue =
                   interaction.needsFollowUp &&
                   !interaction.isFollowUpComplete &&
@@ -419,72 +399,51 @@ export function InteractionList({
                   new Date(interaction.followUpDate) < new Date();
 
                 return (
-                <TableRow 
-                  key={interaction.id}
-                  className={isOverdue ? 'bg-red-50' : ''}
-                >
-                  <TableCell className="font-medium">
-                    {getPersonName(interaction)}
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                      {getPersonType(interaction)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="text-sm">
-                        {interaction.category?.name || 'Unknown'}
+                  <TableRow key={interaction.id} className={isOverdue ? 'bg-red-50' : ''}>
+                    <TableCell className="font-medium">{getPersonName(interaction)}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                        {getPersonType(interaction)}
                       </span>
-                      {interaction.subcategory && (
-                        <span className="text-xs text-muted-foreground">
-                          {interaction.subcategory.name}
-                        </span>
-                      )}
-                      {interaction.customReason && (
-                        <span className="text-xs text-muted-foreground italic">
-                          {interaction.customReason}
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {formatDateTime(interaction.startTime)}
-                  </TableCell>
-                  <TableCell>
-                    {formatDuration(interaction.durationMinutes)}
-                  </TableCell>
-                  <TableCell>
-                    {getFollowUpStatus(interaction)}
-                  </TableCell>
-                  <TableCell>
-                    {interaction.counselor
-                      ? `${interaction.counselor.firstName} ${interaction.counselor.lastName}`
-                      : 'Unknown'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      {onView && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onView(interaction)}
-                        >
-                          View
-                        </Button>
-                      )}
-                      {onEdit && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEdit(interaction)}
-                        >
-                          Edit
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-sm">{interaction.category?.name || 'Unknown'}</span>
+                        {interaction.subcategory && (
+                          <span className="text-xs text-muted-foreground">
+                            {interaction.subcategory.name}
+                          </span>
+                        )}
+                        {interaction.customReason && (
+                          <span className="text-xs text-muted-foreground italic">
+                            {interaction.customReason}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{formatDateTime(interaction.startTime)}</TableCell>
+                    <TableCell>{formatDuration(interaction.durationMinutes)}</TableCell>
+                    <TableCell>{getFollowUpStatus(interaction)}</TableCell>
+                    <TableCell>
+                      {interaction.counselor
+                        ? `${interaction.counselor.firstName} ${interaction.counselor.lastName}`
+                        : 'Unknown'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        {onView && (
+                          <Button variant="ghost" size="sm" onClick={() => onView(interaction)}>
+                            View
+                          </Button>
+                        )}
+                        {onEdit && (
+                          <Button variant="ghost" size="sm" onClick={() => onEdit(interaction)}>
+                            Edit
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
             </TableBody>

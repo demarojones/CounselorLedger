@@ -1,9 +1,9 @@
 /**
  * Supabase Helper Usage Examples
- * 
+ *
  * This file demonstrates how to use the Supabase helper functions
  * for common operations in the School Counselor Ledger application.
- * 
+ *
  * NOTE: This file is for reference only and should not be imported in production code.
  */
 
@@ -143,7 +143,7 @@ export function exampleSubscribeToInteractions() {
   const channel = subscribeToTable<Interaction>({
     table: 'interactions',
     event: 'INSERT',
-    callback: (payload) => {
+    callback: payload => {
       console.log('New interaction created:', payload.new);
       // Update UI with new interaction
       // e.g., refetch queries, show notification, etc.
@@ -162,7 +162,7 @@ export function exampleSubscribeToStudentUpdates(studentId: string) {
     table: 'students',
     event: 'UPDATE',
     filter: `id=eq.${studentId}`,
-    callback: (payload) => {
+    callback: payload => {
       console.log('Student updated:', payload.new);
       // Update UI with updated student data
     },
@@ -215,13 +215,9 @@ export async function exampleFetchUserContacts() {
   }
 
   // RLS policies automatically filter by tenant, but we can add additional filters
-  const { data: contacts, error } = await selectFromTable<Contact>(
-    'contacts',
-    '*',
-    {
-      orderBy: { column: 'last_name', ascending: true },
-    }
-  );
+  const { data: contacts, error } = await selectFromTable<Contact>('contacts', '*', {
+    orderBy: { column: 'last_name', ascending: true },
+  });
 
   if (error) {
     console.error('Error fetching contacts:', getUserFriendlyErrorMessage(error));
@@ -369,10 +365,7 @@ export async function exampleBatchCreateStudents(students: Partial<Student>[]) {
 
   // Use Supabase directly for batch operations
   const { supabase } = await import('./supabase');
-  const { data, error } = await supabase
-    .from('students')
-    .insert(studentsWithTenant)
-    .select();
+  const { data, error } = await supabase.from('students').insert(studentsWithTenant).select();
 
   if (error) {
     console.error('Error batch creating students:', getUserFriendlyErrorMessage(error));

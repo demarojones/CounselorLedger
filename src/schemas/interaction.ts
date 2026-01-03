@@ -24,7 +24,7 @@ export const interactionFormSchema = z
     followUpNotes: z.string().optional(),
   })
   .refine(
-    (data) => {
+    data => {
       // Either studentId or contactId must be provided
       return data.studentId || data.contactId;
     },
@@ -34,7 +34,7 @@ export const interactionFormSchema = z
     }
   )
   .refine(
-    (data) => {
+    data => {
       // If subcategory is "Custom", customReason is required
       if (data.subcategoryId) {
         // We'll check this in the component based on subcategory name
@@ -48,7 +48,7 @@ export const interactionFormSchema = z
     }
   )
   .refine(
-    (data) => {
+    data => {
       // If needsFollowUp is true, followUpDate is required
       if (data.needsFollowUp && !data.followUpDate) {
         return false;

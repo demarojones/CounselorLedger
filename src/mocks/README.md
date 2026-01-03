@@ -81,11 +81,13 @@ MSW handlers intercept Supabase API calls for:
 You can log in with any of the mock users. Here are some examples:
 
 **Tenant 1 (Lincoln High School):**
+
 - Admin: `admin@lincoln-hs.edu`
 - Counselor: `mjones@lincoln-hs.edu`
 - Counselor: `lsmith@lincoln-hs.edu`
 
 **Tenant 2 (Washington Middle School):**
+
 - Admin: `admin@washington-ms.edu`
 - Counselor: `ebrown@washington-ms.edu`
 
@@ -128,11 +130,10 @@ const student = createStudent('tenant-id', {
 });
 
 // Create an interaction for that student
-const interaction = createInteraction(
-  'tenant-id',
-  'counselor-id',
-  { studentId: student.id, categoryId: 'category-id' }
-);
+const interaction = createInteraction('tenant-id', 'counselor-id', {
+  studentId: student.id,
+  categoryId: 'category-id',
+});
 ```
 
 ## Development Workflow

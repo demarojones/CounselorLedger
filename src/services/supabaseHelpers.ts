@@ -1,6 +1,6 @@
 /**
  * Supabase Helper Functions
- * 
+ *
  * This module provides wrapper functions for common Supabase operations,
  * error handling utilities, real-time subscription helpers, and tenant context management.
  */
@@ -67,8 +67,9 @@ export function isRLSError(error: SupabaseError | null): boolean {
 export function isAuthError(error: SupabaseError | null): boolean {
   return (
     (error?.code === 'PGRST301' ||
-    error?.message?.includes('JWT') ||
-    error?.message?.includes('authentication')) ?? false
+      error?.message?.includes('JWT') ||
+      error?.message?.includes('authentication')) ??
+    false
   );
 }
 
@@ -165,6 +166,51 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
   return context?.userRole === 'ADMIN';
 }
 
+/**
+ * Validate that a user belongs to the current user's tenant
+ */
+export async function validateUserTenantAccess(userId: string): Promise<boolean> {
+  try {
+    const context = await getTenantContext();
+    if (!context) return false;
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('tenant_id')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) return false;
+
+    return data.tenant_id === context.tenantId;
+  } catch (error) {
+    console.error('Error validating user tenant access:', error);
+    return false;
+  }
+}
+
+/**
+ * Ensure all user operations respect tenant boundaries
+ */
+export async function validateTenantOperation(
+  tenantId?: string
+): Promise<{ isValid: boolean; context?: TenantContext; error?: string }> {
+  try {
+    const context = await getTenantContext();
+    if (!context) {
+      return { isValid: false, error: 'User not authenticated' };
+    }
+
+    if (tenantId && tenantId !== context.tenantId) {
+      return { isValid: false, error: 'Access denied: tenant mismatch' };
+    }
+
+    return { isValid: true, context };
+  } catch (error) {
+    return { isValid: false, error: 'Failed to validate tenant operation' };
+  }
+}
+
 // ============================================================================
 // QUERY HELPERS
 // ============================================================================
@@ -222,11 +268,7 @@ export async function selectSingleFromTable<T>(
   columns: string = '*'
 ): Promise<SupabaseResponse<T>> {
   try {
-    const { data, error } = await supabase
-      .from(table)
-      .select(columns)
-      .eq('id', id)
-      .single();
+    const { data, error } = await supabase.from(table).select(columns).eq('id', id).single();
 
     return {
       data: data as T | null,
@@ -251,11 +293,7 @@ export async function insertIntoTable<T>(
   data: Partial<T>
 ): Promise<SupabaseResponse<T>> {
   try {
-    const { data: insertedData, error } = await supabase
-      .from(table)
-      .insert(data)
-      .select()
-      .single();
+    const { data: insertedData, error } = await supabase.from(table).insert(data).select().single();
 
     return {
       data: insertedData as T | null,
@@ -306,10 +344,7 @@ export async function updateInTable<T>(
 /**
  * Generic delete query
  */
-export async function deleteFromTable(
-  table: string,
-  id: string
-): Promise<SupabaseResponse<null>> {
+export async function deleteFromTable(table: string, id: string): Promise<SupabaseResponse<null>> {
   try {
     const { error } = await supabase.from(table).delete().eq('id', id);
 
@@ -351,9 +386,7 @@ export interface RealtimePayload<T> {
 /**
  * Subscribe to real-time changes on a table
  */
-export function subscribeToTable<T>(
-  options: SubscriptionOptions<T>
-): RealtimeChannel {
+export function subscribeToTable<T>(options: SubscriptionOptions<T>): RealtimeChannel {
   const channel = supabase.channel(`${options.table}-changes`);
 
   channel

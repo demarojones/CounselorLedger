@@ -73,9 +73,8 @@ export function CalendarFilters({
         </div>
 
         <div className="space-y-2">
-          {categories.map((category) => {
-            const isSelected =
-              allSelected || selectedCategories.includes(category.id);
+          {categories.map(category => {
+            const isSelected = allSelected || selectedCategories.includes(category.id);
 
             return (
               <label

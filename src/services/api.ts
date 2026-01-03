@@ -1,6 +1,6 @@
 /**
  * API Service Layer
- * 
+ *
  * High-level API for managing contacts, students, and interactions.
  * Handles data transformation, validation, and Supabase operations.
  */
@@ -62,11 +62,7 @@ export async function fetchStudents(): Promise<SupabaseResponse<Student[]>> {
  */
 export async function fetchStudent(id: string): Promise<SupabaseResponse<Student>> {
   try {
-    const { data, error } = await supabase
-      .from('students')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { data, error } = await supabase.from('students').select('*').eq('id', id).single();
 
     if (error) {
       return {
@@ -123,11 +119,7 @@ export async function createStudent(studentData: {
       phone: studentData.phone || null,
     };
 
-    const { data, error } = await supabase
-      .from('students')
-      .insert(insertData)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('students').insert(insertData).select().single();
 
     if (error) {
       return {
@@ -177,7 +169,8 @@ export async function updateStudent(
     if (updates.email !== undefined) updateData.email = updates.email || null;
     if (updates.phone !== undefined) updateData.phone = updates.phone || null;
     if (updates.needsFollowUp !== undefined) updateData.needs_follow_up = updates.needsFollowUp;
-    if (updates.followUpNotes !== undefined) updateData.follow_up_notes = updates.followUpNotes || null;
+    if (updates.followUpNotes !== undefined)
+      updateData.follow_up_notes = updates.followUpNotes || null;
 
     const { data, error } = await supabase
       .from('students')
@@ -285,11 +278,7 @@ export async function fetchContacts(): Promise<SupabaseResponse<Contact[]>> {
  */
 export async function fetchContact(id: string): Promise<SupabaseResponse<Contact>> {
   try {
-    const { data, error } = await supabase
-      .from('contacts')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { data, error } = await supabase.from('contacts').select('*').eq('id', id).single();
 
     if (error) {
       return {
@@ -348,11 +337,7 @@ export async function createContact(contactData: {
       notes: contactData.notes || null,
     };
 
-    const { data, error } = await supabase
-      .from('contacts')
-      .insert(insertData)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('contacts').insert(insertData).select().single();
 
     if (error) {
       return {
@@ -508,11 +493,7 @@ export async function fetchInteractions(): Promise<SupabaseResponse<Interaction[
  */
 export async function fetchInteraction(id: string): Promise<SupabaseResponse<Interaction>> {
   try {
-    const { data, error } = await supabase
-      .from('interactions')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { data, error } = await supabase.from('interactions').select('*').eq('id', id).single();
 
     if (error) {
       return {
@@ -539,7 +520,9 @@ export async function fetchInteraction(id: string): Promise<SupabaseResponse<Int
 /**
  * Create a new interaction
  */
-export async function createInteraction(formData: InteractionFormData): Promise<SupabaseResponse<Interaction>> {
+export async function createInteraction(
+  formData: InteractionFormData
+): Promise<SupabaseResponse<Interaction>> {
   try {
     const context = await getTenantContext();
     if (!context) {
@@ -615,9 +598,11 @@ export async function updateInteraction(
 
     if (updates.studentId !== undefined) updateData.student_id = updates.studentId || null;
     if (updates.contactId !== undefined) updateData.contact_id = updates.contactId || null;
-    if (updates.regardingStudentId !== undefined) updateData.regarding_student_id = updates.regardingStudentId || null;
+    if (updates.regardingStudentId !== undefined)
+      updateData.regarding_student_id = updates.regardingStudentId || null;
     if (updates.categoryId !== undefined) updateData.category_id = updates.categoryId;
-    if (updates.subcategoryId !== undefined) updateData.subcategory_id = updates.subcategoryId || null;
+    if (updates.subcategoryId !== undefined)
+      updateData.subcategory_id = updates.subcategoryId || null;
     if (updates.customReason !== undefined) updateData.custom_reason = updates.customReason || null;
     if (updates.startTime !== undefined) updateData.start_time = updates.startTime;
     if (updates.durationMinutes !== undefined) {
@@ -629,8 +614,10 @@ export async function updateInteraction(
     }
     if (updates.notes !== undefined) updateData.notes = updates.notes || null;
     if (updates.needsFollowUp !== undefined) updateData.needs_follow_up = updates.needsFollowUp;
-    if (updates.followUpDate !== undefined) updateData.follow_up_date = updates.followUpDate || null;
-    if (updates.followUpNotes !== undefined) updateData.follow_up_notes = updates.followUpNotes || null;
+    if (updates.followUpDate !== undefined)
+      updateData.follow_up_date = updates.followUpDate || null;
+    if (updates.followUpNotes !== undefined)
+      updateData.follow_up_notes = updates.followUpNotes || null;
 
     const { data, error } = await supabase
       .from('interactions')

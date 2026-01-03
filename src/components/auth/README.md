@@ -5,14 +5,17 @@ This directory contains the authentication components for the School Counselor L
 ## Components
 
 ### Login
+
 The login page component with email/password form validation using Zod.
 
 ### ProtectedRoute
+
 A wrapper component that protects routes from unauthenticated access and enforces role-based permissions.
 
 ## Usage
 
 ### Basic Protected Route
+
 ```tsx
 <Route
   path="/dashboard"
@@ -25,6 +28,7 @@ A wrapper component that protects routes from unauthenticated access and enforce
 ```
 
 ### Role-Based Protected Route
+
 ```tsx
 <Route
   path="/admin"
@@ -41,11 +45,13 @@ A wrapper component that protects routes from unauthenticated access and enforce
 When `VITE_USE_MOCK_DATA=true`, you can use any of these test accounts:
 
 ### Lincoln High School (tenant1)
+
 - **Admin**: admin@lincoln-hs.edu (password: any)
 - **Counselor**: mjones@lincoln-hs.edu (password: any)
 - **Counselor**: lsmith@lincoln-hs.edu (password: any)
 
 ### Washington Middle School (tenant2)
+
 - **Admin**: admin@washington-ms.edu (password: any)
 - **Counselor**: ebrown@washington-ms.edu (password: any)
 

@@ -35,11 +35,7 @@ async function fetchStudents(): Promise<Student[]> {
 
 // Fetch single student by ID
 async function fetchStudent(id: string): Promise<Student> {
-  const { data, error } = await supabase
-    .from('students')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const { data, error } = await supabase.from('students').select('*').eq('id', id).single();
 
   if (error) throw error;
   return convertStudentFromDb(data);
@@ -90,7 +86,7 @@ interface UpdateStudentData {
 
 async function updateStudent(data: UpdateStudentData): Promise<Student> {
   const { id, ...updateFields } = data;
-  
+
   const updateData: any = {};
   if (updateFields.studentId !== undefined) updateData.student_id = updateFields.studentId;
   if (updateFields.firstName !== undefined) updateData.first_name = updateFields.firstName;
@@ -98,8 +94,10 @@ async function updateStudent(data: UpdateStudentData): Promise<Student> {
   if (updateFields.gradeLevel !== undefined) updateData.grade_level = updateFields.gradeLevel;
   if (updateFields.email !== undefined) updateData.email = updateFields.email || null;
   if (updateFields.phone !== undefined) updateData.phone = updateFields.phone || null;
-  if (updateFields.needsFollowUp !== undefined) updateData.needs_follow_up = updateFields.needsFollowUp;
-  if (updateFields.followUpNotes !== undefined) updateData.follow_up_notes = updateFields.followUpNotes || null;
+  if (updateFields.needsFollowUp !== undefined)
+    updateData.needs_follow_up = updateFields.needsFollowUp;
+  if (updateFields.followUpNotes !== undefined)
+    updateData.follow_up_notes = updateFields.followUpNotes || null;
 
   const { data: updatedStudent, error } = await supabase
     .from('students')
@@ -114,10 +112,7 @@ async function updateStudent(data: UpdateStudentData): Promise<Student> {
 
 // Delete student
 async function deleteStudent(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('students')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('students').delete().eq('id', id);
 
   if (error) throw error;
 }
@@ -167,16 +162,16 @@ export function useCreateStudent() {
 
   return useMutation({
     mutationFn: createStudent,
-    onSuccess: (newStudent) => {
+    onSuccess: newStudent => {
       // Invalidate students list to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.students });
-      
+
       // Optimistically add to cache
       queryClient.setQueryData(queryKeys.student(newStudent.id), newStudent);
-      
+
       toast.success('Student created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to create student' });
       toast.error(apiError.message);
     },
@@ -199,13 +194,13 @@ export function useUpdateStudent() {
 
   return useMutation({
     mutationFn: updateStudent,
-    onMutate: async (data) => {
+    onMutate: async data => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.student(data.id) });
-      
+
       // Snapshot previous value
       const previousStudent = queryClient.getQueryData(queryKeys.student(data.id));
-      
+
       // Optimistically update
       if (previousStudent) {
         queryClient.setQueryData(queryKeys.student(data.id), {
@@ -213,16 +208,16 @@ export function useUpdateStudent() {
           ...data,
         });
       }
-      
+
       return { previousStudent };
     },
-    onSuccess: (updatedStudent) => {
+    onSuccess: updatedStudent => {
       // Update cache with server response
       queryClient.setQueryData(queryKeys.student(updatedStudent.id), updatedStudent);
-      
+
       // Invalidate students list
       queryClient.invalidateQueries({ queryKey: queryKeys.students });
-      
+
       toast.success('Student updated successfully');
     },
     onError: (error, variables, context) => {
@@ -230,7 +225,7 @@ export function useUpdateStudent() {
       if (context?.previousStudent) {
         queryClient.setQueryData(queryKeys.student(variables.id), context.previousStudent);
       }
-      
+
       const apiError = handleApiError(error, { customMessage: 'Failed to update student' });
       toast.error(apiError.message);
     },
@@ -249,28 +244,28 @@ export function useDeleteStudent() {
 
   return useMutation({
     mutationFn: deleteStudent,
-    onMutate: async (id) => {
+    onMutate: async id => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.students });
-      
+
       // Snapshot previous value
       const previousStudents = queryClient.getQueryData(queryKeys.students);
-      
+
       // Optimistically remove from list
-      queryClient.setQueryData(queryKeys.students, (old: Student[] | undefined) => 
+      queryClient.setQueryData(queryKeys.students, (old: Student[] | undefined) =>
         old ? old.filter(s => s.id !== id) : []
       );
-      
+
       return { previousStudents };
     },
     onSuccess: (_, id) => {
       // Remove from cache
       queryClient.removeQueries({ queryKey: queryKeys.student(id) });
-      
+
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.students });
       queryClient.invalidateQueries({ queryKey: queryKeys.interactionsByStudent(id) });
-      
+
       toast.success('Student deleted successfully');
     },
     onError: (error, _, context) => {
@@ -278,7 +273,7 @@ export function useDeleteStudent() {
       if (context?.previousStudents) {
         queryClient.setQueryData(queryKeys.students, context.previousStudents);
       }
-      
+
       const apiError = handleApiError(error, { customMessage: 'Failed to delete student' });
       toast.error(apiError.message);
     },

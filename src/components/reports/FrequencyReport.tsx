@@ -27,7 +27,7 @@ export function FrequencyReport({ interactions }: FrequencyReportProps) {
       }
     >();
 
-    interactions.forEach((interaction) => {
+    interactions.forEach(interaction => {
       if (interaction.student && interaction.studentId) {
         const existing = studentMap.get(interaction.studentId);
         if (existing) {
@@ -52,7 +52,7 @@ export function FrequencyReport({ interactions }: FrequencyReportProps) {
     const sorted = [...reportData];
     sorted.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortField) {
         case 'studentName':
           comparison = a.studentName.localeCompare(b.studentName);
@@ -103,9 +103,7 @@ export function FrequencyReport({ interactions }: FrequencyReportProps) {
     <Card>
       <CardHeader>
         <CardTitle>Interaction Frequency by Student</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Students ranked by number of interactions
-        </p>
+        <p className="text-sm text-muted-foreground">Students ranked by number of interactions</p>
       </CardHeader>
       <CardContent>
         {sortedData.length > 0 ? (

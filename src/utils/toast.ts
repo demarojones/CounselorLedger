@@ -21,7 +21,7 @@ export const toast = {
       description,
     });
   },
-  promise: <T,>(
+  promise: <T>(
     promise: Promise<T>,
     {
       loading,

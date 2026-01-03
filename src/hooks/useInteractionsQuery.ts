@@ -3,11 +3,7 @@ import { supabase } from '@/services/supabase';
 import { toast } from '@/utils/toast';
 import { handleApiError } from '@/utils/errorHandling';
 import { queryKeys } from '@/lib/queryClient';
-import type {
-  Interaction,
-  InteractionFormData,
-  InteractionDbResponse,
-} from '@/types/interaction';
+import type { Interaction, InteractionFormData, InteractionDbResponse } from '@/types/interaction';
 import type { Student, StudentDbResponse } from '@/types/student';
 import type { Contact, ContactDbResponse } from '@/types/contact';
 import type {
@@ -80,11 +76,11 @@ function convertInteractionFromDb(
   subcategories: ReasonSubcategory[],
   counselors: User[]
 ): Interaction {
-  const student = students.find((s) => s.id === dbInteraction.student_id);
-  const contact = contacts.find((c) => c.id === dbInteraction.contact_id);
-  const category = categories.find((c) => c.id === dbInteraction.category_id);
-  const subcategory = subcategories.find((s) => s.id === dbInteraction.subcategory_id);
-  const counselor = counselors.find((c) => c.id === dbInteraction.counselor_id);
+  const student = students.find(s => s.id === dbInteraction.student_id);
+  const contact = contacts.find(c => c.id === dbInteraction.contact_id);
+  const category = categories.find(c => c.id === dbInteraction.category_id);
+  const subcategory = subcategories.find(s => s.id === dbInteraction.subcategory_id);
+  const counselor = counselors.find(c => c.id === dbInteraction.counselor_id);
 
   return {
     id: dbInteraction.id,
@@ -156,7 +152,7 @@ async function fetchInteractions(): Promise<Interaction[]> {
   }));
 
   // Convert interactions with all related data
-  return (interactionsData || []).map((interaction) =>
+  return (interactionsData || []).map(interaction =>
     convertInteractionFromDb(interaction, students, contacts, categories, subcategories, counselors)
   );
 }
@@ -202,12 +198,21 @@ async function fetchInteraction(id: string): Promise<Interaction> {
     updatedAt: new Date(user.updated_at || user.updatedAt || Date.now()),
   }));
 
-  return convertInteractionFromDb(interactionData, students, contacts, categories, subcategories, counselors);
+  return convertInteractionFromDb(
+    interactionData,
+    students,
+    contacts,
+    categories,
+    subcategories,
+    counselors
+  );
 }
 
 // Create interaction
 async function createInteraction(data: InteractionFormData): Promise<Interaction> {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('User not authenticated');
 
   const startTime = new Date(data.startTime);
@@ -289,7 +294,10 @@ interface CompleteFollowUpData {
   completionNotes?: string;
 }
 
-async function completeFollowUp({ id, completionNotes }: CompleteFollowUpData): Promise<Interaction> {
+async function completeFollowUp({
+  id,
+  completionNotes,
+}: CompleteFollowUpData): Promise<Interaction> {
   // Get current interaction
   const { data: interactionData, error: fetchError } = await supabase
     .from('interactions')
@@ -345,28 +353,28 @@ export function useCreateInteraction() {
 
   return useMutation({
     mutationFn: createInteraction,
-    onSuccess: (newInteraction) => {
+    onSuccess: newInteraction => {
       // Invalidate and refetch interactions
       queryClient.invalidateQueries({ queryKey: queryKeys.interactions });
-      
+
       // Add to cache
       queryClient.setQueryData(queryKeys.interaction(newInteraction.id), newInteraction);
-      
+
       // Invalidate related queries
       if (newInteraction.studentId) {
-        queryClient.invalidateQueries({ 
-          queryKey: queryKeys.interactionsByStudent(newInteraction.studentId) 
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.interactionsByStudent(newInteraction.studentId),
         });
       }
       if (newInteraction.contactId) {
-        queryClient.invalidateQueries({ 
-          queryKey: queryKeys.interactionsByContact(newInteraction.contactId) 
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.interactionsByContact(newInteraction.contactId),
         });
       }
-      
+
       toast.success('Interaction created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to create interaction' });
       toast.error(apiError.message);
     },
@@ -381,10 +389,10 @@ export function useUpdateInteraction() {
     onMutate: async ({ id, data }) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.interaction(id) });
-      
+
       // Snapshot previous value
       const previousInteraction = queryClient.getQueryData(queryKeys.interaction(id));
-      
+
       // Optimistically update
       if (previousInteraction) {
         queryClient.setQueryData(queryKeys.interaction(id), {
@@ -392,16 +400,16 @@ export function useUpdateInteraction() {
           ...data,
         });
       }
-      
+
       return { previousInteraction };
     },
-    onSuccess: (updatedInteraction) => {
+    onSuccess: updatedInteraction => {
       // Update cache
       queryClient.setQueryData(queryKeys.interaction(updatedInteraction.id), updatedInteraction);
-      
+
       // Invalidate lists
       queryClient.invalidateQueries({ queryKey: queryKeys.interactions });
-      
+
       toast.success('Interaction updated successfully');
     },
     onError: (error, variables, context) => {
@@ -409,7 +417,7 @@ export function useUpdateInteraction() {
       if (context?.previousInteraction) {
         queryClient.setQueryData(queryKeys.interaction(variables.id), context.previousInteraction);
       }
-      
+
       const apiError = handleApiError(error, { customMessage: 'Failed to update interaction' });
       toast.error(apiError.message);
     },
@@ -421,27 +429,27 @@ export function useDeleteInteraction() {
 
   return useMutation({
     mutationFn: deleteInteraction,
-    onMutate: async (id) => {
+    onMutate: async id => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.interactions });
-      
+
       // Snapshot previous value
       const previousInteractions = queryClient.getQueryData(queryKeys.interactions);
-      
+
       // Optimistically remove
       queryClient.setQueryData(queryKeys.interactions, (old: Interaction[] | undefined) =>
-        old ? old.filter((i) => i.id !== id) : []
+        old ? old.filter(i => i.id !== id) : []
       );
-      
+
       return { previousInteractions };
     },
     onSuccess: (_, id) => {
       // Remove from cache
       queryClient.removeQueries({ queryKey: queryKeys.interaction(id) });
-      
+
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.interactions });
-      
+
       toast.success('Interaction deleted successfully');
     },
     onError: (error, _, context) => {
@@ -449,7 +457,7 @@ export function useDeleteInteraction() {
       if (context?.previousInteractions) {
         queryClient.setQueryData(queryKeys.interactions, context.previousInteractions);
       }
-      
+
       const apiError = handleApiError(error, { customMessage: 'Failed to delete interaction' });
       toast.error(apiError.message);
     },
@@ -461,17 +469,17 @@ export function useCompleteFollowUp() {
 
   return useMutation({
     mutationFn: completeFollowUp,
-    onSuccess: (updatedInteraction) => {
+    onSuccess: updatedInteraction => {
       // Update cache
       queryClient.setQueryData(queryKeys.interaction(updatedInteraction.id), updatedInteraction);
-      
+
       // Invalidate lists
       queryClient.invalidateQueries({ queryKey: queryKeys.interactions });
       queryClient.invalidateQueries({ queryKey: queryKeys.followUps });
-      
+
       toast.success('Follow-up completed successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to complete follow-up' });
       toast.error(apiError.message);
     },

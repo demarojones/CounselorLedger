@@ -1,6 +1,6 @@
 /**
  * Animation Examples
- * 
+ *
  * This file demonstrates how to use the various animation features
  * implemented in the application. Use these patterns throughout the app.
  */
@@ -35,7 +35,7 @@ export function AnimationExamples() {
 
   // Example 2: Promise Toast (for async operations)
   const showPromiseToast = () => {
-    const promise = new Promise((resolve) => {
+    const promise = new Promise(resolve => {
       setTimeout(() => resolve('Data loaded'), 2000);
     });
 
@@ -143,22 +143,20 @@ toast.promise(promise, {
           <p className="text-sm text-muted-foreground mb-4">
             Show loading skeletons while data is being fetched.
           </p>
-          <Button onClick={toggleLoading}>
-            {loading ? 'Hide' : 'Show'} Loading States
-          </Button>
-          
+          <Button onClick={toggleLoading}>{loading ? 'Hide' : 'Show'} Loading States</Button>
+
           {loading && (
             <div className="space-y-6 mt-4">
               <div>
                 <h3 className="font-semibold mb-2">Table Skeleton</h3>
                 <TableSkeleton rows={3} />
               </div>
-              
+
               <div>
                 <h3 className="font-semibold mb-2">Card Skeleton</h3>
                 <CardSkeleton />
               </div>
-              
+
               <div>
                 <h3 className="font-semibold mb-2">Dashboard Skeleton</h3>
                 <DashboardSkeleton />

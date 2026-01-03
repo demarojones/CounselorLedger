@@ -42,35 +42,23 @@ export function InteractionForm({
   submitLabel = 'Save Interaction',
 }: InteractionFormProps) {
   // Form state
-  const [type, setType] = useState<'student' | 'contact'>(
-    initialData?.type || 'student'
-  );
+  const [type, setType] = useState<'student' | 'contact'>(initialData?.type || 'student');
   const [studentId, setStudentId] = useState(initialData?.studentId || '');
   const [contactId, setContactId] = useState(initialData?.contactId || '');
   const [regardingStudentId, setRegardingStudentId] = useState(
     initialData?.regardingStudentId || ''
   );
   const [categoryId, setCategoryId] = useState(initialData?.categoryId || '');
-  const [subcategoryId, setSubcategoryId] = useState(
-    initialData?.subcategoryId || ''
-  );
-  const [customReason, setCustomReason] = useState(
-    initialData?.customReason || ''
-  );
+  const [subcategoryId, setSubcategoryId] = useState(initialData?.subcategoryId || '');
+  const [customReason, setCustomReason] = useState(initialData?.customReason || '');
   const [startTime, setStartTime] = useState(initialData?.startTime || '');
   const [durationMinutes, setDurationMinutes] = useState(
     initialData?.durationMinutes?.toString() || ''
   );
   const [notes, setNotes] = useState(initialData?.notes || '');
-  const [needsFollowUp, setNeedsFollowUp] = useState(
-    initialData?.needsFollowUp || false
-  );
-  const [followUpDate, setFollowUpDate] = useState(
-    initialData?.followUpDate || ''
-  );
-  const [followUpNotes, setFollowUpNotes] = useState(
-    initialData?.followUpNotes || ''
-  );
+  const [needsFollowUp, setNeedsFollowUp] = useState(initialData?.needsFollowUp || false);
+  const [followUpDate, setFollowUpDate] = useState(initialData?.followUpDate || '');
+  const [followUpNotes, setFollowUpNotes] = useState(initialData?.followUpNotes || '');
 
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -102,22 +90,20 @@ export function InteractionForm({
   // Filter subcategories by selected category
   const filteredSubcategories = useMemo(() => {
     if (!categoryId) return [];
-    return subcategories.filter((sub) => sub.categoryId === categoryId);
+    return subcategories.filter(sub => sub.categoryId === categoryId);
   }, [categoryId, subcategories]);
 
   // Check if "Other | Custom" is selected
   const isCustomSubcategory = useMemo(() => {
     if (!subcategoryId) return false;
-    const subcategory = subcategories.find((sub) => sub.id === subcategoryId);
+    const subcategory = subcategories.find(sub => sub.id === subcategoryId);
     return subcategory?.name.toLowerCase() === 'custom';
   }, [subcategoryId, subcategories]);
 
   // Reset subcategory when category changes
   useEffect(() => {
     if (categoryId && subcategoryId) {
-      const isValid = filteredSubcategories.some(
-        (sub) => sub.id === subcategoryId
-      );
+      const isValid = filteredSubcategories.some(sub => sub.id === subcategoryId);
       if (!isValid) {
         setSubcategoryId('');
         setCustomReason('');
@@ -135,7 +121,7 @@ export function InteractionForm({
   // Convert students to dropdown options
   const studentOptions: SearchableDropdownOption[] = useMemo(
     () =>
-      students.map((student) => ({
+      students.map(student => ({
         value: student.id,
         label: `${student.firstName} ${student.lastName}`,
         subtitle: `${student.studentId} - Grade ${student.gradeLevel}`,
@@ -146,7 +132,7 @@ export function InteractionForm({
   // Convert contacts to dropdown options
   const contactOptions: SearchableDropdownOption[] = useMemo(
     () =>
-      contacts.map((contact) => ({
+      contacts.map(contact => ({
         value: contact.id,
         label: `${contact.firstName} ${contact.lastName}`,
         subtitle: `${contact.relationship}${contact.organization ? ` - ${contact.organization}` : ''}`,
@@ -178,7 +164,7 @@ export function InteractionForm({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.issues.forEach((err) => {
+        error.issues.forEach(err => {
           const field = err.path[0] as string;
           if (field) {
             newErrors[field] = err.message;
@@ -226,12 +212,12 @@ export function InteractionForm({
         <FormSelect
           id="interaction-type"
           value={type}
-          onChange={(e) => {
+          onChange={e => {
             setType(e.target.value as 'student' | 'contact');
             setStudentId('');
             setContactId('');
             setRegardingStudentId('');
-            setErrors((prev) => ({
+            setErrors(prev => ({
               ...prev,
               studentId: '',
               contactId: '',
@@ -252,9 +238,9 @@ export function InteractionForm({
           placeholder="Search for a student..."
           options={studentOptions}
           value={studentId}
-          onChange={(value) => {
+          onChange={value => {
             setStudentId(value);
-            setErrors((prev) => ({ ...prev, studentId: '' }));
+            setErrors(prev => ({ ...prev, studentId: '' }));
           }}
           error={errors.studentId}
           disabled={isLoading}
@@ -268,22 +254,22 @@ export function InteractionForm({
             placeholder="Search for a contact..."
             options={contactOptions}
             value={contactId}
-            onChange={(value) => {
+            onChange={value => {
               setContactId(value);
-              setErrors((prev) => ({ ...prev, contactId: '' }));
+              setErrors(prev => ({ ...prev, contactId: '' }));
             }}
             error={errors.contactId}
             disabled={isLoading}
             required
             emptyMessage="No contacts found"
           />
-          
+
           {/* Regarding Student Selector - only shown for contact interactions */}
           <RegardingStudentSelector
             value={regardingStudentId}
-            onChange={(value) => {
+            onChange={value => {
               setRegardingStudentId(value || '');
-              setErrors((prev) => ({ ...prev, regardingStudentId: '' }));
+              setErrors(prev => ({ ...prev, regardingStudentId: '' }));
             }}
             error={errors.regardingStudentId}
             disabled={isLoading}
@@ -299,15 +285,15 @@ export function InteractionForm({
         <FormSelect
           id="category"
           value={categoryId}
-          onChange={(e) => {
+          onChange={e => {
             setCategoryId(e.target.value);
-            setErrors((prev) => ({ ...prev, categoryId: '' }));
+            setErrors(prev => ({ ...prev, categoryId: '' }));
           }}
           error={errors.categoryId}
           disabled={isLoading}
         >
           <option value="">Select a category</option>
-          {categories.map((category) => (
+          {categories.map(category => (
             <option key={category.id} value={category.id}>
               {category.name}
             </option>
@@ -322,11 +308,11 @@ export function InteractionForm({
           <FormSelect
             id="subcategory"
             value={subcategoryId}
-            onChange={(e) => setSubcategoryId(e.target.value)}
+            onChange={e => setSubcategoryId(e.target.value)}
             disabled={isLoading}
           >
             <option value="">Select a subcategory (optional)</option>
-            {filteredSubcategories.map((subcategory) => (
+            {filteredSubcategories.map(subcategory => (
               <option key={subcategory.id} value={subcategory.id}>
                 {subcategory.name}
               </option>
@@ -341,9 +327,9 @@ export function InteractionForm({
           label="Custom Reason"
           placeholder="Enter custom reason..."
           value={customReason}
-          onChange={(e) => {
+          onChange={e => {
             setCustomReason(e.target.value);
-            setErrors((prev) => ({ ...prev, customReason: '' }));
+            setErrors(prev => ({ ...prev, customReason: '' }));
           }}
           error={errors.customReason}
           disabled={isLoading}
@@ -357,9 +343,9 @@ export function InteractionForm({
           label="Start Time"
           type="datetime-local"
           value={startTime}
-          onChange={(value) => {
+          onChange={value => {
             setStartTime(value);
-            setErrors((prev) => ({ ...prev, startTime: '' }));
+            setErrors(prev => ({ ...prev, startTime: '' }));
           }}
           error={errors.startTime}
           disabled={isLoading}
@@ -371,9 +357,9 @@ export function InteractionForm({
           type="number"
           placeholder="e.g., 30"
           value={durationMinutes}
-          onChange={(e) => {
+          onChange={e => {
             setDurationMinutes(e.target.value);
-            setErrors((prev) => ({ ...prev, durationMinutes: '' }));
+            setErrors(prev => ({ ...prev, durationMinutes: '' }));
           }}
           error={errors.durationMinutes}
           disabled={isLoading}
@@ -397,7 +383,7 @@ export function InteractionForm({
         label="Notes"
         placeholder="Add any relevant notes about this interaction..."
         value={notes}
-        onChange={(e) => setNotes(e.target.value)}
+        onChange={e => setNotes(e.target.value)}
         disabled={isLoading}
         rows={4}
       />
@@ -408,12 +394,12 @@ export function InteractionForm({
           type="checkbox"
           id="needs-follow-up"
           checked={needsFollowUp}
-          onChange={(e) => {
+          onChange={e => {
             setNeedsFollowUp(e.target.checked);
             if (!e.target.checked) {
               setFollowUpDate('');
               setFollowUpNotes('');
-              setErrors((prev) => ({ ...prev, followUpDate: '' }));
+              setErrors(prev => ({ ...prev, followUpDate: '' }));
             }
           }}
           disabled={isLoading}
@@ -431,9 +417,9 @@ export function InteractionForm({
             label="Follow-up Date"
             type="date"
             value={followUpDate}
-            onChange={(value) => {
+            onChange={value => {
               setFollowUpDate(value);
-              setErrors((prev) => ({ ...prev, followUpDate: '' }));
+              setErrors(prev => ({ ...prev, followUpDate: '' }));
             }}
             error={errors.followUpDate}
             disabled={isLoading}
@@ -444,7 +430,7 @@ export function InteractionForm({
             label="Follow-up Notes"
             placeholder="Add notes about what needs to be followed up..."
             value={followUpNotes}
-            onChange={(e) => setFollowUpNotes(e.target.value)}
+            onChange={e => setFollowUpNotes(e.target.value)}
             disabled={isLoading}
             rows={3}
           />

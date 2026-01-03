@@ -32,7 +32,7 @@ export function StudentDetail() {
 
       // Fetch student using the API
       const studentResponse = await fetchStudent(id);
-      
+
       if (studentResponse.error) {
         throw new Error(studentResponse.error.message);
       }
@@ -59,13 +59,13 @@ export function StudentDetail() {
       if (categoriesError) throw categoriesError;
 
       const transformedStudent = studentResponse.data;
-      
+
       console.log('Fetched student:', transformedStudent);
 
       // Transform interactions data
       const transformedInteractions: Interaction[] = (
         interactionsData as InteractionDbResponse[]
-      ).map((interaction) => ({
+      ).map(interaction => ({
         id: interaction.id,
         counselorId: interaction.counselor_id,
         studentId: interaction.student_id,
@@ -79,9 +79,7 @@ export function StudentDetail() {
         endTime: new Date(interaction.end_time),
         notes: interaction.notes,
         needsFollowUp: interaction.needs_follow_up,
-        followUpDate: interaction.follow_up_date
-          ? new Date(interaction.follow_up_date)
-          : undefined,
+        followUpDate: interaction.follow_up_date ? new Date(interaction.follow_up_date) : undefined,
         followUpNotes: interaction.follow_up_notes,
         isFollowUpComplete: interaction.is_follow_up_complete,
         createdAt: new Date(interaction.created_at),
@@ -164,7 +162,7 @@ export function StudentDetail() {
         ← Back to Students
       </Button>
       <StudentProfile student={student} onAddInteraction={handleAddInteraction} />
-      
+
       {/* Interaction History */}
       <div className="mt-6">
         <Card>

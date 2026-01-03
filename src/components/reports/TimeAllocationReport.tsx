@@ -21,7 +21,7 @@ export function TimeAllocationReport({ interactions }: TimeAllocationReportProps
 
     // Time by category
     const categoryMap = new Map<string, number>();
-    interactions.forEach((interaction) => {
+    interactions.forEach(interaction => {
       if (interaction.category) {
         const categoryName = interaction.category.name;
         categoryMap.set(
@@ -42,13 +42,13 @@ export function TimeAllocationReport({ interactions }: TimeAllocationReportProps
 
     // Recalculate percentages based on total
     const categoryTotal = byCategory.reduce((sum, item) => sum + item.totalMinutes, 0);
-    byCategory.forEach((item) => {
+    byCategory.forEach(item => {
       item.percentage = categoryTotal > 0 ? (item.totalMinutes / categoryTotal) * 100 : 0;
     });
 
     // Time by grade level
     const gradeMap = new Map<string, number>();
-    interactions.forEach((interaction) => {
+    interactions.forEach(interaction => {
       if (interaction.student) {
         const grade = interaction.student.gradeLevel;
         gradeMap.set(grade, (gradeMap.get(grade) || 0) + interaction.durationMinutes);
@@ -71,13 +71,13 @@ export function TimeAllocationReport({ interactions }: TimeAllocationReportProps
       });
 
     const gradeTotal = byGradeLevel.reduce((sum, item) => sum + item.totalMinutes, 0);
-    byGradeLevel.forEach((item) => {
+    byGradeLevel.forEach(item => {
       item.percentage = gradeTotal > 0 ? (item.totalMinutes / gradeTotal) * 100 : 0;
     });
 
     // Time by student (top 20)
     const studentMap = new Map<string, { studentName: string; totalMinutes: number }>();
-    interactions.forEach((interaction) => {
+    interactions.forEach(interaction => {
       if (interaction.student && interaction.studentId) {
         const existing = studentMap.get(interaction.studentId);
         const studentName = `${interaction.student.firstName} ${interaction.student.lastName}`;
@@ -137,21 +137,22 @@ export function TimeAllocationReport({ interactions }: TimeAllocationReportProps
                     cx="50%"
                     cy="50%"
                     outerRadius={100}
-                    label={(entry) => `${((entry.percent || 0) * 100).toFixed(0)}%`}
+                    label={entry => `${((entry.percent || 0) * 100).toFixed(0)}%`}
                   >
                     {reportData.byCategory.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    formatter={(value: number) => formatTime(value)}
-                  />
+                  <Tooltip formatter={(value: number) => formatTime(value)} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-2">
                 {reportData.byCategory.map((item, index) => (
-                  <div key={item.categoryName} className="flex items-center justify-between p-2 rounded hover:bg-muted">
+                  <div
+                    key={item.categoryName}
+                    className="flex items-center justify-between p-2 rounded hover:bg-muted"
+                  >
                     <div className="flex items-center gap-2">
                       <div
                         className="w-3 h-3 rounded"
@@ -161,16 +162,16 @@ export function TimeAllocationReport({ interactions }: TimeAllocationReportProps
                     </div>
                     <div className="text-right">
                       <div className="font-medium">{formatTime(item.totalMinutes)}</div>
-                      <div className="text-sm text-muted-foreground">{item.percentage.toFixed(1)}%</div>
+                      <div className="text-sm text-muted-foreground">
+                        {item.percentage.toFixed(1)}%
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-center text-muted-foreground py-8">
-              No category data available
-            </p>
+            <p className="text-center text-muted-foreground py-8">No category data available</p>
           )}
         </CardContent>
       </Card>
@@ -192,7 +193,7 @@ export function TimeAllocationReport({ interactions }: TimeAllocationReportProps
                   </tr>
                 </thead>
                 <tbody>
-                  {reportData.byGradeLevel.map((item) => (
+                  {reportData.byGradeLevel.map(item => (
                     <tr key={item.gradeLevel} className="border-t">
                       <td className="p-3 font-medium">Grade {item.gradeLevel}</td>
                       <td className="text-right p-3">{formatTime(item.totalMinutes)}</td>
@@ -203,9 +204,7 @@ export function TimeAllocationReport({ interactions }: TimeAllocationReportProps
               </table>
             </div>
           ) : (
-            <p className="text-center text-muted-foreground py-8">
-              No grade level data available
-            </p>
+            <p className="text-center text-muted-foreground py-8">No grade level data available</p>
           )}
         </CardContent>
       </Card>
@@ -238,9 +237,7 @@ export function TimeAllocationReport({ interactions }: TimeAllocationReportProps
               </table>
             </div>
           ) : (
-            <p className="text-center text-muted-foreground py-8">
-              No student data available
-            </p>
+            <p className="text-center text-muted-foreground py-8">No student data available</p>
           )}
         </CardContent>
       </Card>

@@ -85,7 +85,11 @@ export function ReasonManagement() {
   };
 
   const handleDeleteCategory = async (categoryId: string) => {
-    if (!confirm('Are you sure you want to delete this category? All subcategories will also be deleted.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete this category? All subcategories will also be deleted.'
+      )
+    ) {
       return;
     }
 
@@ -179,7 +183,9 @@ export function ReasonManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Reason Category Management</h2>
-          <p className="text-gray-600 mt-1">Manage interaction reason categories and subcategories</p>
+          <p className="text-gray-600 mt-1">
+            Manage interaction reason categories and subcategories
+          </p>
         </div>
         <Button onClick={handleCreateCategory}>
           <Plus className="w-4 h-4 mr-2" />
@@ -208,10 +214,7 @@ export function ReasonManagement() {
                     <GripVertical className="w-5 h-5 text-gray-400" />
                   </button>
                   {category.color && (
-                    <div
-                      className="w-4 h-4 rounded"
-                      style={{ backgroundColor: category.color }}
-                    />
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: category.color }} />
                   )}
                   <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
                 </div>
@@ -224,11 +227,7 @@ export function ReasonManagement() {
                     <Plus className="w-4 h-4 mr-1" />
                     Add Subcategory
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditCategory(category)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => handleEditCategory(category)}>
                     <Edit className="w-4 h-4" />
                   </Button>
                   <Button

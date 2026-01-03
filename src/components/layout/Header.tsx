@@ -7,7 +7,7 @@ interface HeaderProps {
   isSidebarCollapsed: boolean;
 }
 
-export function Header({ onMenuClick, isSidebarCollapsed }: HeaderProps) {
+export function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -60,7 +60,8 @@ export function Header({ onMenuClick, isSidebarCollapsed }: HeaderProps) {
                   <p className="text-xs text-slate-500 capitalize">{user.role.toLowerCase()}</p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold shadow-md">
-                  {user.firstName[0]}{user.lastName[0]}
+                  {user.firstName[0]}
+                  {user.lastName[0]}
                 </div>
               </div>
 

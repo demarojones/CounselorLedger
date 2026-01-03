@@ -3,7 +3,13 @@ import { Button } from '@/components/ui/button';
 import { ContactList, ContactDetail, ContactForm } from '@/components/contacts';
 import type { Contact } from '@/types/contact';
 import type { Interaction } from '@/types/interaction';
-import { fetchContacts, fetchInteractions, createContact, updateContact, deleteContact } from '@/services/api';
+import {
+  fetchContacts,
+  fetchInteractions,
+  createContact,
+  updateContact,
+  deleteContact,
+} from '@/services/api';
 import { handleFormSubmission, prepareFormData } from '@/utils/formSubmission';
 
 export function Contacts() {
@@ -43,7 +49,7 @@ export function Contacts() {
   };
 
   const handleViewContact = (contactId: string) => {
-    const contact = contacts.find((c) => c.id === contactId);
+    const contact = contacts.find(c => c.id === contactId);
     if (contact) {
       setSelectedContact(contact);
       setIsDetailOpen(true);
@@ -51,7 +57,7 @@ export function Contacts() {
   };
 
   const handleEditContact = (contactId: string) => {
-    const contact = contacts.find((c) => c.id === contactId);
+    const contact = contacts.find(c => c.id === contactId);
     if (contact) {
       setEditingContact(contact);
       setIsFormOpen(true);
@@ -79,35 +85,25 @@ export function Contacts() {
 
     if (editingContact) {
       // Update existing contact
-      await handleFormSubmission(
-        () => updateContact(editingContact.id, data as any),
-        {
-          successMessage: 'Contact updated successfully',
-          onSuccess: (updatedContact) => {
-            setContacts((prev) =>
-              prev.map((c) =>
-                c.id === editingContact.id ? updatedContact : c
-              )
-            );
-            setIsFormOpen(false);
-            setEditingContact(null);
-            setFormErrors({});
-          },
-        }
-      );
+      await handleFormSubmission(() => updateContact(editingContact.id, data as any), {
+        successMessage: 'Contact updated successfully',
+        onSuccess: updatedContact => {
+          setContacts(prev => prev.map(c => (c.id === editingContact.id ? updatedContact : c)));
+          setIsFormOpen(false);
+          setEditingContact(null);
+          setFormErrors({});
+        },
+      });
     } else {
       // Create new contact
-      await handleFormSubmission(
-        () => createContact(data as any),
-        {
-          successMessage: 'Contact created successfully',
-          onSuccess: (newContact) => {
-            setContacts((prev) => [...prev, newContact]);
-            setIsFormOpen(false);
-            setFormErrors({});
-          },
-        }
-      );
+      await handleFormSubmission(() => createContact(data as any), {
+        successMessage: 'Contact created successfully',
+        onSuccess: newContact => {
+          setContacts(prev => [...prev, newContact]);
+          setIsFormOpen(false);
+          setFormErrors({});
+        },
+      });
     }
   };
 
@@ -116,17 +112,14 @@ export function Contacts() {
       return;
     }
 
-    await handleFormSubmission(
-      () => deleteContact(contactId),
-      {
-        successMessage: 'Contact deleted successfully',
-        onSuccess: () => {
-          setContacts((prev) => prev.filter((c) => c.id !== contactId));
-          setIsDetailOpen(false);
-          setSelectedContact(null);
-        },
-      }
-    );
+    await handleFormSubmission(() => deleteContact(contactId), {
+      successMessage: 'Contact deleted successfully',
+      onSuccess: () => {
+        setContacts(prev => prev.filter(c => c.id !== contactId));
+        setIsDetailOpen(false);
+        setSelectedContact(null);
+      },
+    });
   };
 
   const handleAddInteraction = () => {
@@ -159,9 +152,13 @@ export function Contacts() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Contacts</h1>
-          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Manage external contacts and relationships.</p>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
+            Manage external contacts and relationships.
+          </p>
         </div>
-        <Button onClick={handleAddContact} className="w-full sm:w-auto">Add Contact</Button>
+        <Button onClick={handleAddContact} className="w-full sm:w-auto">
+          Add Contact
+        </Button>
       </div>
 
       <ContactList

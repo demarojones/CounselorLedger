@@ -21,7 +21,7 @@ export function useDashboardStats({
     let filteredInteractions = interactions;
 
     if (startDate || endDate) {
-      filteredInteractions = interactions.filter((interaction) => {
+      filteredInteractions = interactions.filter(interaction => {
         const interactionDate = new Date(interaction.startTime);
         if (startDate && interactionDate < startDate) return false;
         if (endDate && interactionDate > endDate) return false;
@@ -32,7 +32,7 @@ export function useDashboardStats({
     // Filter by role: counselors see only their own data, admins see all
     if (user?.role === 'COUNSELOR') {
       filteredInteractions = filteredInteractions.filter(
-        (interaction) => interaction.counselorId === user.id
+        interaction => interaction.counselorId === user.id
       );
     }
 
@@ -41,9 +41,7 @@ export function useDashboardStats({
 
     // Calculate unique students
     const uniqueStudentIds = new Set(
-      filteredInteractions
-        .filter((i) => i.studentId)
-        .map((i) => i.studentId as string)
+      filteredInteractions.filter(i => i.studentId).map(i => i.studentId as string)
     );
     const totalStudents = uniqueStudentIds.size;
 
@@ -54,12 +52,9 @@ export function useDashboardStats({
     );
 
     // Calculate category breakdown
-    const categoryMap = new Map<
-      string,
-      { count: number; name: string; color?: string }
-    >();
+    const categoryMap = new Map<string, { count: number; name: string; color?: string }>();
 
-    filteredInteractions.forEach((interaction) => {
+    filteredInteractions.forEach(interaction => {
       const categoryId = interaction.categoryId;
       const categoryName = interaction.category?.name || 'Unknown';
       const categoryColor = interaction.category?.color;
@@ -80,13 +75,11 @@ export function useDashboardStats({
     });
 
     const categoryBreakdown = Array.from(categoryMap.values())
-      .map((category) => ({
+      .map(category => ({
         categoryName: category.name,
         count: category.count,
         percentage:
-          totalInteractions > 0
-            ? Math.round((category.count / totalInteractions) * 100)
-            : 0,
+          totalInteractions > 0 ? Math.round((category.count / totalInteractions) * 100) : 0,
         color: category.color,
       }))
       .sort((a, b) => b.count - a.count);

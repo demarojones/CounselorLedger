@@ -22,7 +22,12 @@ interface StudentListProps {
 type SortField = 'name' | 'studentId' | 'gradeLevel' | 'interactionCount' | 'totalTimeSpent';
 type SortDirection = 'asc' | 'desc';
 
-export function StudentList({ students, interactions, onStudentClick, onEditStudent }: StudentListProps) {
+export function StudentList({
+  students,
+  interactions,
+  onStudentClick,
+  onEditStudent,
+}: StudentListProps) {
   const navigate = useNavigate();
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -31,22 +36,20 @@ export function StudentList({ students, interactions, onStudentClick, onEditStud
 
   // Calculate interaction stats for each student
   const studentsWithStats = useMemo(() => {
-    return students.map((student) => {
+    return students.map(student => {
       const studentInteractions = interactions.filter(
-        (interaction) => interaction.studentId === student.id
+        interaction => interaction.studentId === student.id
       );
       const interactionCount = studentInteractions.length;
       const totalTimeSpent = studentInteractions.reduce(
         (sum, interaction) => sum + interaction.durationMinutes,
         0
       );
-      
+
       // Count pending follow-ups for this student
       const followUpCount = studentInteractions.filter(
-        (interaction) =>
-          interaction.needsFollowUp &&
-          !interaction.isFollowUpComplete &&
-          interaction.followUpDate
+        interaction =>
+          interaction.needsFollowUp && !interaction.isFollowUpComplete && interaction.followUpDate
       ).length;
 
       return {
@@ -197,7 +200,7 @@ export function StudentList({ students, interactions, onStudentClick, onEditStud
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedStudents.map((student) => (
+              paginatedStudents.map(student => (
                 <TableRow key={student.id} className="cursor-pointer">
                   <TableCell className="font-medium">{student.studentId}</TableCell>
                   <TableCell>
@@ -222,7 +225,7 @@ export function StudentList({ students, interactions, onStudentClick, onEditStud
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           if (onEditStudent) {
                             onEditStudent(student);
@@ -252,14 +255,14 @@ export function StudentList({ students, interactions, onStudentClick, onEditStud
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-            {Math.min(currentPage * itemsPerPage, sortedStudents.length)} of{' '}
-            {sortedStudents.length} students
+            {Math.min(currentPage * itemsPerPage, sortedStudents.length)} of {sortedStudents.length}{' '}
+            students
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
             >
               Previous
@@ -270,7 +273,7 @@ export function StudentList({ students, interactions, onStudentClick, onEditStud
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
             >
               Next

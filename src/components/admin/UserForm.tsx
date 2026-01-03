@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { User, UserRole } from '@/types/user';
-import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/services/supabase';
+import { validateTenantOperation } from '@/services/supabaseHelpers';
 import {
   Dialog,
   DialogContent,
@@ -39,7 +39,6 @@ interface FormErrors {
 }
 
 export function UserForm({ open, onOpenChange, user, onSuccess }: UserFormProps) {
-  const { user: currentUser } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     email: '',
     firstName: '',
@@ -76,7 +75,7 @@ export function UserForm({ open, onOpenChange, user, onSuccess }: UserFormProps)
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: FormErrors = {};
-        error.issues.forEach((err) => {
+        error.issues.forEach(err => {
           const field = err.path[0] as keyof FormErrors;
           if (field) {
             newErrors[field] = err.message;
@@ -98,8 +97,19 @@ export function UserForm({ open, onOpenChange, user, onSuccess }: UserFormProps)
     setIsSubmitting(true);
 
     try {
+      // Validate tenant operation
+      const validation = await validateTenantOperation();
+      if (!validation.isValid) {
+        alert(
+          validation.error || 'Unable to determine tenant context. Please refresh and try again.'
+        );
+        return;
+      }
+
+      const { context } = validation;
+
       if (user) {
-        // Update existing user
+        // Update existing user - ensure we only update users in our tenant
         const { error: updateError } = await supabase
           .from('users')
           .update({
@@ -109,16 +119,15 @@ export function UserForm({ open, onOpenChange, user, onSuccess }: UserFormProps)
             role: formData.role,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', user.id);
+          .eq('id', user.id)
+          .eq('tenant_id', context!.tenantId); // Ensure tenant boundary
 
         if (updateError) throw updateError;
       } else {
-        // Create new user
-        // In mock mode, we'll create the user directly
-        // In production, this would trigger an invitation email via Supabase Auth
+        // Create new user - ensure tenant association
         const { error: createError } = await supabase.from('users').insert({
           id: crypto.randomUUID(),
-          tenant_id: currentUser?.tenantId,
+          tenant_id: context!.tenantId, // Explicit tenant association
           email: formData.email,
           first_name: formData.firstName,
           last_name: formData.lastName,
@@ -170,9 +179,7 @@ export function UserForm({ open, onOpenChange, user, onSuccess }: UserFormProps)
               placeholder="user@example.com"
               disabled={!!user}
             />
-            {errors.email && (
-              <p className="text-sm text-red-600">{errors.email}</p>
-            )}
+            {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
           </div>
 
           <div className="space-y-2">
@@ -184,9 +191,7 @@ export function UserForm({ open, onOpenChange, user, onSuccess }: UserFormProps)
               onChange={e => handleChange('firstName', e.target.value)}
               placeholder="John"
             />
-            {errors.firstName && (
-              <p className="text-sm text-red-600">{errors.firstName}</p>
-            )}
+            {errors.firstName && <p className="text-sm text-red-600">{errors.firstName}</p>}
           </div>
 
           <div className="space-y-2">
@@ -198,9 +203,7 @@ export function UserForm({ open, onOpenChange, user, onSuccess }: UserFormProps)
               onChange={e => handleChange('lastName', e.target.value)}
               placeholder="Doe"
             />
-            {errors.lastName && (
-              <p className="text-sm text-red-600">{errors.lastName}</p>
-            )}
+            {errors.lastName && <p className="text-sm text-red-600">{errors.lastName}</p>}
           </div>
 
           <div className="space-y-2">
@@ -213,9 +216,7 @@ export function UserForm({ open, onOpenChange, user, onSuccess }: UserFormProps)
               <option value="COUNSELOR">Counselor</option>
               <option value="ADMIN">Admin</option>
             </Select>
-            {errors.role && (
-              <p className="text-sm text-red-600">{errors.role}</p>
-            )}
+            {errors.role && <p className="text-sm text-red-600">{errors.role}</p>}
           </div>
 
           <DialogFooter>

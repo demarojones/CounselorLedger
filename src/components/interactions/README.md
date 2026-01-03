@@ -9,6 +9,7 @@ This directory contains components for managing student and contact interactions
 Displays a list of pending follow-ups with visual indicators for overdue items.
 
 **Features:**
+
 - Shows all pending follow-ups sorted by date (overdue first)
 - Visual indicators for overdue follow-ups (red background)
 - Displays student/contact name, interaction date, follow-up date, and notes
@@ -16,15 +17,16 @@ Displays a list of pending follow-ups with visual indicators for overdue items.
 - "View" button to see full interaction details
 
 **Usage:**
+
 ```tsx
 import { FollowUpList } from '@/components/interactions';
 
 <FollowUpList
   interactions={interactions}
-  onMarkComplete={(interaction) => handleMarkComplete(interaction)}
-  onViewInteraction={(interaction) => handleView(interaction)}
+  onMarkComplete={interaction => handleMarkComplete(interaction)}
+  onViewInteraction={interaction => handleView(interaction)}
   isLoading={isLoading}
-/>
+/>;
 ```
 
 ### FollowUpCompleteModal
@@ -32,12 +34,14 @@ import { FollowUpList } from '@/components/interactions';
 Modal dialog for marking follow-ups as complete with optional completion notes.
 
 **Features:**
+
 - Displays follow-up details (student/contact, date, original notes)
 - Optional completion notes field
 - Appends completion notes to interaction record with timestamp
 - Updates interaction to mark follow-up as complete
 
 **Usage:**
+
 ```tsx
 import { FollowUpCompleteModal } from '@/components/interactions';
 
@@ -48,7 +52,7 @@ import { FollowUpCompleteModal } from '@/components/interactions';
   onComplete={async (interactionId, completionNotes) => {
     await completeFollowUp(interactionId, completionNotes);
   }}
-/>
+/>;
 ```
 
 ### InteractionList
@@ -56,6 +60,7 @@ import { FollowUpCompleteModal } from '@/components/interactions';
 Enhanced with follow-up filtering and visual indicators.
 
 **New Features:**
+
 - Follow-up filter dropdown (All, Pending, Overdue, Completed)
 - Follow-up status column with badges
 - Red background highlighting for overdue follow-ups
@@ -83,6 +88,7 @@ await completeFollowUp(interactionId, 'Follow-up completed. Student is doing wel
 ```
 
 This method:
+
 - Marks the interaction's `isFollowUpComplete` as true
 - Appends completion notes to the interaction's notes field with timestamp
 - Refreshes the interactions list

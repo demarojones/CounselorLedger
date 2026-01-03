@@ -1,7 +1,12 @@
 import { useState } from 'react';
-import { UserManagement, ReasonManagement, AdminDashboard } from '@/components/admin';
+import {
+  UserManagement,
+  ReasonManagement,
+  AdminDashboard,
+  TenantManagement,
+} from '@/components/admin';
 
-type AdminTab = 'dashboard' | 'users' | 'categories';
+type AdminTab = 'dashboard' | 'users' | 'categories' | 'organization';
 
 export function Admin() {
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
@@ -9,7 +14,16 @@ export function Admin() {
   const tabs = [
     { id: 'dashboard' as AdminTab, label: 'Dashboard', description: 'System-wide analytics' },
     { id: 'users' as AdminTab, label: 'User Management', description: 'Manage counselor accounts' },
-    { id: 'categories' as AdminTab, label: 'Reason Categories', description: 'Manage interaction categories' },
+    {
+      id: 'categories' as AdminTab,
+      label: 'Reason Categories',
+      description: 'Manage interaction categories',
+    },
+    {
+      id: 'organization' as AdminTab,
+      label: 'Organization',
+      description: 'View organization settings',
+    },
   ];
 
   return (
@@ -46,6 +60,7 @@ export function Admin() {
         {activeTab === 'dashboard' && <AdminDashboard />}
         {activeTab === 'users' && <UserManagement />}
         {activeTab === 'categories' && <ReasonManagement />}
+        {activeTab === 'organization' && <TenantManagement />}
       </div>
     </div>
   );

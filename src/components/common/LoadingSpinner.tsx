@@ -24,9 +24,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         role="status"
         aria-label="Loading"
       />
-      {text && (
-        <p className="mt-2 text-sm text-gray-600">{text}</p>
-      )}
+      {text && <p className="mt-2 text-sm text-gray-600">{text}</p>}
     </div>
   );
 };

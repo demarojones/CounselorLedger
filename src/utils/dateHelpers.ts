@@ -13,13 +13,16 @@
  * formatDate(new Date(), 'long') // "January 15, 2024"
  * formatDate(new Date(), 'full') // "Monday, January 15, 2024"
  */
-export function formatDate(date: Date | string, format: 'short' | 'long' | 'full' = 'short'): string {
+export function formatDate(
+  date: Date | string,
+  format: 'short' | 'long' | 'full' = 'short'
+): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (isNaN(dateObj.getTime())) {
     return 'Invalid Date';
   }
-  
+
   switch (format) {
     case 'short':
       // MM/DD/YYYY
@@ -28,7 +31,7 @@ export function formatDate(date: Date | string, format: 'short' | 'long' | 'full
         day: '2-digit',
         year: 'numeric',
       }).format(dateObj);
-    
+
     case 'long':
       // January 1, 2024
       return new Intl.DateTimeFormat('en-US', {
@@ -36,7 +39,7 @@ export function formatDate(date: Date | string, format: 'short' | 'long' | 'full
         day: 'numeric',
         year: 'numeric',
       }).format(dateObj);
-    
+
     case 'full':
       // Monday, January 1, 2024
       return new Intl.DateTimeFormat('en-US', {
@@ -45,7 +48,7 @@ export function formatDate(date: Date | string, format: 'short' | 'long' | 'full
         day: 'numeric',
         year: 'numeric',
       }).format(dateObj);
-    
+
     default:
       return dateObj.toLocaleDateString();
   }
@@ -62,11 +65,11 @@ export function formatDate(date: Date | string, format: 'short' | 'long' | 'full
  */
 export function formatTime(date: Date | string, includeSeconds = false): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (isNaN(dateObj.getTime())) {
     return 'Invalid Time';
   }
-  
+
   return new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -86,16 +89,16 @@ export function formatTime(date: Date | string, includeSeconds = false): string 
  */
 export function formatDateTime(date: Date | string, format: 'short' | 'long' = 'short'): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (isNaN(dateObj.getTime())) {
     return 'Invalid Date/Time';
   }
-  
+
   if (format === 'short') {
     // MM/DD/YYYY, HH:MM AM/PM
     return `${formatDate(dateObj, 'short')}, ${formatTime(dateObj)}`;
   }
-  
+
   // January 1, 2024 at HH:MM AM/PM
   return `${formatDate(dateObj, 'long')} at ${formatTime(dateObj)}`;
 }
@@ -113,18 +116,18 @@ export function formatDuration(minutes: number): string {
   if (minutes < 0) {
     return '0 min';
   }
-  
+
   if (minutes < 60) {
     return `${minutes} min`;
   }
-  
+
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
-  
+
   if (remainingMinutes === 0) {
     return hours === 1 ? '1 hr' : `${hours} hrs`;
   }
-  
+
   return `${hours} hr ${remainingMinutes} min`;
 }
 
@@ -156,7 +159,7 @@ export function calculateEndTime(startTime: Date | string, durationMinutes: numb
 export function calculateDuration(startTime: Date | string, endTime: Date | string): number {
   const start = typeof startTime === 'string' ? new Date(startTime) : startTime;
   const end = typeof endTime === 'string' ? new Date(endTime) : endTime;
-  
+
   const durationMs = end.getTime() - start.getTime();
   return Math.round(durationMs / (1000 * 60));
 }
@@ -171,23 +174,23 @@ export function calculateDuration(startTime: Date | string, endTime: Date | stri
  */
 export function getRelativeTime(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (isNaN(dateObj.getTime())) {
     return 'Invalid Date';
   }
-  
+
   const now = new Date();
   const diffMs = dateObj.getTime() - now.getTime();
   const diffMinutes = Math.round(diffMs / (1000 * 60));
   const diffHours = Math.round(diffMs / (1000 * 60 * 60));
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-  
+
   // Past
   if (diffMs < 0) {
     const absDiffMinutes = Math.abs(diffMinutes);
     const absDiffHours = Math.abs(diffHours);
     const absDiffDays = Math.abs(diffDays);
-    
+
     if (absDiffMinutes < 1) {
       return 'just now';
     }
@@ -202,7 +205,7 @@ export function getRelativeTime(date: Date | string): string {
     }
     return formatDate(dateObj, 'short');
   }
-  
+
   // Future
   if (diffMinutes < 60) {
     return `in ${diffMinutes} ${diffMinutes === 1 ? 'minute' : 'minutes'}`;
@@ -226,7 +229,7 @@ export function getRelativeTime(date: Date | string): string {
 export function isToday(date: Date | string): boolean {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   const today = new Date();
-  
+
   return (
     dateObj.getDate() === today.getDate() &&
     dateObj.getMonth() === today.getMonth() &&
@@ -323,15 +326,15 @@ export function addMonths(date: Date | string, months: number): Date {
  */
 export function formatDateForInput(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (isNaN(dateObj.getTime())) {
     return '';
   }
-  
+
   const year = dateObj.getFullYear();
   const month = String(dateObj.getMonth() + 1).padStart(2, '0');
   const day = String(dateObj.getDate()).padStart(2, '0');
-  
+
   return `${year}-${month}-${day}`;
 }
 
@@ -344,14 +347,14 @@ export function formatDateForInput(date: Date | string): string {
  */
 export function formatTimeForInput(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (isNaN(dateObj.getTime())) {
     return '';
   }
-  
+
   const hours = String(dateObj.getHours()).padStart(2, '0');
   const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-  
+
   return `${hours}:${minutes}`;
 }
 
@@ -364,11 +367,11 @@ export function formatTimeForInput(date: Date | string): string {
  */
 export function formatDateTimeForInput(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (isNaN(dateObj.getTime())) {
     return '';
   }
-  
+
   return `${formatDateForInput(dateObj)}T${formatTimeForInput(dateObj)}`;
 }
 
@@ -383,7 +386,7 @@ export function formatDateTimeForInput(date: Date | string): string {
 export function parseDateRange(range: string): { startDate: Date; endDate: Date } {
   const endDate = new Date();
   let startDate = new Date();
-  
+
   switch (range.toLowerCase()) {
     case 'today':
       startDate = startOfDay(new Date());
@@ -414,6 +417,6 @@ export function parseDateRange(range: string): { startDate: Date; endDate: Date 
     default:
       startDate = addDays(new Date(), -30);
   }
-  
+
   return { startDate, endDate };
 }

@@ -9,6 +9,7 @@ This directory contains components for the calendar interface that displays and 
 The main calendar component built with FullCalendar. Displays interactions as events with support for multiple views (month, week, day).
 
 **Features:**
+
 - Month, week, and day views
 - Time grid display (7 AM - 6 PM)
 - Color-coded events by category
@@ -18,6 +19,7 @@ The main calendar component built with FullCalendar. Displays interactions as ev
 - Click empty date to create new interaction
 
 **Props:**
+
 - `events`: Array of calendar events (transformed from interactions)
 - `view`: Current view type ('dayGridMonth' | 'timeGridWeek' | 'timeGridDay')
 - `onEventClick`: Handler for clicking an event
@@ -25,6 +27,7 @@ The main calendar component built with FullCalendar. Displays interactions as ev
 - `onEventDrop`: Handler for drag-and-drop rescheduling
 
 **Ref Methods:**
+
 - `changeView(view)`: Change the calendar view
 - `today()`: Navigate to today
 - `next()`: Navigate to next period
@@ -35,6 +38,7 @@ The main calendar component built with FullCalendar. Displays interactions as ev
 Modal dialog for creating and editing interactions from the calendar.
 
 **Features:**
+
 - Create new interaction with pre-filled date
 - Edit existing interaction
 - Full interaction form with validation
@@ -43,6 +47,7 @@ Modal dialog for creating and editing interactions from the calendar.
 - Duration and time calculation
 
 **Props:**
+
 - `open`: Modal open state
 - `onOpenChange`: Handler for modal state changes
 - `interaction`: Existing interaction to edit (optional)
@@ -59,6 +64,7 @@ Modal dialog for creating and editing interactions from the calendar.
 Sidebar component with calendar controls and category filters.
 
 **Features:**
+
 - View switcher (Month/Week/Day)
 - Today button
 - Category filter checkboxes
@@ -66,6 +72,7 @@ Sidebar component with calendar controls and category filters.
 - Clear filters button
 
 **Props:**
+
 - `categories`: Array of reason categories
 - `selectedCategories`: Array of selected category IDs
 - `onCategoryToggle`: Handler for toggling category filter
@@ -98,6 +105,7 @@ Custom CSS for FullCalendar to match the application theme:
 - Responsive design
 
 **Event Color Classes:**
+
 - `.event-academic`: Blue (#3b82f6)
 - `.event-behavioral`: Red (#ef4444)
 - `.event-social`: Green (#10b981)
@@ -115,32 +123,44 @@ import { transformInteractionsToEvents } from '@/utils/calendarHelpers';
 function CalendarPage() {
   const { interactions, categories } = useInteractions();
   const [selectedCategories, setSelectedCategories] = useState([]);
-  
+
   // Filter interactions
-  const filteredInteractions = interactions.filter(i => 
-    selectedCategories.length === 0 || selectedCategories.includes(i.categoryId)
+  const filteredInteractions = interactions.filter(
+    i => selectedCategories.length === 0 || selectedCategories.includes(i.categoryId)
   );
-  
+
   // Transform to events
   const events = transformInteractionsToEvents(filteredInteractions);
-  
+
   return (
     <div>
       <CalendarFilters
         categories={categories}
         selectedCategories={selectedCategories}
-        onCategoryToggle={(id) => {/* toggle logic */}}
+        onCategoryToggle={id => {
+          /* toggle logic */
+        }}
         onClearFilters={() => setSelectedCategories([])}
         view="dayGridMonth"
-        onViewChange={(view) => {/* change view */}}
-        onToday={() => {/* go to today */}}
+        onViewChange={view => {
+          /* change view */
+        }}
+        onToday={() => {
+          /* go to today */
+        }}
       />
-      
+
       <CalendarView
         events={events}
-        onEventClick={(info) => {/* show detail */}}
-        onDateSelect={(info) => {/* create interaction */}}
-        onEventDrop={(info) => {/* reschedule */}}
+        onEventClick={info => {
+          /* show detail */
+        }}
+        onDateSelect={info => {
+          /* create interaction */
+        }}
+        onEventDrop={info => {
+          /* reschedule */
+        }}
       />
     </div>
   );

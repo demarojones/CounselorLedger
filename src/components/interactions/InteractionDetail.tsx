@@ -53,7 +53,9 @@ export function InteractionDetail({
     }
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    return mins > 0 ? `${hours} hour${hours > 1 ? 's' : ''} ${mins} minutes` : `${hours} hour${hours > 1 ? 's' : ''}`;
+    return mins > 0
+      ? `${hours} hour${hours > 1 ? 's' : ''} ${mins} minutes`
+      : `${hours} hour${hours > 1 ? 's' : ''}`;
   };
 
   const getPersonInfo = () => {
@@ -90,15 +92,11 @@ export function InteractionDetail({
         <div className="space-y-6">
           {/* Person Information */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              {personInfo.type}
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground">{personInfo.type}</h3>
             <div>
               <p className="text-lg font-semibold">{personInfo.name}</p>
               {personInfo.details && (
-                <p className="text-sm text-muted-foreground">
-                  {personInfo.details}
-                </p>
+                <p className="text-sm text-muted-foreground">{personInfo.details}</p>
               )}
             </div>
           </div>
@@ -106,15 +104,14 @@ export function InteractionDetail({
           {/* Regarding Student Information (for contact interactions) */}
           {interaction.contact && interaction.regardingStudent && (
             <div className="space-y-2 p-3 bg-blue-50 rounded-md border-l-4 border-blue-200">
-              <h3 className="text-sm font-medium text-blue-800">
-                Regarding Student
-              </h3>
+              <h3 className="text-sm font-medium text-blue-800">Regarding Student</h3>
               <div>
                 <p className="font-medium text-blue-900">
                   {interaction.regardingStudent.firstName} {interaction.regardingStudent.lastName}
                 </p>
                 <p className="text-sm text-blue-700">
-                  {interaction.regardingStudent.studentId} - Grade {interaction.regardingStudent.gradeLevel}
+                  {interaction.regardingStudent.studentId} - Grade{' '}
+                  {interaction.regardingStudent.gradeLevel}
                 </p>
               </div>
             </div>
@@ -122,22 +119,14 @@ export function InteractionDetail({
 
           {/* Category Information */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Reason
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Reason</h3>
             <div>
-              <p className="font-medium">
-                {interaction.category?.name || 'Unknown Category'}
-              </p>
+              <p className="font-medium">{interaction.category?.name || 'Unknown Category'}</p>
               {interaction.subcategory && (
-                <p className="text-sm text-muted-foreground">
-                  {interaction.subcategory.name}
-                </p>
+                <p className="text-sm text-muted-foreground">{interaction.subcategory.name}</p>
               )}
               {interaction.customReason && (
-                <p className="text-sm italic mt-1">
-                  Custom: {interaction.customReason}
-                </p>
+                <p className="text-sm italic mt-1">Custom: {interaction.customReason}</p>
               )}
             </div>
           </div>
@@ -145,33 +134,25 @@ export function InteractionDetail({
           {/* Time Information */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Start Time
-              </h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Start Time</h3>
               <p>{formatDateTime(interaction.startTime)}</p>
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                End Time
-              </h3>
+              <h3 className="text-sm font-medium text-muted-foreground">End Time</h3>
               <p>{formatDateTime(interaction.endTime)}</p>
             </div>
           </div>
 
           {/* Duration */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Duration
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Duration</h3>
             <p>{formatDuration(interaction.durationMinutes)}</p>
           </div>
 
           {/* Counselor */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Counselor
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Counselor</h3>
             <p>
               {interaction.counselor
                 ? `${interaction.counselor.firstName} ${interaction.counselor.lastName}`
@@ -182,13 +163,9 @@ export function InteractionDetail({
           {/* Notes */}
           {interaction.notes && (
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Notes
-              </h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Notes</h3>
               <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm whitespace-pre-wrap">
-                  {interaction.notes}
-                </p>
+                <p className="text-sm whitespace-pre-wrap">{interaction.notes}</p>
               </div>
             </div>
           )}
@@ -211,23 +188,15 @@ export function InteractionDetail({
 
               {interaction.followUpDate && (
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Follow-up Date
-                  </p>
-                  <p className="text-sm">
-                    {formatDate(interaction.followUpDate)}
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Follow-up Date</p>
+                  <p className="text-sm">{formatDate(interaction.followUpDate)}</p>
                 </div>
               )}
 
               {interaction.followUpNotes && (
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Follow-up Notes
-                  </p>
-                  <p className="text-sm whitespace-pre-wrap">
-                    {interaction.followUpNotes}
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Follow-up Notes</p>
+                  <p className="text-sm whitespace-pre-wrap">{interaction.followUpNotes}</p>
                 </div>
               )}
             </div>
@@ -239,13 +208,12 @@ export function InteractionDetail({
               <span>Created:</span>
               <span>{formatDateTime(interaction.createdAt)}</span>
             </div>
-            {interaction.updatedAt &&
-              interaction.updatedAt !== interaction.createdAt && (
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Last Updated:</span>
-                  <span>{formatDateTime(interaction.updatedAt)}</span>
-                </div>
-              )}
+            {interaction.updatedAt && interaction.updatedAt !== interaction.createdAt && (
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Last Updated:</span>
+                <span>{formatDateTime(interaction.updatedAt)}</span>
+              </div>
+            )}
           </div>
         </div>
 

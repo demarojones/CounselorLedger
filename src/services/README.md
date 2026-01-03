@@ -5,17 +5,21 @@ This directory contains the Supabase service layer for the School Counselor Ledg
 ## Files Overview
 
 ### `supabase.ts`
+
 Core Supabase client initialization and configuration. This file creates the Supabase client instance used throughout the application.
 
 **Key Features:**
+
 - Initializes Supabase client with environment variables
 - Configures authentication settings (auto-refresh, session persistence)
 - Exports Supabase types for TypeScript support
 
 ### `auth.ts`
+
 Authentication service with functions for user login, logout, session management, and auth state monitoring.
 
 **Key Functions:**
+
 - `signIn(credentials)` - Authenticate user with email/password
 - `signOut()` - Sign out current user
 - `getCurrentUser()` - Get currently authenticated user
@@ -24,11 +28,13 @@ Authentication service with functions for user login, logout, session management
 - `onAuthStateChange(callback)` - Subscribe to auth state changes
 
 ### `supabaseHelpers.ts`
+
 Comprehensive helper functions for common Supabase operations, error handling, tenant context, and real-time subscriptions.
 
 **Key Features:**
 
 #### Error Handling
+
 - `handleSupabaseError()` - Transform Supabase errors to application format
 - `getUserFriendlyErrorMessage()` - Get user-friendly error messages
 - `isRLSError()` - Check for Row Level Security violations
@@ -37,11 +43,13 @@ Comprehensive helper functions for common Supabase operations, error handling, t
 - `isForeignKeyError()` - Check for foreign key violations
 
 #### Tenant Context
+
 - `getTenantContext()` - Get current user's tenant information
 - `verifyTenantAccess()` - Verify user belongs to specified tenant
 - `isCurrentUserAdmin()` - Check if current user has admin role
 
 #### Query Helpers
+
 - `selectFromTable()` - Generic SELECT query with ordering and pagination
 - `selectSingleFromTable()` - Fetch single record by ID
 - `insertIntoTable()` - Generic INSERT query
@@ -51,6 +59,7 @@ Comprehensive helper functions for common Supabase operations, error handling, t
 - `batchUpdate()` - Update multiple records matching condition
 
 #### Real-time Subscriptions
+
 - `subscribeToTable()` - Subscribe to real-time changes on any table
 - `unsubscribeFromChannel()` - Clean up subscription
 - `subscribeToUserInteractions()` - Subscribe to interaction changes
@@ -58,14 +67,17 @@ Comprehensive helper functions for common Supabase operations, error handling, t
 - `subscribeToContacts()` - Subscribe to contact changes
 
 #### Utility Functions
+
 - `isSupabaseConfigured()` - Check if Supabase is properly configured
 - `isMockDataMode()` - Check if mock data mode is enabled
 - `checkDatabaseConnection()` - Verify database connectivity
 
 ### `supabaseExamples.ts`
+
 Comprehensive examples demonstrating how to use the Supabase helper functions in various scenarios.
 
 **Includes Examples For:**
+
 - Fetching data with error handling
 - Creating, updating, and deleting records
 - Real-time subscriptions
@@ -76,6 +88,7 @@ Comprehensive examples demonstrating how to use the Supabase helper functions in
 - Batch operations
 
 ### `apiClient.ts`
+
 Legacy API client (may be used for non-Supabase endpoints or future extensions).
 
 ## Usage Examples
@@ -109,7 +122,7 @@ import { Student } from '../types/student';
 
 async function createStudent(studentData: Partial<Student>) {
   const context = await getTenantContext();
-  
+
   const { data, error } = await insertIntoTable<Student>('students', {
     ...studentData,
     tenant_id: context?.tenantId,
@@ -133,7 +146,7 @@ function setupInteractionSubscription(onNewInteraction: (interaction: Interactio
   const channel = subscribeToTable<Interaction>({
     table: 'interactions',
     event: 'INSERT',
-    callback: (payload) => {
+    callback: payload => {
       if (payload.new) {
         onNewInteraction(payload.new);
       }
@@ -255,17 +268,20 @@ When switching from mock data to real Supabase:
 ## Troubleshooting
 
 ### "Row Level Security policy violation"
+
 - Ensure user is authenticated
 - Verify user exists in `users` table (not just `auth.users`)
 - Check user has correct `tenant_id`
 - Review RLS policies in migration files
 
 ### "Invalid API key"
+
 - Verify `VITE_SUPABASE_ANON_KEY` is correct
 - Check for extra spaces or line breaks in `.env.local`
 - Ensure using anon key, not service_role key
 
 ### Real-time subscriptions not working
+
 - Check Supabase project has real-time enabled
 - Verify subscription channel name is unique
 - Ensure proper cleanup with `unsubscribeFromChannel()`

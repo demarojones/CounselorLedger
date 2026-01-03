@@ -1,9 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { InteractionForm } from '@/components/interactions/InteractionForm';
 import type { InteractionFormData, Interaction } from '@/types/interaction';
 import type { Student } from '@/types/student';
@@ -69,9 +64,7 @@ export function EventModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {interaction ? 'Edit Interaction' : 'Create Interaction'}
-          </DialogTitle>
+          <DialogTitle>{interaction ? 'Edit Interaction' : 'Create Interaction'}</DialogTitle>
         </DialogHeader>
 
         <InteractionForm

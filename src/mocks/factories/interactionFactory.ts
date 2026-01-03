@@ -146,12 +146,11 @@ export function createInteractionsForContact(
     const category = faker.helpers.arrayElement(categories);
     const categorySubcategories = subcategories.filter(sub => sub.categoryId === category.id);
     const subcategory = faker.helpers.arrayElement(categorySubcategories);
-    
+
     // 70% chance of having a regarding student for contact interactions
-    const regardingStudent = faker.helpers.maybe(
-      () => faker.helpers.arrayElement(students),
-      { probability: 0.7 }
-    );
+    const regardingStudent = faker.helpers.maybe(() => faker.helpers.arrayElement(students), {
+      probability: 0.7,
+    });
 
     return createContactInteraction(
       tenantId,
@@ -194,11 +193,10 @@ export function createRandomInteractions(
     } else {
       const contact = faker.helpers.arrayElement(contacts);
       // 70% chance of having a regarding student for contact interactions
-      const regardingStudent = faker.helpers.maybe(
-        () => faker.helpers.arrayElement(students),
-        { probability: 0.7 }
-      );
-      
+      const regardingStudent = faker.helpers.maybe(() => faker.helpers.arrayElement(students), {
+        probability: 0.7,
+      });
+
       return createContactInteraction(
         tenantId,
         counselor.id,

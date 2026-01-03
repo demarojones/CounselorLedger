@@ -11,9 +11,7 @@ export function Unauthorized() {
         </div>
         <h1 className="text-4xl font-bold text-gray-900">Access Denied</h1>
         <p className="mt-4 text-xl text-gray-600">You don't have permission to access this page</p>
-        <p className="mt-2 text-gray-500">
-          This page is restricted to administrators only.
-        </p>
+        <p className="mt-2 text-gray-500">This page is restricted to administrators only.</p>
         <div className="mt-6">
           <Link to="/dashboard">
             <Button>Go to Dashboard</Button>

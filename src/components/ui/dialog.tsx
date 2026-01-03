@@ -66,10 +66,7 @@ DialogContent.displayName = 'DialogContent';
 
 interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-const DialogHeader: React.FC<DialogHeaderProps> = ({
-  className,
-  ...props
-}) => (
+const DialogHeader: React.FC<DialogHeaderProps> = ({ className, ...props }) => (
   <div
     className={cn(
       'flex flex-col space-y-2 text-center sm:text-left pb-4 border-b border-slate-100',
@@ -82,10 +79,7 @@ DialogHeader.displayName = 'DialogHeader';
 
 interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-const DialogFooter: React.FC<DialogFooterProps> = ({
-  className,
-  ...props
-}) => (
+const DialogFooter: React.FC<DialogFooterProps> = ({ className, ...props }) => (
   <div
     className={cn(
       'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4 border-t border-slate-100',
@@ -102,36 +96,20 @@ const DialogTitle = React.forwardRef<HTMLHeadingElement, DialogTitleProps>(
   ({ className, ...props }, ref) => (
     <h2
       ref={ref}
-      className={cn(
-        'text-xl font-bold leading-none tracking-tight text-slate-900',
-        className
-      )}
+      className={cn('text-xl font-bold leading-none tracking-tight text-slate-900', className)}
       {...props}
     />
   )
 );
 DialogTitle.displayName = 'DialogTitle';
 
-interface DialogDescriptionProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {}
+interface DialogDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
 
-const DialogDescription = React.forwardRef<
-  HTMLParagraphElement,
-  DialogDescriptionProps
->(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn('text-sm text-slate-600', className)}
-    {...props}
-  />
-));
+const DialogDescription = React.forwardRef<HTMLParagraphElement, DialogDescriptionProps>(
+  ({ className, ...props }, ref) => (
+    <p ref={ref} className={cn('text-sm text-slate-600', className)} {...props} />
+  )
+);
 DialogDescription.displayName = 'DialogDescription';
 
-export {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-};
+export { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription };

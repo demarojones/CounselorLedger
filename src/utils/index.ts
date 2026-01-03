@@ -29,3 +29,12 @@ export * from './toast';
 
 // Validation utilities
 export * from './validation';
+
+// Rate limiting utilities
+export * from './rateLimiter';
+
+// Client information utilities
+export * from './clientInfo';
+
+// Token security utilities
+export * from './tokenSecurity';

@@ -24,7 +24,7 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
   const createStudent = useCreateStudent();
   const updateStudent = useUpdateStudent();
   const isEditing = !!student;
-  
+
   const [formData, setFormData] = useState({
     studentId: '',
     firstName: '',
@@ -159,10 +159,9 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit Student' : 'Add New Student'}</DialogTitle>
           <DialogDescription>
-            {isEditing 
-              ? 'Update the student\'s information below. Fields marked with * are required.'
-              : 'Enter the student\'s information below. Fields marked with * are required.'
-            }
+            {isEditing
+              ? "Update the student's information below. Fields marked with * are required."
+              : "Enter the student's information below. Fields marked with * are required."}
           </DialogDescription>
         </DialogHeader>
 
@@ -171,7 +170,7 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
             label="Student ID"
             placeholder="e.g., S12345"
             value={formData.studentId}
-            onChange={(e) => handleChange('studentId', e.target.value)}
+            onChange={e => handleChange('studentId', e.target.value)}
             error={errors.studentId}
             required
           />
@@ -181,7 +180,7 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
               label="First Name"
               placeholder="John"
               value={formData.firstName}
-              onChange={(e) => handleChange('firstName', e.target.value)}
+              onChange={e => handleChange('firstName', e.target.value)}
               error={errors.firstName}
               required
             />
@@ -190,7 +189,7 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
               label="Last Name"
               placeholder="Doe"
               value={formData.lastName}
-              onChange={(e) => handleChange('lastName', e.target.value)}
+              onChange={e => handleChange('lastName', e.target.value)}
               error={errors.lastName}
               required
             />
@@ -199,7 +198,7 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
           <FormSelect
             label="Grade Level"
             value={formData.gradeLevel}
-            onChange={(e) => handleChange('gradeLevel', e.target.value)}
+            onChange={e => handleChange('gradeLevel', e.target.value)}
             error={errors.gradeLevel}
             required
           >
@@ -215,7 +214,7 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
             type="email"
             placeholder="student@school.edu"
             value={formData.email}
-            onChange={(e) => handleChange('email', e.target.value)}
+            onChange={e => handleChange('email', e.target.value)}
             error={errors.email}
           />
 
@@ -224,23 +223,16 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
             type="tel"
             placeholder="(555) 123-4567"
             value={formData.phone}
-            onChange={(e) => handleChange('phone', e.target.value)}
+            onChange={e => handleChange('phone', e.target.value)}
             error={errors.phone}
           />
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={isPending}
-            >
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isPending}>
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isEditing ? 'Update Student' : 'Add Student'}
             </Button>
           </DialogFooter>

@@ -18,28 +18,80 @@ export interface SessionData {
 }
 
 /**
- * Transform Supabase user response to application User type
+ * Get user data from application database using auth user ID
  */
-function transformSupabaseUser(supabaseUser: {
+async function getApplicationUser(authUserId: string): Promise<User | null> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select(
+        `
+        id,
+        tenant_id,
+        email,
+        first_name,
+        last_name,
+        role,
+        is_active,
+        created_at,
+        updated_at
+      `
+      )
+      .eq('id', authUserId)
+      .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return {
+      id: data.id,
+      email: data.email,
+      firstName: data.first_name,
+      lastName: data.last_name,
+      role: data.role as 'ADMIN' | 'COUNSELOR',
+      tenantId: data.tenant_id,
+      isActive: data.is_active,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
+    };
+  } catch (error) {
+    console.error('Error fetching application user:', error);
+    return null;
+  }
+}
+
+/**
+ * Transform Supabase user response to application User type
+ * Now fetches user data from application database instead of relying on metadata
+ */
+async function transformSupabaseUser(supabaseUser: {
   id: string;
   email: string;
   created_at?: string;
   updated_at?: string;
   user_metadata?: Record<string, unknown>;
-}): User {
-  const metadata = supabaseUser.user_metadata || {};
+}): Promise<User | null> {
+  // Get user data from application database
+  const appUser = await getApplicationUser(supabaseUser.id);
 
-  return {
-    id: supabaseUser.id,
-    email: supabaseUser.email,
-    firstName: (metadata.first_name as string) || '',
-    lastName: (metadata.last_name as string) || '',
-    role: (metadata.role as 'ADMIN' | 'COUNSELOR') || 'COUNSELOR',
-    tenantId: (metadata.tenant_id as string) || '',
-    isActive: true,
-    createdAt: new Date(supabaseUser.created_at || Date.now()),
-    updatedAt: new Date(supabaseUser.updated_at || Date.now()),
-  };
+  if (!appUser) {
+    // Fallback to metadata if application user not found (shouldn't happen in normal flow)
+    const metadata = supabaseUser.user_metadata || {};
+    return {
+      id: supabaseUser.id,
+      email: supabaseUser.email,
+      firstName: (metadata.first_name as string) || '',
+      lastName: (metadata.last_name as string) || '',
+      role: (metadata.role as 'ADMIN' | 'COUNSELOR') || 'COUNSELOR',
+      tenantId: (metadata.tenant_id as string) || '',
+      isActive: true,
+      createdAt: new Date(supabaseUser.created_at || Date.now()),
+      updatedAt: new Date(supabaseUser.updated_at || Date.now()),
+    };
+  }
+
+  return appUser;
 }
 
 /**
@@ -67,7 +119,15 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthRespons
       };
     }
 
-    const user = transformSupabaseUser(data.user as { id: string; email: string; created_at?: string; updated_at?: string; user_metadata?: Record<string, unknown> });
+    const user = await transformSupabaseUser(
+      data.user as {
+        id: string;
+        email: string;
+        created_at?: string;
+        updated_at?: string;
+        user_metadata?: Record<string, unknown>;
+      }
+    );
     return { user, error: null };
   } catch (error) {
     return {
@@ -114,7 +174,15 @@ export async function getCurrentUser(): Promise<AuthResponse> {
       return { user: null, error: null };
     }
 
-    const user = transformSupabaseUser(data.user as { id: string; email: string; created_at?: string; updated_at?: string; user_metadata?: Record<string, unknown> });
+    const user = await transformSupabaseUser(
+      data.user as {
+        id: string;
+        email: string;
+        created_at?: string;
+        updated_at?: string;
+        user_metadata?: Record<string, unknown>;
+      }
+    );
     return { user, error: null };
   } catch (error) {
     return {
@@ -176,7 +244,15 @@ export function onAuthStateChange(callback: (user: User | null) => void) {
     data: { subscription },
   } = supabase.auth.onAuthStateChange(async (_event, session) => {
     if (session?.user) {
-      const user = transformSupabaseUser(session.user as { id: string; email: string; created_at?: string; updated_at?: string; user_metadata?: Record<string, unknown> });
+      const user = await transformSupabaseUser(
+        session.user as {
+          id: string;
+          email: string;
+          created_at?: string;
+          updated_at?: string;
+          user_metadata?: Record<string, unknown>;
+        }
+      );
       callback(user);
     } else {
       callback(null);

@@ -8,15 +8,15 @@ export async function executeQuery<T>(
   queryFn: () => Promise<{ data: T | null; error: any }>
 ): Promise<T> {
   const { data, error } = await queryFn();
-  
+
   if (error) {
     throw parseSupabaseError(error);
   }
-  
+
   if (data === null) {
     throw parseSupabaseError({ message: 'No data returned from query' });
   }
-  
+
   return data;
 }
 
@@ -27,15 +27,15 @@ export async function executeMutation<T>(
   mutationFn: () => Promise<{ data: T | null; error: any }>
 ): Promise<T> {
   const { data, error } = await mutationFn();
-  
+
   if (error) {
     throw parseSupabaseError(error);
   }
-  
+
   if (data === null) {
     throw parseSupabaseError({ message: 'No data returned from mutation' });
   }
-  
+
   return data;
 }
 
@@ -43,7 +43,9 @@ export async function executeMutation<T>(
  * Check if user is authenticated
  */
 export async function checkAuth(): Promise<boolean> {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   return !!session;
 }
 
@@ -51,11 +53,14 @@ export async function checkAuth(): Promise<boolean> {
  * Get current user with error handling
  */
 export async function getCurrentUser() {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
   if (error) {
     throw parseSupabaseError(error);
   }
-  
+
   return user;
 }

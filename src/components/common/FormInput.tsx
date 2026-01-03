@@ -3,8 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-export interface FormInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -28,18 +27,12 @@ const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
           {...props}
         />
         {error && (
-          <p
-            id={`${inputId}-error`}
-            className="text-sm font-medium text-destructive"
-          >
+          <p id={`${inputId}-error`} className="text-sm font-medium text-destructive">
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p
-            id={`${inputId}-helper`}
-            className="text-sm text-muted-foreground"
-          >
+          <p id={`${inputId}-helper`} className="text-sm text-muted-foreground">
             {helperText}
           </p>
         )}

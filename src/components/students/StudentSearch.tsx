@@ -21,7 +21,7 @@ export function StudentSearch({
   const navigate = useNavigate();
 
   // Transform students to dropdown options
-  const options: SearchableDropdownOption[] = students.map((student) => ({
+  const options: SearchableDropdownOption[] = students.map(student => ({
     value: student.id,
     label: `${student.lastName}, ${student.firstName}`,
     subtitle: `${student.studentId} • ${student.gradeLevel}`,

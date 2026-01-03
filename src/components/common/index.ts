@@ -13,4 +13,5 @@ export {
   ProfileSkeleton,
 } from './LoadingSkeletons';
 export { default as ErrorBoundary } from './ErrorBoundary';
+export { default as SetupErrorBoundary } from './SetupErrorBoundary';
 export { LoadingSpinner, LoadingOverlay, LoadingButton } from './LoadingSpinner';

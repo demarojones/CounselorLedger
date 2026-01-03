@@ -12,18 +12,18 @@ export function groupBy<T>(
   keyGetter: (item: T) => string | number
 ): Map<string | number, T[]> {
   const map = new Map<string | number, T[]>();
-  
+
   items.forEach(item => {
     const key = keyGetter(item);
     const collection = map.get(key);
-    
+
     if (!collection) {
       map.set(key, [item]);
     } else {
       collection.push(item);
     }
   });
-  
+
   return map;
 }
 
@@ -40,12 +40,8 @@ export function calculateTotalDuration(interactions: Interaction[]): number {
  * Count unique students from interactions
  */
 export function countUniqueStudents(interactions: Interaction[]): number {
-  const uniqueStudentIds = new Set(
-    interactions
-      .filter(i => i.studentId)
-      .map(i => i.studentId)
-  );
-  
+  const uniqueStudentIds = new Set(interactions.filter(i => i.studentId).map(i => i.studentId));
+
   return uniqueStudentIds.size;
 }
 
@@ -53,12 +49,8 @@ export function countUniqueStudents(interactions: Interaction[]): number {
  * Count unique contacts from interactions
  */
 export function countUniqueContacts(interactions: Interaction[]): number {
-  const uniqueContactIds = new Set(
-    interactions
-      .filter(i => i.contactId)
-      .map(i => i.contactId)
-  );
-  
+  const uniqueContactIds = new Set(interactions.filter(i => i.contactId).map(i => i.contactId));
+
   return uniqueContactIds.size;
 }
 
@@ -75,20 +67,23 @@ export function calculateCategoryBreakdown(interactions: Interaction[]): Array<{
   if (interactions.length === 0) {
     return [];
   }
-  
-  const categoryMap = new Map<string, {
-    categoryId: string;
-    categoryName: string;
-    count: number;
-    totalDuration: number;
-  }>();
-  
+
+  const categoryMap = new Map<
+    string,
+    {
+      categoryId: string;
+      categoryName: string;
+      count: number;
+      totalDuration: number;
+    }
+  >();
+
   interactions.forEach(interaction => {
     const categoryId = interaction.categoryId || 'unknown';
     const categoryName = interaction.category?.name || 'Unknown';
-    
+
     const existing = categoryMap.get(categoryId);
-    
+
     if (existing) {
       existing.count++;
       existing.totalDuration += interaction.durationMinutes || 0;
@@ -101,9 +96,9 @@ export function calculateCategoryBreakdown(interactions: Interaction[]): Array<{
       });
     }
   });
-  
+
   const total = interactions.length;
-  
+
   return Array.from(categoryMap.values())
     .map(item => ({
       ...item,
@@ -124,17 +119,20 @@ export function groupByGradeLevel(interactions: Interaction[]): Array<{
   if (interactions.length === 0) {
     return [];
   }
-  
-  const gradeMap = new Map<string, {
-    count: number;
-    totalDuration: number;
-  }>();
-  
+
+  const gradeMap = new Map<
+    string,
+    {
+      count: number;
+      totalDuration: number;
+    }
+  >();
+
   interactions.forEach(interaction => {
     const gradeLevel = interaction.student?.gradeLevel || 'Unknown';
-    
+
     const existing = gradeMap.get(gradeLevel);
-    
+
     if (existing) {
       existing.count++;
       existing.totalDuration += interaction.durationMinutes || 0;
@@ -145,9 +143,9 @@ export function groupByGradeLevel(interactions: Interaction[]): Array<{
       });
     }
   });
-  
+
   const total = interactions.length;
-  
+
   return Array.from(gradeMap.entries())
     .map(([gradeLevel, data]) => ({
       gradeLevel,
@@ -159,11 +157,11 @@ export function groupByGradeLevel(interactions: Interaction[]): Array<{
       // Sort by grade level numerically if possible
       const aNum = parseInt(a.gradeLevel);
       const bNum = parseInt(b.gradeLevel);
-      
+
       if (!isNaN(aNum) && !isNaN(bNum)) {
         return aNum - bNum;
       }
-      
+
       return a.gradeLevel.localeCompare(b.gradeLevel);
     });
 }
@@ -178,22 +176,25 @@ export function calculateStudentFrequency(interactions: Interaction[]): Array<{
   interactionCount: number;
   totalDuration: number;
 }> {
-  const studentMap = new Map<string, {
-    studentId: string;
-    studentName: string;
-    gradeLevel: string;
-    interactionCount: number;
-    totalDuration: number;
-  }>();
-  
+  const studentMap = new Map<
+    string,
+    {
+      studentId: string;
+      studentName: string;
+      gradeLevel: string;
+      interactionCount: number;
+      totalDuration: number;
+    }
+  >();
+
   interactions.forEach(interaction => {
     if (!interaction.studentId || !interaction.student) {
       return;
     }
-    
+
     const studentId = interaction.studentId;
     const existing = studentMap.get(studentId);
-    
+
     if (existing) {
       existing.interactionCount++;
       existing.totalDuration += interaction.durationMinutes || 0;
@@ -207,9 +208,8 @@ export function calculateStudentFrequency(interactions: Interaction[]): Array<{
       });
     }
   });
-  
-  return Array.from(studentMap.values())
-    .sort((a, b) => b.interactionCount - a.interactionCount);
+
+  return Array.from(studentMap.values()).sort((a, b) => b.interactionCount - a.interactionCount);
 }
 
 /**
@@ -224,22 +224,25 @@ export function calculateTimeAllocationByCategory(interactions: Interaction[]): 
   if (interactions.length === 0) {
     return [];
   }
-  
-  const categoryMap = new Map<string, {
-    totalMinutes: number;
-    interactionCount: number;
-  }>();
-  
+
+  const categoryMap = new Map<
+    string,
+    {
+      totalMinutes: number;
+      interactionCount: number;
+    }
+  >();
+
   let totalMinutes = 0;
-  
+
   interactions.forEach(interaction => {
     const categoryName = interaction.category?.name || 'Unknown';
     const duration = interaction.durationMinutes || 0;
-    
+
     totalMinutes += duration;
-    
+
     const existing = categoryMap.get(categoryName);
-    
+
     if (existing) {
       existing.totalMinutes += duration;
       existing.interactionCount++;
@@ -250,7 +253,7 @@ export function calculateTimeAllocationByCategory(interactions: Interaction[]): 
       });
     }
   });
-  
+
   return Array.from(categoryMap.entries())
     .map(([categoryName, data]) => ({
       categoryName,
@@ -273,22 +276,25 @@ export function calculateTimeAllocationByGrade(interactions: Interaction[]): Arr
   if (interactions.length === 0) {
     return [];
   }
-  
-  const gradeMap = new Map<string, {
-    totalMinutes: number;
-    interactionCount: number;
-  }>();
-  
+
+  const gradeMap = new Map<
+    string,
+    {
+      totalMinutes: number;
+      interactionCount: number;
+    }
+  >();
+
   let totalMinutes = 0;
-  
+
   interactions.forEach(interaction => {
     const gradeLevel = interaction.student?.gradeLevel || 'Unknown';
     const duration = interaction.durationMinutes || 0;
-    
+
     totalMinutes += duration;
-    
+
     const existing = gradeMap.get(gradeLevel);
-    
+
     if (existing) {
       existing.totalMinutes += duration;
       existing.interactionCount++;
@@ -299,7 +305,7 @@ export function calculateTimeAllocationByGrade(interactions: Interaction[]): Arr
       });
     }
   });
-  
+
   return Array.from(gradeMap.entries())
     .map(([gradeLevel, data]) => ({
       gradeLevel,
@@ -311,11 +317,11 @@ export function calculateTimeAllocationByGrade(interactions: Interaction[]): Arr
       // Sort by grade level numerically if possible
       const aNum = parseInt(a.gradeLevel);
       const bNum = parseInt(b.gradeLevel);
-      
+
       if (!isNaN(aNum) && !isNaN(bNum)) {
         return aNum - bNum;
       }
-      
+
       return a.gradeLevel.localeCompare(b.gradeLevel);
     });
 }
@@ -333,23 +339,26 @@ export function calculateTopStudentsByTime(
   totalMinutes: number;
   interactionCount: number;
 }> {
-  const studentMap = new Map<string, {
-    studentId: string;
-    studentName: string;
-    gradeLevel: string;
-    totalMinutes: number;
-    interactionCount: number;
-  }>();
-  
+  const studentMap = new Map<
+    string,
+    {
+      studentId: string;
+      studentName: string;
+      gradeLevel: string;
+      totalMinutes: number;
+      interactionCount: number;
+    }
+  >();
+
   interactions.forEach(interaction => {
     if (!interaction.studentId || !interaction.student) {
       return;
     }
-    
+
     const studentId = interaction.studentId;
     const duration = interaction.durationMinutes || 0;
     const existing = studentMap.get(studentId);
-    
+
     if (existing) {
       existing.totalMinutes += duration;
       existing.interactionCount++;
@@ -363,7 +372,7 @@ export function calculateTopStudentsByTime(
       });
     }
   });
-  
+
   return Array.from(studentMap.values())
     .sort((a, b) => b.totalMinutes - a.totalMinutes)
     .slice(0, limit);
@@ -376,7 +385,7 @@ export function calculateAverageDuration(interactions: Interaction[]): number {
   if (interactions.length === 0) {
     return 0;
   }
-  
+
   const total = calculateTotalDuration(interactions);
   return Math.round(total / interactions.length);
 }
@@ -405,7 +414,7 @@ export function filterByGradeLevel(
   if (gradeLevels.length === 0) {
     return interactions;
   }
-  
+
   return interactions.filter(interaction => {
     const gradeLevel = interaction.student?.gradeLevel;
     return gradeLevel && gradeLevels.includes(gradeLevel);
@@ -422,7 +431,7 @@ export function filterByCategory(
   if (categoryIds.length === 0) {
     return interactions;
   }
-  
+
   return interactions.filter(interaction => {
     return interaction.categoryId && categoryIds.includes(interaction.categoryId);
   });
@@ -438,7 +447,7 @@ export function filterByCounselor(
   if (counselorIds.length === 0) {
     return interactions;
   }
-  
+
   return interactions.filter(interaction => {
     return interaction.counselorId && counselorIds.includes(interaction.counselorId);
   });
@@ -455,15 +464,18 @@ export function calculateTrendData(
   count: number;
   totalDuration: number;
 }> {
-  const trendMap = new Map<string, {
-    count: number;
-    totalDuration: number;
-  }>();
-  
+  const trendMap = new Map<
+    string,
+    {
+      count: number;
+      totalDuration: number;
+    }
+  >();
+
   interactions.forEach(interaction => {
     const date = new Date(interaction.startTime);
     let key: string;
-    
+
     switch (groupBy) {
       case 'day':
         key = date.toISOString().split('T')[0];
@@ -477,9 +489,9 @@ export function calculateTrendData(
         key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         break;
     }
-    
+
     const existing = trendMap.get(key);
-    
+
     if (existing) {
       existing.count++;
       existing.totalDuration += interaction.durationMinutes || 0;
@@ -490,7 +502,7 @@ export function calculateTrendData(
       });
     }
   });
-  
+
   return Array.from(trendMap.entries())
     .map(([date, data]) => ({
       date,
@@ -517,17 +529,14 @@ export function calculateSummaryStats(interactions: Interaction[]): {
   const totalContacts = countUniqueContacts(interactions);
   const totalDuration = calculateTotalDuration(interactions);
   const averageDuration = calculateAverageDuration(interactions);
-  
+
   const categoryBreakdown = calculateCategoryBreakdown(interactions);
-  const mostCommonCategory = categoryBreakdown.length > 0 
-    ? categoryBreakdown[0].categoryName 
-    : null;
-  
+  const mostCommonCategory =
+    categoryBreakdown.length > 0 ? categoryBreakdown[0].categoryName : null;
+
   const gradeBreakdown = groupByGradeLevel(interactions);
-  const mostCommonGrade = gradeBreakdown.length > 0 
-    ? gradeBreakdown[0].gradeLevel 
-    : null;
-  
+  const mostCommonGrade = gradeBreakdown.length > 0 ? gradeBreakdown[0].gradeLevel : null;
+
   return {
     totalInteractions,
     totalStudents,

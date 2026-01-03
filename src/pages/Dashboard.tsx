@@ -55,33 +55,31 @@ export function Dashboard() {
   return (
     <PageTransition>
       <div className="page-container section-spacing">
-      <div>
-        <h1 className="heading-1">Dashboard</h1>
-        <p className="mt-2 body-text-sm">
-          Overview of your counseling activities and statistics
-        </p>
+        <div>
+          <h1 className="heading-1">Dashboard</h1>
+          <p className="mt-2 body-text-sm">Overview of your counseling activities and statistics</p>
+        </div>
+
+        {/* Date Range Filter */}
+        <DateRangeFilter
+          startDate={dateRange.startDate}
+          endDate={dateRange.endDate}
+          onDateRangeChange={handleDateRangeChange}
+        />
+
+        {/* Statistics Cards */}
+        <DashboardStats
+          totalInteractions={stats.totalInteractions}
+          totalStudents={stats.totalStudents}
+          totalTimeSpent={stats.totalTimeSpent}
+        />
+
+        {/* Charts and Activity */}
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+          <InteractionChart categoryBreakdown={stats.categoryBreakdown} />
+          <RecentActivity interactions={stats.recentInteractions} />
+        </div>
       </div>
-
-      {/* Date Range Filter */}
-      <DateRangeFilter
-        startDate={dateRange.startDate}
-        endDate={dateRange.endDate}
-        onDateRangeChange={handleDateRangeChange}
-      />
-
-      {/* Statistics Cards */}
-      <DashboardStats
-        totalInteractions={stats.totalInteractions}
-        totalStudents={stats.totalStudents}
-        totalTimeSpent={stats.totalTimeSpent}
-      />
-
-      {/* Charts and Activity */}
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <InteractionChart categoryBreakdown={stats.categoryBreakdown} />
-        <RecentActivity interactions={stats.recentInteractions} />
-      </div>
-    </div>
     </PageTransition>
   );
 }

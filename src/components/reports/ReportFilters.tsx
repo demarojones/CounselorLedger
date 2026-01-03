@@ -38,7 +38,7 @@ export function ReportFilters({
   const [localFilters, setLocalFilters] = useState<ReportFiltersType>(filters);
 
   // Convert students to dropdown options
-  const studentOptions: SearchableDropdownOption[] = students.map((student) => ({
+  const studentOptions: SearchableDropdownOption[] = students.map(student => ({
     value: student.id,
     label: `${student.firstName} ${student.lastName}`,
     subtitle: `${student.studentId} - Grade ${student.gradeLevel}`,
@@ -133,7 +133,7 @@ export function ReportFilters({
           <div>
             <h3 className="text-sm font-medium mb-3">Date Range</h3>
             <div className="flex flex-wrap gap-2">
-              {PRESET_OPTIONS.map((preset) => (
+              {PRESET_OPTIONS.map(preset => (
                 <Button
                   key={preset.days}
                   variant={activePreset === preset.days ? 'default' : 'outline'}
@@ -145,7 +145,8 @@ export function ReportFilters({
               ))}
             </div>
             <p className="text-sm text-muted-foreground mt-3">
-              Showing data from <span className="font-medium">{formatDate(localFilters.startDate)}</span> to{' '}
+              Showing data from{' '}
+              <span className="font-medium">{formatDate(localFilters.startDate)}</span> to{' '}
               <span className="font-medium">{formatDate(localFilters.endDate)}</span>
             </p>
           </div>
@@ -161,7 +162,7 @@ export function ReportFilters({
                 onChange={handleGradeLevelChange}
               >
                 <option value="">All Grades</option>
-                {gradeLevels.map((grade) => (
+                {gradeLevels.map(grade => (
                   <option key={grade} value={grade}>
                     {grade}
                   </option>
@@ -175,7 +176,7 @@ export function ReportFilters({
                 onChange={handleCategoryChange}
               >
                 <option value="">All Types</option>
-                {categories.map((category) => (
+                {categories.map(category => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -201,7 +202,7 @@ export function ReportFilters({
                   onChange={handleCounselorChange}
                 >
                   <option value="">All Counselors</option>
-                  {counselors.map((counselor) => (
+                  {counselors.map(counselor => (
                     <option key={counselor.id} value={counselor.id}>
                       {counselor.firstName} {counselor.lastName}
                     </option>

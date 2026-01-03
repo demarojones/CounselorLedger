@@ -12,11 +12,13 @@ async function enableMocking() {
   console.log('🟢 Mock data is ENABLED - using MSW for API mocking');
   const { worker } = await import('./mocks/browser');
 
-  return worker.start({
-    onUnhandledRequest: 'bypass',
-  }).then(() => {
-    console.log('✅ MSW worker started successfully');
-  });
+  return worker
+    .start({
+      onUnhandledRequest: 'bypass',
+    })
+    .then(() => {
+      console.log('✅ MSW worker started successfully');
+    });
 }
 
 enableMocking().then(() => {

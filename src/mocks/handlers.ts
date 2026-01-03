@@ -10,7 +10,7 @@ export const handlers = [
   // Auth endpoints - signInWithPassword
   http.post(`${SUPABASE_URL}/auth/v1/token`, async ({ request }) => {
     const body = (await request.json()) as { email: string; password: string; grant_type?: string };
-    
+
     console.log('🔐 Mock Auth: Login attempt for', body.email);
 
     // Support both 'password' grant_type and signInWithPassword (which uses grant_type: 'password')
@@ -41,10 +41,10 @@ export const handlers = [
 
     console.log('❌ Mock Auth: Login failed - user not found');
     return HttpResponse.json(
-      { 
+      {
         error: 'Invalid login credentials',
-        error_description: 'Invalid login credentials'
-      }, 
+        error_description: 'Invalid login credentials',
+      },
       { status: 400 }
     );
   }),
@@ -52,13 +52,10 @@ export const handlers = [
   // Get current user
   http.get(`${SUPABASE_URL}/auth/v1/user`, ({ request }) => {
     const authHeader = request.headers.get('Authorization');
-    
+
     // If no auth header or it's not a valid token, return 401
     if (!authHeader || !authHeader.includes('mock-access-token')) {
-      return HttpResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
+      return HttpResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     const currentUser = mockData.users[0]; // Default to first user
@@ -82,7 +79,7 @@ export const handlers = [
   // Get session
   http.get(`${SUPABASE_URL}/auth/v1/session`, ({ request }) => {
     const authHeader = request.headers.get('Authorization');
-    
+
     if (!authHeader || !authHeader.includes('mock-access-token')) {
       return HttpResponse.json({ data: { session: null } });
     }
@@ -190,9 +187,9 @@ export const handlers = [
   }),
 
   http.post(`${SUPABASE_URL}/rest/v1/students`, async ({ request }) => {
-    const body = await request.json() as any;
+    const body = (await request.json()) as any;
     const currentUser = mockData.users[0];
-    
+
     const newStudent = {
       id: crypto.randomUUID(),
       tenantId: currentUser.tenantId,
@@ -209,7 +206,7 @@ export const handlers = [
     };
 
     mockData.students.push(newStudent);
-    
+
     const dbStudent = {
       id: newStudent.id,
       tenant_id: newStudent.tenantId,
@@ -224,7 +221,7 @@ export const handlers = [
       created_at: newStudent.createdAt,
       updated_at: newStudent.updatedAt,
     };
-    
+
     return HttpResponse.json(dbStudent, { status: 201 });
   }),
 
@@ -272,9 +269,9 @@ export const handlers = [
   }),
 
   http.post(`${SUPABASE_URL}/rest/v1/contacts`, async ({ request }) => {
-    const body = await request.json() as any;
+    const body = (await request.json()) as any;
     const currentUser = mockData.users[0];
-    
+
     const newContact = {
       id: crypto.randomUUID(),
       tenantId: currentUser.tenantId,
@@ -290,7 +287,7 @@ export const handlers = [
     };
 
     mockData.contacts.push(newContact);
-    
+
     const dbContact = {
       id: newContact.id,
       tenant_id: newContact.tenantId,
@@ -304,7 +301,7 @@ export const handlers = [
       created_at: newContact.createdAt,
       updated_at: newContact.updatedAt,
     };
-    
+
     return HttpResponse.json(dbContact, { status: 201 });
   }),
 
@@ -401,11 +398,11 @@ export const handlers = [
   }),
 
   http.post(`${SUPABASE_URL}/rest/v1/interactions`, async ({ request }) => {
-    const body = await request.json() as any;
-    
+    const body = (await request.json()) as any;
+
     // Get current user's tenant
     const currentUser = mockData.users[0];
-    
+
     const newInteraction = {
       id: crypto.randomUUID(),
       tenantId: currentUser.tenantId,
@@ -429,7 +426,7 @@ export const handlers = [
     };
 
     mockData.interactions.push(newInteraction);
-    
+
     // Return in DB format
     const dbInteraction = {
       id: newInteraction.id,
@@ -452,37 +449,64 @@ export const handlers = [
       created_at: newInteraction.createdAt,
       updated_at: newInteraction.updatedAt,
     };
-    
+
     return HttpResponse.json(dbInteraction, { status: 201 });
   }),
 
   http.patch(`${SUPABASE_URL}/rest/v1/interactions`, async ({ request }) => {
     const url = new URL(request.url);
     const id = url.searchParams.get('id')?.replace('eq.', '');
-    const body = await request.json() as any;
-    
+    const body = (await request.json()) as any;
+
     const index = mockData.interactions.findIndex(i => i.id === id);
 
     if (index !== -1) {
       // Update with snake_case to camelCase conversion
       mockData.interactions[index] = {
         ...mockData.interactions[index],
-        studentId: body.student_id !== undefined ? body.student_id : mockData.interactions[index].studentId,
-        contactId: body.contact_id !== undefined ? body.contact_id : mockData.interactions[index].contactId,
-        regardingStudentId: body.regarding_student_id !== undefined ? body.regarding_student_id : mockData.interactions[index].regardingStudentId,
-        categoryId: body.category_id !== undefined ? body.category_id : mockData.interactions[index].categoryId,
-        subcategoryId: body.subcategory_id !== undefined ? body.subcategory_id : mockData.interactions[index].subcategoryId,
-        customReason: body.custom_reason !== undefined ? body.custom_reason : mockData.interactions[index].customReason,
-        startTime: body.start_time !== undefined ? body.start_time : mockData.interactions[index].startTime,
-        durationMinutes: body.duration_minutes !== undefined ? body.duration_minutes : mockData.interactions[index].durationMinutes,
+        studentId:
+          body.student_id !== undefined ? body.student_id : mockData.interactions[index].studentId,
+        contactId:
+          body.contact_id !== undefined ? body.contact_id : mockData.interactions[index].contactId,
+        regardingStudentId:
+          body.regarding_student_id !== undefined
+            ? body.regarding_student_id
+            : mockData.interactions[index].regardingStudentId,
+        categoryId:
+          body.category_id !== undefined
+            ? body.category_id
+            : mockData.interactions[index].categoryId,
+        subcategoryId:
+          body.subcategory_id !== undefined
+            ? body.subcategory_id
+            : mockData.interactions[index].subcategoryId,
+        customReason:
+          body.custom_reason !== undefined
+            ? body.custom_reason
+            : mockData.interactions[index].customReason,
+        startTime:
+          body.start_time !== undefined ? body.start_time : mockData.interactions[index].startTime,
+        durationMinutes:
+          body.duration_minutes !== undefined
+            ? body.duration_minutes
+            : mockData.interactions[index].durationMinutes,
         endTime: body.end_time !== undefined ? body.end_time : mockData.interactions[index].endTime,
         notes: body.notes !== undefined ? body.notes : mockData.interactions[index].notes,
-        needsFollowUp: body.needs_follow_up !== undefined ? body.needs_follow_up : mockData.interactions[index].needsFollowUp,
-        followUpDate: body.follow_up_date !== undefined ? body.follow_up_date : mockData.interactions[index].followUpDate,
-        followUpNotes: body.follow_up_notes !== undefined ? body.follow_up_notes : mockData.interactions[index].followUpNotes,
+        needsFollowUp:
+          body.needs_follow_up !== undefined
+            ? body.needs_follow_up
+            : mockData.interactions[index].needsFollowUp,
+        followUpDate:
+          body.follow_up_date !== undefined
+            ? body.follow_up_date
+            : mockData.interactions[index].followUpDate,
+        followUpNotes:
+          body.follow_up_notes !== undefined
+            ? body.follow_up_notes
+            : mockData.interactions[index].followUpNotes,
         updatedAt: new Date().toISOString(),
       };
-      
+
       // Return in DB format
       const dbInteraction = {
         id: mockData.interactions[index].id,
@@ -505,7 +529,7 @@ export const handlers = [
         created_at: mockData.interactions[index].createdAt,
         updated_at: mockData.interactions[index].updatedAt,
       };
-      
+
       return HttpResponse.json(dbInteraction);
     }
 
@@ -515,7 +539,7 @@ export const handlers = [
   http.delete(`${SUPABASE_URL}/rest/v1/interactions`, ({ request }) => {
     const url = new URL(request.url);
     const id = url.searchParams.get('id')?.replace('eq.', '');
-    
+
     const index = mockData.interactions.findIndex(i => i.id === id);
 
     if (index !== -1) {
@@ -543,8 +567,8 @@ export const handlers = [
   }),
 
   http.post(`${SUPABASE_URL}/rest/v1/reason_categories`, async ({ request }) => {
-    const body = await request.json() as any;
-    
+    const body = (await request.json()) as any;
+
     const newCategory = {
       id: body.id || crypto.randomUUID(),
       tenantId: body.tenant_id,
@@ -556,7 +580,7 @@ export const handlers = [
     };
 
     mockData.reasonCategories.push(newCategory);
-    
+
     const dbCategory = {
       id: newCategory.id,
       tenant_id: newCategory.tenantId,
@@ -566,15 +590,15 @@ export const handlers = [
       created_at: newCategory.createdAt,
       updated_at: newCategory.updatedAt,
     };
-    
+
     return HttpResponse.json(dbCategory, { status: 201 });
   }),
 
   http.patch(`${SUPABASE_URL}/rest/v1/reason_categories`, async ({ request }) => {
     const url = new URL(request.url);
     const id = url.searchParams.get('id')?.replace('eq.', '');
-    const body = await request.json() as any;
-    
+    const body = (await request.json()) as any;
+
     const index = mockData.reasonCategories.findIndex(c => c.id === id);
 
     if (index !== -1) {
@@ -582,10 +606,13 @@ export const handlers = [
         ...mockData.reasonCategories[index],
         name: body.name !== undefined ? body.name : mockData.reasonCategories[index].name,
         color: body.color !== undefined ? body.color : mockData.reasonCategories[index].color,
-        sortOrder: body.sort_order !== undefined ? body.sort_order : mockData.reasonCategories[index].sortOrder,
+        sortOrder:
+          body.sort_order !== undefined
+            ? body.sort_order
+            : mockData.reasonCategories[index].sortOrder,
         updatedAt: new Date().toISOString(),
       };
-      
+
       const dbCategory = {
         id: mockData.reasonCategories[index].id,
         tenant_id: mockData.reasonCategories[index].tenantId,
@@ -595,7 +622,7 @@ export const handlers = [
         created_at: mockData.reasonCategories[index].createdAt,
         updated_at: mockData.reasonCategories[index].updatedAt,
       };
-      
+
       return HttpResponse.json(dbCategory);
     }
 
@@ -605,7 +632,7 @@ export const handlers = [
   http.delete(`${SUPABASE_URL}/rest/v1/reason_categories`, ({ request }) => {
     const url = new URL(request.url);
     const id = url.searchParams.get('id')?.replace('eq.', '');
-    
+
     const index = mockData.reasonCategories.findIndex(c => c.id === id);
 
     if (index !== -1) {
@@ -624,7 +651,7 @@ export const handlers = [
     const categoryId = url.searchParams.get('category_id');
 
     let subcategories = mockData.reasonSubcategories;
-    
+
     if (categoryId) {
       subcategories = subcategories.filter(s => s.categoryId === categoryId);
     }
@@ -643,8 +670,8 @@ export const handlers = [
   }),
 
   http.post(`${SUPABASE_URL}/rest/v1/reason_subcategories`, async ({ request }) => {
-    const body = await request.json() as any;
-    
+    const body = (await request.json()) as any;
+
     const newSubcategory = {
       id: body.id || crypto.randomUUID(),
       categoryId: body.category_id,
@@ -655,7 +682,7 @@ export const handlers = [
     };
 
     mockData.reasonSubcategories.push(newSubcategory);
-    
+
     const dbSubcategory = {
       id: newSubcategory.id,
       category_id: newSubcategory.categoryId,
@@ -664,25 +691,28 @@ export const handlers = [
       created_at: newSubcategory.createdAt,
       updated_at: newSubcategory.updatedAt,
     };
-    
+
     return HttpResponse.json(dbSubcategory, { status: 201 });
   }),
 
   http.patch(`${SUPABASE_URL}/rest/v1/reason_subcategories`, async ({ request }) => {
     const url = new URL(request.url);
     const id = url.searchParams.get('id')?.replace('eq.', '');
-    const body = await request.json() as any;
-    
+    const body = (await request.json()) as any;
+
     const index = mockData.reasonSubcategories.findIndex(s => s.id === id);
 
     if (index !== -1) {
       mockData.reasonSubcategories[index] = {
         ...mockData.reasonSubcategories[index],
         name: body.name !== undefined ? body.name : mockData.reasonSubcategories[index].name,
-        sortOrder: body.sort_order !== undefined ? body.sort_order : mockData.reasonSubcategories[index].sortOrder,
+        sortOrder:
+          body.sort_order !== undefined
+            ? body.sort_order
+            : mockData.reasonSubcategories[index].sortOrder,
         updatedAt: new Date().toISOString(),
       };
-      
+
       const dbSubcategory = {
         id: mockData.reasonSubcategories[index].id,
         category_id: mockData.reasonSubcategories[index].categoryId,
@@ -691,7 +721,7 @@ export const handlers = [
         created_at: mockData.reasonSubcategories[index].createdAt,
         updated_at: mockData.reasonSubcategories[index].updatedAt,
       };
-      
+
       return HttpResponse.json(dbSubcategory);
     }
 
@@ -701,7 +731,7 @@ export const handlers = [
   http.delete(`${SUPABASE_URL}/rest/v1/reason_subcategories`, ({ request }) => {
     const url = new URL(request.url);
     const id = url.searchParams.get('id')?.replace('eq.', '');
-    
+
     const index = mockData.reasonSubcategories.findIndex(s => s.id === id);
 
     if (index !== -1) {
@@ -731,8 +761,8 @@ export const handlers = [
   }),
 
   http.post(`${SUPABASE_URL}/rest/v1/users`, async ({ request }) => {
-    const body = await request.json() as any;
-    
+    const body = (await request.json()) as any;
+
     const newUser = {
       id: body.id || crypto.randomUUID(),
       tenantId: body.tenant_id,
@@ -746,7 +776,7 @@ export const handlers = [
     };
 
     mockData.users.push(newUser);
-    
+
     const dbUser = {
       id: newUser.id,
       tenant_id: newUser.tenantId,
@@ -758,28 +788,29 @@ export const handlers = [
       created_at: newUser.createdAt,
       updated_at: newUser.updatedAt,
     };
-    
+
     return HttpResponse.json(dbUser, { status: 201 });
   }),
 
   http.patch(`${SUPABASE_URL}/rest/v1/users`, async ({ request }) => {
     const url = new URL(request.url);
     const id = url.searchParams.get('id')?.replace('eq.', '');
-    const body = await request.json() as any;
-    
+    const body = (await request.json()) as any;
+
     const index = mockData.users.findIndex(u => u.id === id);
 
     if (index !== -1) {
       mockData.users[index] = {
         ...mockData.users[index],
         email: body.email !== undefined ? body.email : mockData.users[index].email,
-        firstName: body.first_name !== undefined ? body.first_name : mockData.users[index].firstName,
+        firstName:
+          body.first_name !== undefined ? body.first_name : mockData.users[index].firstName,
         lastName: body.last_name !== undefined ? body.last_name : mockData.users[index].lastName,
         role: body.role !== undefined ? body.role : mockData.users[index].role,
         isActive: body.is_active !== undefined ? body.is_active : mockData.users[index].isActive,
         updatedAt: new Date().toISOString(),
       };
-      
+
       const dbUser = {
         id: mockData.users[index].id,
         tenant_id: mockData.users[index].tenantId,
@@ -791,7 +822,7 @@ export const handlers = [
         created_at: mockData.users[index].createdAt,
         updated_at: mockData.users[index].updatedAt,
       };
-      
+
       return HttpResponse.json(dbUser);
     }
 

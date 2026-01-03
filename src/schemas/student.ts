@@ -36,11 +36,7 @@ export const studentFormSchema = z.object({
     .max(50, 'Last name must be less than 50 characters')
     .trim(),
   gradeLevel: gradeLevelSchema,
-  email: z
-    .string()
-    .email('Invalid email format')
-    .optional()
-    .or(z.literal('')),
+  email: z.string().email('Invalid email format').optional().or(z.literal('')),
   phone: z
     .string()
     .regex(/^[\d\s\-\(\)\+]*$/, 'Invalid phone number format')

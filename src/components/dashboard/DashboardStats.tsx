@@ -58,7 +58,7 @@ export function DashboardStats({
 
   return (
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      {stats.map((stat) => {
+      {stats.map(stat => {
         const Icon = stat.icon;
         return (
           <Card key={stat.title} className="overflow-hidden">

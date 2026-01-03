@@ -79,7 +79,7 @@ export function CategoryForm({ open, onOpenChange, category, onSuccess }: Catego
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: FormErrors = {};
-        error.issues.forEach((err) => {
+        error.issues.forEach(err => {
           const field = err.path[0] as keyof FormErrors;
           if (field) {
             newErrors[field] = err.message;
@@ -171,9 +171,7 @@ export function CategoryForm({ open, onOpenChange, category, onSuccess }: Catego
               onChange={e => handleChange('name', e.target.value)}
               placeholder="e.g., Academic Support"
             />
-            {errors.name && (
-              <p className="text-sm text-red-600">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
           </div>
 
           <div className="space-y-2">
@@ -201,9 +199,7 @@ export function CategoryForm({ open, onOpenChange, category, onSuccess }: Catego
                 ))}
               </div>
             </div>
-            {errors.color && (
-              <p className="text-sm text-red-600">{errors.color}</p>
-            )}
+            {errors.color && <p className="text-sm text-red-600">{errors.color}</p>}
           </div>
 
           <DialogFooter>

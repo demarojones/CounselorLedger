@@ -78,7 +78,7 @@ export const ComponentDemo: React.FC = () => {
             type="email"
             placeholder="Enter your email"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={e => setInputValue(e.target.value)}
             helperText="We'll never share your email"
           />
 
@@ -92,7 +92,7 @@ export const ComponentDemo: React.FC = () => {
           <FormSelect
             label="Grade Level"
             value={selectValue}
-            onChange={(e) => setSelectValue(e.target.value)}
+            onChange={e => setSelectValue(e.target.value)}
             options={[
               { value: '9', label: '9th Grade' },
               { value: '10', label: '10th Grade' },
@@ -105,7 +105,7 @@ export const ComponentDemo: React.FC = () => {
             label="Notes"
             placeholder="Enter your notes here..."
             value={textareaValue}
-            onChange={(e) => setTextareaValue(e.target.value)}
+            onChange={e => setTextareaValue(e.target.value)}
             rows={4}
             helperText="Maximum 500 characters"
           />
@@ -123,7 +123,7 @@ export const ComponentDemo: React.FC = () => {
             placeholder="Search students..."
             options={sampleOptions}
             value={dropdownValue}
-            onChange={(value) => setDropdownValue(value)}
+            onChange={value => setDropdownValue(value)}
             helperText="Start typing to filter students"
           />
         </CardContent>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { loginSchema } from '../../schemas/auth';
 import type { LoginFormData } from '../../schemas/auth';
@@ -9,6 +9,7 @@ import { z } from 'zod';
 
 export function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, isLoading, error: authError, clearError } = useAuth();
 
   const [formData, setFormData] = useState<LoginFormData>({
@@ -64,8 +65,10 @@ export function Login() {
 
     if (response.user && !response.error) {
       toast.success('Login successful!');
-      // Redirect to dashboard on successful login
-      navigate('/dashboard');
+
+      // Redirect to the intended destination or dashboard
+      const from = (location.state as any)?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     } else if (response.error) {
       toast.error(response.error.message || 'Login failed. Please try again.');
     }
@@ -80,9 +83,7 @@ export function Login() {
               <span className="text-primary-foreground font-bold text-2xl">SC</span>
             </div>
           </div>
-          <h2 className="heading-1 text-center">
-            School Counselor Ledger
-          </h2>
+          <h2 className="heading-1 text-center">School Counselor Ledger</h2>
           <p className="mt-2 text-center body-text-sm">Sign in to your account</p>
         </div>
 
@@ -120,9 +121,7 @@ export function Login() {
                 }`}
                 placeholder="Email address"
               />
-              {validationErrors.email && (
-                <p className="form-error">{validationErrors.email}</p>
-              )}
+              {validationErrors.email && <p className="form-error">{validationErrors.email}</p>}
             </div>
 
             <div className="form-group">
@@ -188,11 +187,15 @@ export function Login() {
 
           {import.meta.env.VITE_USE_MOCK_DATA === 'true' && (
             <div className="mt-4 p-4 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-900/50 rounded-md">
-              <p className="text-sm text-yellow-800 dark:text-yellow-400 font-medium">Development Mode</p>
+              <p className="text-sm text-yellow-800 dark:text-yellow-400 font-medium">
+                Development Mode
+              </p>
               <p className="text-xs text-yellow-700 dark:text-yellow-400/90 mt-1">
                 Using mock data. Try any email from the seed data with any password.
               </p>
-              <p className="text-xs text-yellow-700 dark:text-yellow-400/90 mt-1">Example: admin@school1.edu</p>
+              <p className="text-xs text-yellow-700 dark:text-yellow-400/90 mt-1">
+                Example: admin@school1.edu
+              </p>
             </div>
           )}
         </form>

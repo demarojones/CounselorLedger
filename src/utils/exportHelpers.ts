@@ -11,14 +11,14 @@ function escapeCSVValue(value: any): string {
   if (value === null || value === undefined) {
     return '';
   }
-  
+
   const stringValue = String(value);
-  
+
   // If value contains comma, quote, or newline, wrap in quotes and escape quotes
   if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
     return `"${stringValue.replace(/"/g, '""')}"`;
   }
-  
+
   return stringValue;
 }
 
@@ -37,11 +37,7 @@ export function exportToCSV(data: any[], filename: string, headers?: string[]) {
   // Create CSV content
   const csvRows = [
     csvHeaders.map(escapeCSVValue).join(','), // Header row
-    ...data.map((row) =>
-      csvHeaders
-        .map((header) => escapeCSVValue(row[header]))
-        .join(',')
-    ),
+    ...data.map(row => csvHeaders.map(header => escapeCSVValue(row[header])).join(',')),
   ];
 
   const csvContent = csvRows.join('\n');
@@ -65,24 +61,24 @@ export function exportToCSVWithMapping(
   }
 
   const headers = Object.keys(columnMapping);
-  
+
   // Transform data according to mapping
   const transformedData = data.map(item => {
     const row: Record<string, any> = {};
-    
+
     headers.forEach(header => {
       const mapping = columnMapping[header];
-      
+
       if (typeof mapping === 'function') {
         row[header] = mapping(item);
       } else {
         row[header] = item[mapping];
       }
     });
-    
+
     return row;
   });
-  
+
   exportToCSV(transformedData, filename, headers);
 }
 
@@ -181,7 +177,7 @@ function downloadBlob(blob: Blob, filename: string) {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  
+
   // Clean up the URL object
   setTimeout(() => URL.revokeObjectURL(url), 100);
 }
@@ -200,32 +196,30 @@ export function exportToJSON(data: any, filename: string) {
  */
 export function exportTableToCSV(tableId: string, filename: string) {
   const table = document.getElementById(tableId);
-  
+
   if (!table || !(table instanceof HTMLTableElement)) {
     console.error(`Table with id "${tableId}" not found`);
     return;
   }
-  
+
   const rows: string[][] = [];
-  
+
   // Get headers
   const headerCells = table.querySelectorAll('thead th');
   if (headerCells.length > 0) {
     rows.push(Array.from(headerCells).map(cell => cell.textContent?.trim() || ''));
   }
-  
+
   // Get data rows
   const dataRows = table.querySelectorAll('tbody tr');
   dataRows.forEach(row => {
     const cells = row.querySelectorAll('td');
     rows.push(Array.from(cells).map(cell => cell.textContent?.trim() || ''));
   });
-  
+
   // Create CSV content
-  const csvContent = rows
-    .map(row => row.map(escapeCSVValue).join(','))
-    .join('\n');
-  
+  const csvContent = rows.map(row => row.map(escapeCSVValue).join(',')).join('\n');
+
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   downloadBlob(blob, `${filename}.csv`);
 }
@@ -236,10 +230,10 @@ export function exportTableToCSV(tableId: string, filename: string) {
 export function formatDataForExport(data: any[]): any[] {
   return data.map(item => {
     const formatted: Record<string, any> = {};
-    
+
     Object.keys(item).forEach(key => {
       const value = item[key];
-      
+
       // Format dates
       if (value instanceof Date) {
         formatted[key] = formatDateForExport(value);
@@ -257,7 +251,7 @@ export function formatDataForExport(data: any[]): any[] {
         formatted[key] = value;
       }
     });
-    
+
     return formatted;
   });
 }
@@ -280,14 +274,10 @@ export async function copyToClipboardAsCSV(data: any[], headers?: string[]): Pro
   }
 
   const csvHeaders = headers || Object.keys(data[0]);
-  
+
   const csvRows = [
     csvHeaders.join('\t'), // Use tabs for better Excel compatibility
-    ...data.map((row) =>
-      csvHeaders
-        .map((header) => row[header] ?? '')
-        .join('\t')
-    ),
+    ...data.map(row => csvHeaders.map(header => row[header] ?? '').join('\t')),
   ];
 
   const csvContent = csvRows.join('\n');

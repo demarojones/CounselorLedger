@@ -24,7 +24,7 @@ export function validateFormData<T extends z.ZodTypeAny>(
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors: Record<string, string> = {};
-      error.issues.forEach((err) => {
+      error.issues.forEach(err => {
         const field = err.path.join('.');
         if (field) {
           errors[field] = err.message;
@@ -76,7 +76,7 @@ export function validateField<T extends z.ZodTypeAny>(
  */
 export function formatZodErrors(error: z.ZodError): Record<string, string> {
   const errors: Record<string, string> = {};
-  error.issues.forEach((err) => {
+  error.issues.forEach(err => {
     const field = err.path.join('.');
     if (field) {
       errors[field] = err.message;

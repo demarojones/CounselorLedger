@@ -3,8 +3,7 @@ import { Select } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-export interface FormSelectProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface FormSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -31,7 +30,7 @@ const FormSelect = React.forwardRef<HTMLSelectElement, FormSelectProps>(
           {options ? (
             <>
               <option value="">Select an option</option>
-              {options.map((option) => (
+              {options.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -42,18 +41,12 @@ const FormSelect = React.forwardRef<HTMLSelectElement, FormSelectProps>(
           )}
         </Select>
         {error && (
-          <p
-            id={`${selectId}-error`}
-            className="text-sm font-medium text-destructive"
-          >
+          <p id={`${selectId}-error`} className="text-sm font-medium text-destructive">
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p
-            id={`${selectId}-helper`}
-            className="text-sm text-muted-foreground"
-          >
+          <p id={`${selectId}-helper`} className="text-sm text-muted-foreground">
             {helperText}
           </p>
         )}

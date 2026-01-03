@@ -34,11 +34,7 @@ async function fetchContacts(): Promise<Contact[]> {
 
 // Fetch single contact by ID
 async function fetchContact(id: string): Promise<Contact> {
-  const { data, error } = await supabase
-    .from('contacts')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const { data, error } = await supabase.from('contacts').select('*').eq('id', id).single();
 
   if (error) throw error;
   return convertContactFromDb(data);
@@ -90,14 +86,15 @@ interface UpdateContactData {
 
 async function updateContact(data: UpdateContactData): Promise<Contact> {
   const { id, ...updateFields } = data;
-  
+
   const updateData: any = {};
   if (updateFields.firstName !== undefined) updateData.first_name = updateFields.firstName;
   if (updateFields.lastName !== undefined) updateData.last_name = updateFields.lastName;
   if (updateFields.relationship !== undefined) updateData.relationship = updateFields.relationship;
   if (updateFields.email !== undefined) updateData.email = updateFields.email || null;
   if (updateFields.phone !== undefined) updateData.phone = updateFields.phone || null;
-  if (updateFields.organization !== undefined) updateData.organization = updateFields.organization || null;
+  if (updateFields.organization !== undefined)
+    updateData.organization = updateFields.organization || null;
   if (updateFields.notes !== undefined) updateData.notes = updateFields.notes || null;
 
   const { data: updatedContact, error } = await supabase
@@ -113,10 +110,7 @@ async function updateContact(data: UpdateContactData): Promise<Contact> {
 
 // Delete contact
 async function deleteContact(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('contacts')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('contacts').delete().eq('id', id);
 
   if (error) throw error;
 }
@@ -166,16 +160,16 @@ export function useCreateContact() {
 
   return useMutation({
     mutationFn: createContact,
-    onSuccess: (newContact) => {
+    onSuccess: newContact => {
       // Invalidate contacts list to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.contacts });
-      
+
       // Optimistically add to cache
       queryClient.setQueryData(queryKeys.contact(newContact.id), newContact);
-      
+
       toast.success('Contact created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to create contact' });
       toast.error(apiError.message);
     },
@@ -198,13 +192,13 @@ export function useUpdateContact() {
 
   return useMutation({
     mutationFn: updateContact,
-    onMutate: async (data) => {
+    onMutate: async data => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.contact(data.id) });
-      
+
       // Snapshot previous value
       const previousContact = queryClient.getQueryData(queryKeys.contact(data.id));
-      
+
       // Optimistically update
       if (previousContact) {
         queryClient.setQueryData(queryKeys.contact(data.id), {
@@ -212,16 +206,16 @@ export function useUpdateContact() {
           ...data,
         });
       }
-      
+
       return { previousContact };
     },
-    onSuccess: (updatedContact) => {
+    onSuccess: updatedContact => {
       // Update cache with server response
       queryClient.setQueryData(queryKeys.contact(updatedContact.id), updatedContact);
-      
+
       // Invalidate contacts list
       queryClient.invalidateQueries({ queryKey: queryKeys.contacts });
-      
+
       toast.success('Contact updated successfully');
     },
     onError: (error, variables, context) => {
@@ -229,7 +223,7 @@ export function useUpdateContact() {
       if (context?.previousContact) {
         queryClient.setQueryData(queryKeys.contact(variables.id), context.previousContact);
       }
-      
+
       const apiError = handleApiError(error, { customMessage: 'Failed to update contact' });
       toast.error(apiError.message);
     },
@@ -248,28 +242,28 @@ export function useDeleteContact() {
 
   return useMutation({
     mutationFn: deleteContact,
-    onMutate: async (id) => {
+    onMutate: async id => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.contacts });
-      
+
       // Snapshot previous value
       const previousContacts = queryClient.getQueryData(queryKeys.contacts);
-      
+
       // Optimistically remove from list
-      queryClient.setQueryData(queryKeys.contacts, (old: Contact[] | undefined) => 
+      queryClient.setQueryData(queryKeys.contacts, (old: Contact[] | undefined) =>
         old ? old.filter(c => c.id !== id) : []
       );
-      
+
       return { previousContacts };
     },
     onSuccess: (_, id) => {
       // Remove from cache
       queryClient.removeQueries({ queryKey: queryKeys.contact(id) });
-      
+
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.contacts });
       queryClient.invalidateQueries({ queryKey: queryKeys.interactionsByContact(id) });
-      
+
       toast.success('Contact deleted successfully');
     },
     onError: (error, _, context) => {
@@ -277,7 +271,7 @@ export function useDeleteContact() {
       if (context?.previousContacts) {
         queryClient.setQueryData(queryKeys.contacts, context.previousContacts);
       }
-      
+
       const apiError = handleApiError(error, { customMessage: 'Failed to delete contact' });
       toast.error(apiError.message);
     },

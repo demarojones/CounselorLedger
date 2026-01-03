@@ -21,9 +21,11 @@ export function Calendar() {
   } = useInteractions();
 
   const calendarRef = useRef<CalendarViewRef>(null);
-  const [selectedView, setSelectedView] = useState<'dayGridMonth' | 'timeGridWeek' | 'timeGridDay'>('dayGridMonth');
+  const [selectedView, setSelectedView] = useState<'dayGridMonth' | 'timeGridWeek' | 'timeGridDay'>(
+    'dayGridMonth'
+  );
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  
+
   // Modal states
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [eventModalOpen, setEventModalOpen] = useState(false);
@@ -37,9 +39,7 @@ export function Calendar() {
     if (selectedCategories.length === 0) {
       return interactions;
     }
-    return interactions.filter((interaction) =>
-      selectedCategories.includes(interaction.categoryId)
-    );
+    return interactions.filter(interaction => selectedCategories.includes(interaction.categoryId));
   }, [interactions, selectedCategories]);
 
   // Transform interactions to calendar events
@@ -47,9 +47,9 @@ export function Calendar() {
 
   // Handle category filter toggle
   const handleCategoryToggle = (categoryId: string) => {
-    setSelectedCategories((prev) => {
+    setSelectedCategories(prev => {
       if (prev.includes(categoryId)) {
-        return prev.filter((id) => id !== categoryId);
+        return prev.filter(id => id !== categoryId);
       }
       return [...prev, categoryId];
     });

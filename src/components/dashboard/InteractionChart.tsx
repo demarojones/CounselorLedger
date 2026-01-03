@@ -54,10 +54,7 @@ export function InteractionChart({ categoryBreakdown }: InteractionChartProps) {
                 <div key={category.categoryName} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
-                      <div
-                        className="h-3 w-3 rounded-full"
-                        style={{ backgroundColor: color }}
-                      />
+                      <div className="h-3 w-3 rounded-full" style={{ backgroundColor: color }} />
                       <span className="font-medium">{category.categoryName}</span>
                     </div>
                     <span className="text-muted-foreground">

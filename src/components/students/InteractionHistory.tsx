@@ -31,7 +31,7 @@ export function InteractionHistory({
 
   // Filter interactions
   const filteredInteractions = useMemo(() => {
-    return interactions.filter((interaction) => {
+    return interactions.filter(interaction => {
       // Date range filter
       if (startDate) {
         const start = new Date(startDate);
@@ -79,7 +79,7 @@ export function InteractionHistory({
   };
 
   const getCategoryName = (categoryId: string): string => {
-    const category = categories.find((c) => c.id === categoryId);
+    const category = categories.find(c => c.id === categoryId);
     return category?.name || 'Unknown';
   };
 
@@ -101,7 +101,7 @@ export function InteractionHistory({
               id="start-date"
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={e => setStartDate(e.target.value)}
             />
           </div>
           <div>
@@ -110,7 +110,7 @@ export function InteractionHistory({
               id="end-date"
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={e => setEndDate(e.target.value)}
             />
           </div>
           <div>
@@ -118,10 +118,10 @@ export function InteractionHistory({
             <Select
               id="category"
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={e => setSelectedCategory(e.target.value)}
             >
               <option value="all">All categories</option>
-              {categories.map((category) => (
+              {categories.map(category => (
                 <option key={category.id} value={category.id}>
                   {category.name}
                 </option>
@@ -163,11 +163,13 @@ export function InteractionHistory({
                 </TableCell>
               </TableRow>
             ) : (
-              filteredInteractions.map((interaction) => {
+              filteredInteractions.map(interaction => {
                 // Determine if this is a direct interaction or a regarding interaction
                 const isDirect = interaction.studentId !== undefined;
-                const isRegarding = interaction.contactId !== undefined && interaction.regardingStudentId !== undefined;
-                
+                const isRegarding =
+                  interaction.contactId !== undefined &&
+                  interaction.regardingStudentId !== undefined;
+
                 return (
                   <TableRow key={interaction.id} className={isRegarding ? 'bg-blue-50' : ''}>
                     <TableCell className="font-medium">

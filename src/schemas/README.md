@@ -5,6 +5,7 @@ This directory contains all Zod validation schemas used throughout the applicati
 ## Overview
 
 All forms in the application use Zod schemas for validation, providing:
+
 - Type-safe validation
 - Consistent error messages
 - Runtime type checking
@@ -15,6 +16,7 @@ All forms in the application use Zod schemas for validation, providing:
 ### Authentication (`auth.ts`)
 
 **loginSchema**
+
 - Validates user login credentials
 - Fields: email (required, valid email), password (required, min 6 characters)
 
@@ -27,6 +29,7 @@ const result = loginSchema.parse({ email: 'user@example.com', password: 'passwor
 ### Contact Management (`contact.ts`)
 
 **contactFormSchema**
+
 - Validates contact creation and editing
 - Fields:
   - firstName (required, max 50 chars)
@@ -38,6 +41,7 @@ const result = loginSchema.parse({ email: 'user@example.com', password: 'passwor
   - notes (optional, max 1000 chars)
 
 **contactRelationshipSchema**
+
 - Enum: Parent, Guardian, Teacher, Administrator, Counselor, Social Worker, Other
 
 ```typescript
@@ -47,13 +51,14 @@ const result = contactFormSchema.parse({
   firstName: 'John',
   lastName: 'Doe',
   relationship: 'Parent',
-  email: 'john@example.com'
+  email: 'john@example.com',
 });
 ```
 
 ### Student Management (`student.ts`)
 
 **studentFormSchema**
+
 - Validates student creation and editing
 - Fields:
   - studentId (required, max 20 chars)
@@ -66,6 +71,7 @@ const result = contactFormSchema.parse({
   - followUpNotes (optional, max 500 chars)
 
 **gradeLevelSchema**
+
 - Enum: Pre-K through 12th Grade
 
 ```typescript
@@ -75,13 +81,14 @@ const result = studentFormSchema.parse({
   studentId: 'S12345',
   firstName: 'Jane',
   lastName: 'Smith',
-  gradeLevel: '10th Grade'
+  gradeLevel: '10th Grade',
 });
 ```
 
 ### User Management (`user.ts`)
 
 **userFormSchema**
+
 - Validates user account creation and editing
 - Fields:
   - email (required, valid email, max 100 chars, lowercase)
@@ -90,6 +97,7 @@ const result = studentFormSchema.parse({
   - role (required, enum: ADMIN or COUNSELOR)
 
 **userRoleSchema**
+
 - Enum: ADMIN, COUNSELOR
 
 ```typescript
@@ -99,13 +107,14 @@ const result = userFormSchema.parse({
   email: 'counselor@school.edu',
   firstName: 'Sarah',
   lastName: 'Johnson',
-  role: 'COUNSELOR'
+  role: 'COUNSELOR',
 });
 ```
 
 ### Interaction Tracking (`interaction.ts`)
 
 **interactionFormSchema**
+
 - Validates interaction creation and editing
 - Fields:
   - type (required, enum: student or contact)
@@ -122,6 +131,7 @@ const result = userFormSchema.parse({
   - followUpNotes (optional)
 
 Custom validation rules:
+
 - Either studentId or contactId must be provided
 - If needsFollowUp is true, followUpDate is required
 - Duration must be between 1 and 480 minutes (8 hours)
@@ -135,13 +145,14 @@ const result = interactionFormSchema.parse({
   categoryId: 'def-456',
   startTime: '2024-01-15T10:00',
   durationMinutes: 30,
-  needsFollowUp: false
+  needsFollowUp: false,
 });
 ```
 
 ### Reason Categories (`reasonCategory.ts`)
 
 **reasonCategoryFormSchema**
+
 - Validates reason category creation and editing
 - Fields:
   - name (required, max 100 chars)
@@ -149,6 +160,7 @@ const result = interactionFormSchema.parse({
   - sortOrder (integer, min 0, default 0)
 
 **reasonSubcategoryFormSchema**
+
 - Validates reason subcategory creation and editing
 - Fields:
   - categoryId (required, UUID)
@@ -161,13 +173,14 @@ import { reasonCategoryFormSchema } from '@/schemas/reasonCategory';
 const result = reasonCategoryFormSchema.parse({
   name: 'Academic Support',
   color: '#3B82F6',
-  sortOrder: 1
+  sortOrder: 1,
 });
 ```
 
 ### Report Filters (`report.ts`)
 
 **reportFiltersSchema**
+
 - Validates report filter parameters
 - Fields:
   - startDate (required, Date object)
@@ -177,10 +190,12 @@ const result = reasonCategoryFormSchema.parse({
   - counselorId (optional, UUID)
 
 Custom validation rules:
+
 - endDate must be after or equal to startDate
 - startDate cannot be in the future
 
 **dateRangePresetSchema**
+
 - Enum: last7days, last30days, last90days, lastYear, custom
 
 ```typescript
@@ -189,7 +204,7 @@ import { reportFiltersSchema } from '@/schemas/report';
 const result = reportFiltersSchema.parse({
   startDate: new Date('2024-01-01'),
   endDate: new Date('2024-01-31'),
-  gradeLevel: '10th Grade'
+  gradeLevel: '10th Grade',
 });
 ```
 
@@ -209,7 +224,7 @@ const validateForm = (): boolean => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const newErrors: Record<string, string> = {};
-      error.issues.forEach((err) => {
+      error.issues.forEach(err => {
         const field = err.path[0] as string;
         if (field) {
           newErrors[field] = err.message;
@@ -252,7 +267,7 @@ import type { UserFormSchema } from '@/schemas/user';
 const contact: ContactFormSchema = {
   firstName: 'John',
   lastName: 'Doe',
-  relationship: 'Parent'
+  relationship: 'Parent',
 };
 ```
 

@@ -4,7 +4,18 @@ import { supabase } from '@/services/supabase';
 import type { User } from '@/types/user';
 import { Select } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Button } from '@/components/ui/button';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+import { SecurityEventManagement } from './SecurityEventManagement';
 
 interface CounselorStats {
   counselorId: string;
@@ -20,6 +31,7 @@ export function AdminDashboard() {
   const [selectedCounselorId, setSelectedCounselorId] = useState<string>('all');
   const [stats, setStats] = useState<CounselorStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeView, setActiveView] = useState<'dashboard' | 'security'>('dashboard');
 
   useEffect(() => {
     fetchCounselors();
@@ -131,174 +143,196 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Admin Dashboard</h2>
-        <p className="text-gray-600 mt-1">System-wide analytics and counselor activity</p>
-      </div>
-
-      {/* Counselor Filter */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="max-w-xs">
-          <Label htmlFor="counselor-filter">Filter by Counselor</Label>
-          <Select
-            id="counselor-filter"
-            value={selectedCounselorId}
-            onChange={e => setSelectedCounselorId(e.target.value)}
-            className="mt-2"
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Admin Dashboard</h2>
+          <p className="text-gray-600 mt-1">System-wide analytics and counselor activity</p>
+        </div>
+        <div className="flex space-x-2">
+          <Button
+            onClick={() => setActiveView('dashboard')}
+            variant={activeView === 'dashboard' ? 'default' : 'outline'}
           >
-            <option value="all">All Counselors</option>
-            {counselors.map(counselor => (
-              <option key={counselor.id} value={counselor.id}>
-                {counselor.firstName} {counselor.lastName}
-              </option>
-            ))}
-          </Select>
+            Dashboard
+          </Button>
+          <Button
+            onClick={() => setActiveView('security')}
+            variant={activeView === 'security' ? 'default' : 'outline'}
+          >
+            Security Events
+          </Button>
         </div>
       </div>
 
-      {/* Summary Stats */}
-      {selectedCounselorId === 'all' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-600">Total Interactions</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">
-              {totalStats.totalInteractions}
-            </div>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-600">Total Students Served</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">
-              {totalStats.totalStudents}
-            </div>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-600">Total Time (hours)</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">
-              {(totalStats.totalTimeSpent / 60).toFixed(1)}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Counselor Activity Comparison */}
-      {isLoading ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-          <p className="text-gray-500">Loading statistics...</p>
-        </div>
-      ) : stats.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-          <p className="text-gray-500">No data available</p>
-        </div>
+      {activeView === 'security' ? (
+        <SecurityEventManagement />
       ) : (
         <>
-          {/* Interactions Chart */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Interactions by Counselor
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={stats}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="counselorName" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="totalInteractions" fill="#3B82F6" name="Interactions" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Students Chart */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Students Served by Counselor
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={stats}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="counselorName" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="totalStudents" fill="#10B981" name="Students" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Time Spent Chart */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Time Spent by Counselor (hours)
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={stats.map(s => ({
-                  ...s,
-                  totalTimeSpentHours: (s.totalTimeSpent / 60).toFixed(1),
-                }))}
+          {/* Counselor Filter */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="max-w-xs">
+              <Label htmlFor="counselor-filter">Filter by Counselor</Label>
+              <Select
+                id="counselor-filter"
+                value={selectedCounselorId}
+                onChange={e => setSelectedCounselorId(e.target.value)}
+                className="mt-2"
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="counselorName" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="totalTimeSpentHours" fill="#F59E0B" name="Hours" />
-              </BarChart>
-            </ResponsiveContainer>
+                <option value="all">All Counselors</option>
+                {counselors.map(counselor => (
+                  <option key={counselor.id} value={counselor.id}>
+                    {counselor.firstName} {counselor.lastName}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
 
-          {/* Detailed Table */}
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Detailed Statistics</h3>
+          {/* Summary Stats */}
+          {selectedCounselorId === 'all' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="text-sm font-medium text-gray-600">Total Interactions</div>
+                <div className="text-3xl font-bold text-gray-900 mt-2">
+                  {totalStats.totalInteractions}
+                </div>
+              </div>
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="text-sm font-medium text-gray-600">Total Students Served</div>
+                <div className="text-3xl font-bold text-gray-900 mt-2">
+                  {totalStats.totalStudents}
+                </div>
+              </div>
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="text-sm font-medium text-gray-600">Total Time (hours)</div>
+                <div className="text-3xl font-bold text-gray-900 mt-2">
+                  {(totalStats.totalTimeSpent / 60).toFixed(1)}
+                </div>
+              </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Counselor
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Interactions
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Students
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Time (hours)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Avg Time/Interaction
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {stats.map(stat => (
-                    <tr key={stat.counselorId}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {stat.counselorName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {stat.totalInteractions}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {stat.totalStudents}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {(stat.totalTimeSpent / 60).toFixed(1)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {stat.totalInteractions > 0
-                          ? `${(stat.totalTimeSpent / stat.totalInteractions).toFixed(0)} min`
-                          : 'N/A'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          )}
+
+          {/* Counselor Activity Comparison */}
+          {isLoading ? (
+            <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+              <p className="text-gray-500">Loading statistics...</p>
             </div>
-          </div>
+          ) : stats.length === 0 ? (
+            <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+              <p className="text-gray-500">No data available</p>
+            </div>
+          ) : (
+            <>
+              {/* Interactions Chart */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Interactions by Counselor
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={stats}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="counselorName" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="totalInteractions" fill="#3B82F6" name="Interactions" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Students Chart */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Students Served by Counselor
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={stats}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="counselorName" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="totalStudents" fill="#10B981" name="Students" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Time Spent Chart */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Time Spent by Counselor (hours)
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={stats.map(s => ({
+                      ...s,
+                      totalTimeSpentHours: (s.totalTimeSpent / 60).toFixed(1),
+                    }))}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="counselorName" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="totalTimeSpentHours" fill="#F59E0B" name="Hours" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Detailed Table */}
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="p-6 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Detailed Statistics</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Counselor
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Interactions
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Students
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Time (hours)
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Avg Time/Interaction
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {stats.map(stat => (
+                        <tr key={stat.counselorId}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {stat.counselorName}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {stat.totalInteractions}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {stat.totalStudents}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {(stat.totalTimeSpent / 60).toFixed(1)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {stat.totalInteractions > 0
+                              ? `${(stat.totalTimeSpent / stat.totalInteractions).toFixed(0)} min`
+                              : 'N/A'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

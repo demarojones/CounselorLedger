@@ -20,21 +20,10 @@ export interface DateTimePickerProps {
 
 const DateTimePicker = React.forwardRef<HTMLInputElement, DateTimePickerProps>(
   (
-    {
-      label,
-      error,
-      helperText,
-      value,
-      onChange,
-      type = 'datetime-local',
-      className,
-      id,
-      ...props
-    },
+    { label, error, helperText, value, onChange, type = 'datetime-local', className, id, ...props },
     ref
   ) => {
-    const pickerId =
-      id || `datetime-${label?.toLowerCase().replace(/\s+/g, '-')}`;
+    const pickerId = id || `datetime-${label?.toLowerCase().replace(/\s+/g, '-')}`;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange?.(e.target.value);
@@ -52,27 +41,17 @@ const DateTimePicker = React.forwardRef<HTMLInputElement, DateTimePickerProps>(
           className={cn(error && 'border-destructive', className)}
           aria-invalid={!!error}
           aria-describedby={
-            error
-              ? `${pickerId}-error`
-              : helperText
-                ? `${pickerId}-helper`
-                : undefined
+            error ? `${pickerId}-error` : helperText ? `${pickerId}-helper` : undefined
           }
           {...props}
         />
         {error && (
-          <p
-            id={`${pickerId}-error`}
-            className="text-sm font-medium text-destructive"
-          >
+          <p id={`${pickerId}-error`} className="text-sm font-medium text-destructive">
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p
-            id={`${pickerId}-helper`}
-            className="text-sm text-muted-foreground"
-          >
+          <p id={`${pickerId}-helper`} className="text-sm text-muted-foreground">
             {helperText}
           </p>
         )}

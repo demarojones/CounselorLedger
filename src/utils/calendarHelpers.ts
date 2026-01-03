@@ -6,13 +6,13 @@ import type { EventInput } from '@fullcalendar/core';
  */
 function getCategoryClass(categoryName: string): string {
   const normalized = categoryName.toLowerCase();
-  
+
   if (normalized.includes('academic')) return 'event-academic';
   if (normalized.includes('behavior')) return 'event-behavioral';
   if (normalized.includes('social')) return 'event-social';
   if (normalized.includes('emotional') || normalized.includes('mental')) return 'event-emotional';
   if (normalized.includes('career')) return 'event-career';
-  
+
   return 'event-other';
 }
 
@@ -21,15 +21,15 @@ function getCategoryClass(categoryName: string): string {
  */
 function getCategoryColor(categoryName: string, categoryColor?: string): string {
   if (categoryColor) return categoryColor;
-  
+
   const normalized = categoryName.toLowerCase();
-  
+
   if (normalized.includes('academic')) return '#3b82f6'; // blue
   if (normalized.includes('behavior')) return '#ef4444'; // red
   if (normalized.includes('social')) return '#10b981'; // green
   if (normalized.includes('emotional') || normalized.includes('mental')) return '#f59e0b'; // amber
   if (normalized.includes('career')) return '#8b5cf6'; // purple
-  
+
   return '#6b7280'; // gray
 }
 
@@ -37,10 +37,10 @@ function getCategoryColor(categoryName: string, categoryColor?: string): string 
  * Transform interactions into FullCalendar events
  */
 export function transformInteractionsToEvents(interactions: Interaction[]): EventInput[] {
-  return interactions.map((interaction) => {
+  return interactions.map(interaction => {
     const categoryName = interaction.category?.name || 'Other';
     const categoryColor = interaction.category?.color;
-    
+
     // Determine the title based on whether it's a student or contact interaction
     let title = '';
     if (interaction.student) {
@@ -50,10 +50,10 @@ export function transformInteractionsToEvents(interactions: Interaction[]): Even
     } else {
       title = 'Unknown';
     }
-    
+
     // Add category to title
     title = `${title} - ${categoryName}`;
-    
+
     return {
       id: interaction.id,
       title,
@@ -65,7 +65,7 @@ export function transformInteractionsToEvents(interactions: Interaction[]): Even
       extendedProps: {
         interaction,
         categoryName,
-        studentName: interaction.student 
+        studentName: interaction.student
           ? `${interaction.student.firstName} ${interaction.student.lastName}`
           : undefined,
         contactName: interaction.contact
@@ -78,5 +78,3 @@ export function transformInteractionsToEvents(interactions: Interaction[]): Even
     };
   });
 }
-
-

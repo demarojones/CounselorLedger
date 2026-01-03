@@ -1,7 +1,17 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from 'recharts';
 import { exportToCSV, exportToPDF } from '@/utils/exportHelpers';
 import type { Interaction } from '@/types';
 
@@ -13,16 +23,14 @@ export function VolumeReport({ interactions }: VolumeReportProps) {
   const reportData = useMemo(() => {
     // Get unique students
     const uniqueStudentIds = new Set(
-      interactions
-        .filter((i) => i.studentId)
-        .map((i) => i.studentId as string)
+      interactions.filter(i => i.studentId).map(i => i.studentId as string)
     );
 
     const totalStudents = uniqueStudentIds.size;
 
     // Breakdown by grade level
     const gradeMap = new Map<string, Set<string>>();
-    interactions.forEach((interaction) => {
+    interactions.forEach(interaction => {
       if (interaction.student && interaction.studentId) {
         const grade = interaction.student.gradeLevel;
         if (!gradeMap.has(grade)) {
@@ -49,7 +57,7 @@ export function VolumeReport({ interactions }: VolumeReportProps) {
 
     // Trend over time (group by week)
     const trendMap = new Map<string, Set<string>>();
-    interactions.forEach((interaction) => {
+    interactions.forEach(interaction => {
       if (interaction.student && interaction.studentId) {
         const date = new Date(interaction.startTime);
         // Get start of week (Sunday)
@@ -92,7 +100,7 @@ export function VolumeReport({ interactions }: VolumeReportProps) {
         metric: 'Total Unique Students',
         value: reportData.totalStudents,
       },
-      ...reportData.byGradeLevel.map((item) => ({
+      ...reportData.byGradeLevel.map(item => ({
         metric: `Grade ${item.gradeLevel}`,
         value: item.count,
       })),
@@ -122,12 +130,8 @@ export function VolumeReport({ interactions }: VolumeReportProps) {
         </CardHeader>
         <CardContent>
           <div className="text-center">
-            <div className="text-5xl font-bold text-primary">
-              {reportData.totalStudents}
-            </div>
-            <p className="text-muted-foreground mt-2">
-              Unique Students Seen
-            </p>
+            <div className="text-5xl font-bold text-primary">{reportData.totalStudents}</div>
+            <p className="text-muted-foreground mt-2">Unique Students Seen</p>
           </div>
         </CardContent>
       </Card>
@@ -150,7 +154,7 @@ export function VolumeReport({ interactions }: VolumeReportProps) {
                 </BarChart>
               </ResponsiveContainer>
               <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                {reportData.byGradeLevel.map((item) => (
+                {reportData.byGradeLevel.map(item => (
                   <div key={item.gradeLevel} className="text-center p-3 bg-muted rounded-lg">
                     <div className="text-2xl font-bold">{item.count}</div>
                     <div className="text-sm text-muted-foreground">Grade {item.gradeLevel}</div>
@@ -176,13 +180,10 @@ export function VolumeReport({ interactions }: VolumeReportProps) {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={reportData.trend}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(date) => formatDate(date)}
-                />
+                <XAxis dataKey="date" tickFormatter={date => formatDate(date)} />
                 <YAxis allowDecimals={false} />
                 <Tooltip
-                  labelFormatter={(date) => formatDate(date as Date)}
+                  labelFormatter={date => formatDate(date as Date)}
                   formatter={(value: number) => [value, 'Students']}
                 />
                 <Line

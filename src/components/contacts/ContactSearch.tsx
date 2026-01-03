@@ -30,7 +30,7 @@ export function ContactSearch({
 }: ContactSearchProps) {
   // Convert contacts to dropdown options
   const options: SearchableDropdownOption[] = useMemo(() => {
-    return contacts.map((contact) => ({
+    return contacts.map(contact => ({
       value: contact.id,
       label: `${contact.firstName} ${contact.lastName}`,
       subtitle: `${contact.relationship}${contact.organization ? ` - ${contact.organization}` : ''}`,
@@ -42,11 +42,11 @@ export function ContactSearch({
   const filterFn = (option: SearchableDropdownOption, query: string) => {
     const lowerQuery = query.toLowerCase();
     const contact = option.metadata as Contact;
-    
+
     const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
     const relationship = contact.relationship.toLowerCase();
     const organization = contact.organization?.toLowerCase() || '';
-    
+
     return (
       fullName.includes(lowerQuery) ||
       relationship.includes(lowerQuery) ||

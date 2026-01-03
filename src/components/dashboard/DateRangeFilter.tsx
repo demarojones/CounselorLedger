@@ -19,11 +19,7 @@ const PRESET_OPTIONS: PresetOption[] = [
   { label: 'Last Year', days: 365 },
 ];
 
-export function DateRangeFilter({
-  startDate,
-  endDate,
-  onDateRangeChange,
-}: DateRangeFilterProps) {
+export function DateRangeFilter({ startDate, endDate, onDateRangeChange }: DateRangeFilterProps) {
   const handlePresetClick = (days: number) => {
     const end = new Date();
     const start = new Date();
@@ -71,7 +67,7 @@ export function DateRangeFilter({
           <div>
             <h3 className="text-sm font-medium mb-3">Date Range</h3>
             <div className="flex flex-wrap gap-2">
-              {PRESET_OPTIONS.map((preset) => (
+              {PRESET_OPTIONS.map(preset => (
                 <Button
                   key={preset.days}
                   variant={activePreset === preset.days ? 'default' : 'outline'}

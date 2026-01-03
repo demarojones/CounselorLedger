@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { SearchableDropdown, type SearchableDropdownOption } from '@/components/common/SearchableDropdown';
+import {
+  SearchableDropdown,
+  type SearchableDropdownOption,
+} from '@/components/common/SearchableDropdown';
 import { useStudents, useCreateStudent } from '@/hooks/useStudents';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -56,7 +59,7 @@ export function RegardingStudentSelector({
 }: RegardingStudentSelectorProps) {
   const { data: students = [], isLoading, error: studentsError } = useStudents();
   const createStudentMutation = useCreateStudent();
-  
+
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const [newStudentForm, setNewStudentForm] = React.useState<NewStudentFormData>({
     studentId: '',
@@ -70,7 +73,7 @@ export function RegardingStudentSelector({
 
   // Convert students to dropdown options
   const studentOptions: SearchableDropdownOption[] = React.useMemo(() => {
-    return students.map((student) => ({
+    return students.map(student => ({
       value: student.id,
       label: `${student.firstName} ${student.lastName}`,
       subtitle: `${student.studentId} • Grade ${student.gradeLevel}`,
@@ -79,20 +82,17 @@ export function RegardingStudentSelector({
   }, [students]);
 
   // Custom filter function for students
-  const filterStudents = React.useCallback(
-    (option: SearchableDropdownOption, query: string) => {
-      const student = option.metadata?.student as Student;
-      const lowerQuery = query.toLowerCase();
-      
-      return (
-        student.firstName.toLowerCase().includes(lowerQuery) ||
-        student.lastName.toLowerCase().includes(lowerQuery) ||
-        student.studentId.toLowerCase().includes(lowerQuery) ||
-        `${student.firstName} ${student.lastName}`.toLowerCase().includes(lowerQuery)
-      );
-    },
-    []
-  );
+  const filterStudents = React.useCallback((option: SearchableDropdownOption, query: string) => {
+    const student = option.metadata?.student as Student;
+    const lowerQuery = query.toLowerCase();
+
+    return (
+      student.firstName.toLowerCase().includes(lowerQuery) ||
+      student.lastName.toLowerCase().includes(lowerQuery) ||
+      student.studentId.toLowerCase().includes(lowerQuery) ||
+      `${student.firstName} ${student.lastName}`.toLowerCase().includes(lowerQuery)
+    );
+  }, []);
 
   const handleStudentSelect = (studentId: string) => {
     onChange?.(studentId || undefined);
@@ -166,9 +166,7 @@ export function RegardingStudentSelector({
     return (
       <div className="space-y-2">
         <Label>Regarding Student {required && <span className="text-destructive">*</span>}</Label>
-        <div className="text-sm text-destructive">
-          Failed to load students. Please try again.
-        </div>
+        <div className="text-sm text-destructive">Failed to load students. Please try again.</div>
       </div>
     );
   }
@@ -187,12 +185,12 @@ export function RegardingStudentSelector({
             disabled={disabled}
             required={required}
             error={error}
-            helperText={helperText || "Select which student this contact interaction is about"}
+            helperText={helperText || 'Select which student this contact interaction is about'}
             emptyMessage="No students found"
             filterFn={filterStudents}
           />
         </div>
-        
+
         <Button
           type="button"
           variant="outline"
@@ -204,13 +202,13 @@ export function RegardingStudentSelector({
           <Plus className="h-4 w-4 mr-1" />
           Add New
         </Button>
-        
+
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Add New Student</DialogTitle>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -218,7 +216,7 @@ export function RegardingStudentSelector({
                   <Input
                     id="student-id"
                     value={newStudentForm.studentId}
-                    onChange={(e) => handleFormChange('studentId', e.target.value)}
+                    onChange={e => handleFormChange('studentId', e.target.value)}
                     placeholder="e.g., S12345"
                     className={formErrors.studentId ? 'border-destructive' : ''}
                   />
@@ -226,24 +224,24 @@ export function RegardingStudentSelector({
                     <p className="text-sm text-destructive mt-1">{formErrors.studentId}</p>
                   )}
                 </div>
-                
+
                 <FormSelect
                   label="Grade Level"
                   value={newStudentForm.gradeLevel}
-                  onChange={(e) => handleFormChange('gradeLevel', e.target.value)}
+                  onChange={e => handleFormChange('gradeLevel', e.target.value)}
                   options={GRADE_LEVELS}
                   required
                   error={formErrors.gradeLevel}
                 />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="first-name">First Name *</Label>
                   <Input
                     id="first-name"
                     value={newStudentForm.firstName}
-                    onChange={(e) => handleFormChange('firstName', e.target.value)}
+                    onChange={e => handleFormChange('firstName', e.target.value)}
                     placeholder="First name"
                     className={formErrors.firstName ? 'border-destructive' : ''}
                   />
@@ -251,13 +249,13 @@ export function RegardingStudentSelector({
                     <p className="text-sm text-destructive mt-1">{formErrors.firstName}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <Label htmlFor="last-name">Last Name *</Label>
                   <Input
                     id="last-name"
                     value={newStudentForm.lastName}
-                    onChange={(e) => handleFormChange('lastName', e.target.value)}
+                    onChange={e => handleFormChange('lastName', e.target.value)}
                     placeholder="Last name"
                     className={formErrors.lastName ? 'border-destructive' : ''}
                   />
@@ -266,7 +264,7 @@ export function RegardingStudentSelector({
                   )}
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
@@ -274,23 +272,23 @@ export function RegardingStudentSelector({
                     id="email"
                     type="email"
                     value={newStudentForm.email}
-                    onChange={(e) => handleFormChange('email', e.target.value)}
+                    onChange={e => handleFormChange('email', e.target.value)}
                     placeholder="student@school.edu"
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="phone">Phone</Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={newStudentForm.phone}
-                    onChange={(e) => handleFormChange('phone', e.target.value)}
+                    onChange={e => handleFormChange('phone', e.target.value)}
                     placeholder="(555) 123-4567"
                   />
                 </div>
               </div>
-              
+
               <div className="flex justify-end gap-2 pt-4">
                 <Button
                   type="button"

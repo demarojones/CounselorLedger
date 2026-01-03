@@ -1,10 +1,5 @@
 import { useMemo } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -40,7 +35,7 @@ export function ContactDetail({
   const contactInteractions = useMemo(() => {
     if (!contact) return [];
     return interactions
-      .filter((interaction) => interaction.contactId === contact.id)
+      .filter(interaction => interaction.contactId === contact.id)
       .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
   }, [contact, interactions]);
 
@@ -87,19 +82,17 @@ export function ContactDetail({
               <DialogTitle className="text-xl sm:text-2xl">
                 {contact.firstName} {contact.lastName}
               </DialogTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                {contact.relationship}
-              </p>
+              <p className="text-sm text-muted-foreground mt-1">{contact.relationship}</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={onEdit} className="flex-1 sm:flex-none">
                 Edit
               </Button>
               {onDelete && (
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
-                  onClick={() => onDelete(contact.id)} 
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => onDelete(contact.id)}
                   className="flex-1 sm:flex-none"
                 >
                   Delete
@@ -149,9 +142,7 @@ export function ContactDetail({
             <h3 className="text-lg font-semibold mb-3">Interaction Summary</h3>
             <div className="bg-blue-50 rounded-lg p-4">
               <dt className="text-sm font-medium text-blue-600">Total Interactions</dt>
-              <dd className="mt-2 text-3xl font-semibold text-blue-900">
-                {interactionCount}
-              </dd>
+              <dd className="mt-2 text-3xl font-semibold text-blue-900">{interactionCount}</dd>
             </div>
           </div>
 
@@ -174,7 +165,7 @@ export function ContactDetail({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {recentInteractions.map((interaction) => (
+                    {recentInteractions.map(interaction => (
                       <TableRow key={interaction.id}>
                         <TableCell>{formatDate(interaction.startTime)}</TableCell>
                         <TableCell>{formatTime(interaction.startTime)}</TableCell>

@@ -99,19 +99,17 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
         className={cn(
           'fixed top-0 left-0 z-50 h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 transition-all duration-300 ease-in-out shadow-2xl',
           sidebarWidth,
-          isMobile
-            ? isOpen
-              ? 'translate-x-0'
-              : '-translate-x-full'
-            : 'translate-x-0 static'
+          isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0 static'
         )}
       >
         <div className="flex flex-col h-full">
           {/* Logo and close button */}
-          <div className={cn(
-            'flex items-center border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm',
-            showLabels ? 'justify-between p-5' : 'justify-center p-4'
-          )}>
+          <div
+            className={cn(
+              'flex items-center border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm',
+              showLabels ? 'justify-between p-5' : 'justify-center p-4'
+            )}
+          >
             {showLabels ? (
               <>
                 <div className="flex items-center gap-3">
@@ -164,15 +162,21 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
                       {isActive && (
                         <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent animate-pulse" />
                       )}
-                      <Icon className={cn(
-                        'w-5 h-5 transition-transform duration-200 relative z-10',
-                        isActive ? 'text-white scale-110' : 'text-slate-400 group-hover:text-white group-hover:scale-110'
-                      )} />
+                      <Icon
+                        className={cn(
+                          'w-5 h-5 transition-transform duration-200 relative z-10',
+                          isActive
+                            ? 'text-white scale-110'
+                            : 'text-slate-400 group-hover:text-white group-hover:scale-110'
+                        )}
+                      />
                       {showLabels && (
-                        <span className={cn(
-                          'font-medium text-sm relative z-10',
-                          isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'
-                        )}>
+                        <span
+                          className={cn(
+                            'font-medium text-sm relative z-10',
+                            isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'
+                          )}
+                        >
                           {item.name}
                         </span>
                       )}
@@ -191,7 +195,8 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
             <div className="p-4 border-t border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
               <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-primary-500/20">
-                  {user.firstName[0]}{user.lastName[0]}
+                  {user.firstName[0]}
+                  {user.lastName[0]}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-white truncate">
@@ -207,7 +212,8 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
           {user && !showLabels && (
             <div className="p-3 border-t border-slate-700/50 bg-slate-900/50 backdrop-blur-sm flex justify-center">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-primary-500/20">
-                {user.firstName[0]}{user.lastName[0]}
+                {user.firstName[0]}
+                {user.lastName[0]}
               </div>
             </div>
           )}

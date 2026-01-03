@@ -1,10 +1,5 @@
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
   InteractionForm,
@@ -14,7 +9,12 @@ import {
   FollowUpCompleteModal,
 } from '@/components/interactions';
 import { useInteractions } from '@/hooks/useInteractions';
-import { createInteraction, updateInteraction, deleteInteraction, completeFollowUp } from '@/services/api';
+import {
+  createInteraction,
+  updateInteraction,
+  deleteInteraction,
+  completeFollowUp,
+} from '@/services/api';
 import { handleFormSubmission } from '@/utils/formSubmission';
 import type { Interaction, InteractionFormData } from '@/types/interaction';
 
@@ -34,10 +34,8 @@ export function Interactions() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
-  const [selectedInteraction, setSelectedInteraction] =
-    useState<Interaction | null>(null);
-  const [editingInteraction, setEditingInteraction] =
-    useState<Interaction | null>(null);
+  const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
+  const [editingInteraction, setEditingInteraction] = useState<Interaction | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -66,54 +64,45 @@ export function Interactions() {
     }
 
     setIsDeleting(true);
-    
-    const result = await handleFormSubmission(
-      () => deleteInteraction(interaction.id),
-      {
-        successMessage: 'Interaction deleted successfully',
-        onSuccess: () => {
-          setIsDetailOpen(false);
-          setSelectedInteraction(null);
-          refreshInteractions();
-        },
-        showErrorToast: true,
-      }
-    );
+
+    await handleFormSubmission(() => deleteInteraction(interaction.id), {
+      successMessage: 'Interaction deleted successfully',
+      onSuccess: () => {
+        setIsDetailOpen(false);
+        setSelectedInteraction(null);
+        refreshInteractions();
+      },
+      showErrorToast: true,
+    });
 
     setIsDeleting(false);
   };
 
   const handleSubmit = async (data: InteractionFormData) => {
     setIsSubmitting(true);
-    
+
     if (editingInteraction) {
-      const result = await handleFormSubmission(
-        () => updateInteraction(editingInteraction.id, data),
-        {
-          successMessage: 'Interaction updated successfully',
-          onSuccess: () => {
-            setIsFormOpen(false);
-            setEditingInteraction(null);
-            refreshInteractions();
-          },
-          showErrorToast: true,
-        }
-      );
+      await handleFormSubmission(() => updateInteraction(editingInteraction.id, data), {
+        successMessage: 'Interaction updated successfully',
+        onSuccess: () => {
+          setIsFormOpen(false);
+          setEditingInteraction(null);
+          refreshInteractions();
+        },
+        showErrorToast: true,
+      });
     } else {
-      const result = await handleFormSubmission(
-        () => createInteraction(data),
-        {
-          successMessage: 'Interaction created successfully',
-          onSuccess: () => {
-            setIsFormOpen(false);
-            setEditingInteraction(null);
-            refreshInteractions();
-          },
-          showErrorToast: true,
-        }
-      );
+      await handleFormSubmission(() => createInteraction(data), {
+        successMessage: 'Interaction created successfully',
+        onSuccess: () => {
+          setIsFormOpen(false);
+          setEditingInteraction(null);
+          refreshInteractions();
+        },
+        showErrorToast: true,
+      });
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -127,10 +116,7 @@ export function Interactions() {
     setIsCompleteModalOpen(true);
   };
 
-  const handleCompleteFollowUp = async (
-    interactionId: string,
-    completionNotes: string
-  ) => {
+  const handleCompleteFollowUp = async (interactionId: string, completionNotes: string) => {
     const result = await handleFormSubmission(
       () => completeFollowUp(interactionId, completionNotes),
       {
@@ -150,9 +136,7 @@ export function Interactions() {
   };
 
   // Convert interaction to form data for editing
-  const getInitialFormData = (
-    interaction: Interaction
-  ): Partial<InteractionFormData> => {
+  const getInitialFormData = (interaction: Interaction): Partial<InteractionFormData> => {
     return {
       type: interaction.studentId ? 'student' : 'contact',
       studentId: interaction.studentId,
@@ -160,9 +144,7 @@ export function Interactions() {
       categoryId: interaction.categoryId,
       subcategoryId: interaction.subcategoryId,
       customReason: interaction.customReason,
-      startTime: new Date(interaction.startTime)
-        .toISOString()
-        .slice(0, 16),
+      startTime: new Date(interaction.startTime).toISOString().slice(0, 16),
       durationMinutes: interaction.durationMinutes,
       notes: interaction.notes,
       needsFollowUp: interaction.needsFollowUp,
@@ -256,11 +238,7 @@ export function Interactions() {
             </DialogTitle>
           </DialogHeader>
           <InteractionForm
-            initialData={
-              editingInteraction
-                ? getInitialFormData(editingInteraction)
-                : undefined
-            }
+            initialData={editingInteraction ? getInitialFormData(editingInteraction) : undefined}
             students={students}
             contacts={contacts}
             categories={categories}

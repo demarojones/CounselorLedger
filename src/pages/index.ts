@@ -6,5 +6,7 @@ export { StudentDetail } from './StudentDetail';
 export { Contacts } from './Contacts';
 export { Reports } from './Reports';
 export { Admin } from './Admin';
+export { InitialSetup } from './InitialSetup';
+export { InvitationAccept } from './InvitationAccept';
 export { NotFound } from './NotFound';
 export { Unauthorized } from './Unauthorized';

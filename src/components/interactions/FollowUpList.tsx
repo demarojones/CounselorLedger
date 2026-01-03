@@ -26,19 +26,17 @@ export function FollowUpList({
   // Filter for pending follow-ups and sort by follow-up date (overdue first)
   const pendingFollowUps = useMemo(() => {
     const now = new Date();
-    
+
     const pending = interactions.filter(
-      (interaction) =>
-        interaction.needsFollowUp &&
-        !interaction.isFollowUpComplete &&
-        interaction.followUpDate
+      interaction =>
+        interaction.needsFollowUp && !interaction.isFollowUpComplete && interaction.followUpDate
     );
 
     // Sort: overdue first, then by follow-up date
     return pending.sort((a, b) => {
       const aDate = a.followUpDate ? new Date(a.followUpDate) : new Date();
       const bDate = b.followUpDate ? new Date(b.followUpDate) : new Date();
-      
+
       const aOverdue = aDate < now;
       const bOverdue = bDate < now;
 
@@ -140,39 +138,29 @@ export function FollowUpList({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {pendingFollowUps.map((interaction) => {
+            {pendingFollowUps.map(interaction => {
               const overdue = interaction.followUpDate
                 ? isOverdue(interaction.followUpDate)
                 : false;
 
               return (
-                <TableRow
-                  key={interaction.id}
-                  className={overdue ? 'bg-red-50' : ''}
-                >
+                <TableRow key={interaction.id} className={overdue ? 'bg-red-50' : ''}>
                   <TableCell className="font-medium">
                     <div className="flex flex-col">
                       <span>{getStudentName(interaction)}</span>
                       {interaction.student && (
                         <span className="text-xs text-muted-foreground">
-                          {interaction.student.studentId} - Grade{' '}
-                          {interaction.student.gradeLevel}
+                          {interaction.student.studentId} - Grade {interaction.student.gradeLevel}
                         </span>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    {formatDateTime(interaction.startTime)}
-                  </TableCell>
+                  <TableCell>{formatDateTime(interaction.startTime)}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {interaction.followUpDate && (
                         <>
-                          <span
-                            className={
-                              overdue ? 'text-red-700 font-medium' : ''
-                            }
-                          >
+                          <span className={overdue ? 'text-red-700 font-medium' : ''}>
                             {formatDate(interaction.followUpDate)}
                           </span>
                           {overdue && (
@@ -191,9 +179,7 @@ export function FollowUpList({
                           {interaction.followUpNotes}
                         </p>
                       ) : (
-                        <span className="text-sm text-muted-foreground italic">
-                          No notes
-                        </span>
+                        <span className="text-sm text-muted-foreground italic">No notes</span>
                       )}
                     </div>
                   </TableCell>

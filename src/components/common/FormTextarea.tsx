@@ -3,8 +3,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-export interface FormTextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface FormTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -23,27 +22,17 @@ const FormTextarea = React.forwardRef<HTMLTextAreaElement, FormTextareaProps>(
           className={cn(error && 'border-destructive', className)}
           aria-invalid={!!error}
           aria-describedby={
-            error
-              ? `${textareaId}-error`
-              : helperText
-                ? `${textareaId}-helper`
-                : undefined
+            error ? `${textareaId}-error` : helperText ? `${textareaId}-helper` : undefined
           }
           {...props}
         />
         {error && (
-          <p
-            id={`${textareaId}-error`}
-            className="text-sm font-medium text-destructive"
-          >
+          <p id={`${textareaId}-error`} className="text-sm font-medium text-destructive">
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p
-            id={`${textareaId}-helper`}
-            className="text-sm text-muted-foreground"
-          >
+          <p id={`${textareaId}-helper`} className="text-sm text-muted-foreground">
             {helperText}
           </p>
         )}

@@ -80,9 +80,7 @@ class ErrorBoundary extends Component<Props, State> {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                Something went wrong
-              </h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
               <p className="text-gray-600 mb-6">
                 We're sorry, but something unexpected happened. Please try reloading the page.
               </p>

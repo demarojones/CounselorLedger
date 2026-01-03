@@ -99,7 +99,7 @@ interface UpdateCategoryData {
 
 async function updateCategory(data: UpdateCategoryData): Promise<ReasonCategory> {
   const { id, ...updateFields } = data;
-  
+
   const updateData: any = {};
   if (updateFields.name !== undefined) updateData.name = updateFields.name;
   if (updateFields.color !== undefined) updateData.color = updateFields.color || null;
@@ -118,10 +118,7 @@ async function updateCategory(data: UpdateCategoryData): Promise<ReasonCategory>
 
 // Delete category
 async function deleteCategory(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('reason_categories')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('reason_categories').delete().eq('id', id);
 
   if (error) throw error;
 }
@@ -159,7 +156,7 @@ interface UpdateSubcategoryData {
 
 async function updateSubcategory(data: UpdateSubcategoryData): Promise<ReasonSubcategory> {
   const { id, ...updateFields } = data;
-  
+
   const updateData: any = {};
   if (updateFields.name !== undefined) updateData.name = updateFields.name;
   if (updateFields.sortOrder !== undefined) updateData.sort_order = updateFields.sortOrder;
@@ -177,10 +174,7 @@ async function updateSubcategory(data: UpdateSubcategoryData): Promise<ReasonSub
 
 // Delete subcategory
 async function deleteSubcategory(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('reason_subcategories')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('reason_subcategories').delete().eq('id', id);
 
   if (error) throw error;
 }
@@ -202,7 +196,7 @@ export function useCreateCategory() {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories });
       toast.success('Category created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to create category' });
       toast.error(apiError.message);
     },
@@ -218,7 +212,7 @@ export function useUpdateCategory() {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories });
       toast.success('Category updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to update category' });
       toast.error(apiError.message);
     },
@@ -234,7 +228,7 @@ export function useDeleteCategory() {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories });
       toast.success('Category deleted successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to delete category' });
       toast.error(apiError.message);
     },
@@ -262,14 +256,14 @@ export function useCreateSubcategory() {
 
   return useMutation({
     mutationFn: createSubcategory,
-    onSuccess: (newSubcategory) => {
+    onSuccess: newSubcategory => {
       queryClient.invalidateQueries({ queryKey: ['subcategories'] });
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.subcategories(newSubcategory.categoryId) 
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.subcategories(newSubcategory.categoryId),
       });
       toast.success('Subcategory created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to create subcategory' });
       toast.error(apiError.message);
     },
@@ -285,7 +279,7 @@ export function useUpdateSubcategory() {
       queryClient.invalidateQueries({ queryKey: ['subcategories'] });
       toast.success('Subcategory updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to update subcategory' });
       toast.error(apiError.message);
     },
@@ -301,7 +295,7 @@ export function useDeleteSubcategory() {
       queryClient.invalidateQueries({ queryKey: ['subcategories'] });
       toast.success('Subcategory deleted successfully');
     },
-    onError: (error) => {
+    onError: error => {
       const apiError = handleApiError(error, { customMessage: 'Failed to delete subcategory' });
       toast.error(apiError.message);
     },

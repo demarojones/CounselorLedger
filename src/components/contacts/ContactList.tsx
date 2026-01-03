@@ -22,7 +22,12 @@ interface ContactListProps {
 type SortField = 'name' | 'relationship' | 'email' | 'phone' | 'organization' | 'interactionCount';
 type SortDirection = 'asc' | 'desc';
 
-export function ContactList({ contacts, interactions, onViewContact, onEditContact }: ContactListProps) {
+export function ContactList({
+  contacts,
+  interactions,
+  onViewContact,
+  onEditContact,
+}: ContactListProps) {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [filterQuery, setFilterQuery] = useState('');
@@ -31,9 +36,9 @@ export function ContactList({ contacts, interactions, onViewContact, onEditConta
 
   // Calculate interaction stats for each contact
   const contactsWithStats = useMemo(() => {
-    return contacts.map((contact) => {
+    return contacts.map(contact => {
       const contactInteractions = interactions.filter(
-        (interaction) => interaction.contactId === contact.id
+        interaction => interaction.contactId === contact.id
       );
       const interactionCount = contactInteractions.length;
 
@@ -49,7 +54,7 @@ export function ContactList({ contacts, interactions, onViewContact, onEditConta
     if (!filterQuery) return contactsWithStats;
 
     const lowerQuery = filterQuery.toLowerCase();
-    return contactsWithStats.filter((contact) => {
+    return contactsWithStats.filter(contact => {
       const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
       const relationship = contact.relationship.toLowerCase();
       const email = contact.email?.toLowerCase() || '';
@@ -142,7 +147,7 @@ export function ContactList({ contacts, interactions, onViewContact, onEditConta
           type="text"
           placeholder="Filter by name, relationship, email, phone, or organization..."
           value={filterQuery}
-          onChange={(e) => {
+          onChange={e => {
             setFilterQuery(e.target.value);
             setCurrentPage(1); // Reset to first page on filter
           }}
@@ -216,7 +221,7 @@ export function ContactList({ contacts, interactions, onViewContact, onEditConta
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedContacts.map((contact) => (
+              paginatedContacts.map(contact => (
                 <TableRow key={contact.id}>
                   <TableCell className="font-medium">
                     {contact.lastName}, {contact.firstName}
@@ -228,18 +233,10 @@ export function ContactList({ contacts, interactions, onViewContact, onEditConta
                   <TableCell>{contact.interactionCount || 0}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onViewContact?.(contact.id)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => onViewContact?.(contact.id)}>
                         View
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onEditContact?.(contact.id)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => onEditContact?.(contact.id)}>
                         Edit
                       </Button>
                     </div>
@@ -256,14 +253,14 @@ export function ContactList({ contacts, interactions, onViewContact, onEditConta
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-            {Math.min(currentPage * itemsPerPage, sortedContacts.length)} of{' '}
-            {sortedContacts.length} contacts
+            {Math.min(currentPage * itemsPerPage, sortedContacts.length)} of {sortedContacts.length}{' '}
+            contacts
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
             >
               Previous
@@ -274,7 +271,7 @@ export function ContactList({ contacts, interactions, onViewContact, onEditConta
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
             >
               Next

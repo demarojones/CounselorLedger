@@ -5,6 +5,7 @@ This directory contains reusable form components built on top of Shadcn/ui primi
 ## Components
 
 ### FormInput
+
 A text input component with label, validation feedback, and helper text.
 
 ```tsx
@@ -16,10 +17,11 @@ import { FormInput } from '@/components/common';
   placeholder="Enter your email"
   error={errors.email}
   helperText="We'll never share your email"
-/>
+/>;
 ```
 
 ### FormSelect
+
 A select dropdown component with label, validation feedback, and helper text.
 
 ```tsx
@@ -32,24 +34,21 @@ import { FormSelect } from '@/components/common';
     { value: '10', label: '10th Grade' },
   ]}
   error={errors.grade}
-/>
+/>;
 ```
 
 ### FormTextarea
+
 A textarea component for longer text input with label and validation.
 
 ```tsx
 import { FormTextarea } from '@/components/common';
 
-<FormTextarea
-  label="Notes"
-  placeholder="Enter your notes here..."
-  rows={4}
-  error={errors.notes}
-/>
+<FormTextarea label="Notes" placeholder="Enter your notes here..." rows={4} error={errors.notes} />;
 ```
 
 ### DateTimePicker
+
 A date/time picker component with label and validation.
 
 ```tsx
@@ -61,10 +60,11 @@ import { DateTimePicker } from '@/components/common';
   value={startTime}
   onChange={setStartTime}
   error={errors.startTime}
-/>
+/>;
 ```
 
 ### SearchableDropdown
+
 A searchable dropdown with real-time filtering, keyboard navigation, and loading states.
 
 ```tsx
@@ -82,7 +82,7 @@ import { SearchableDropdown } from '@/components/common';
   onChange={(value, option) => setSelectedStudent(value)}
   loading={isLoading}
   error={errors.student}
-/>
+/>;
 ```
 
 ## Features

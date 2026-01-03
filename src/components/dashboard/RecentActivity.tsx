@@ -62,7 +62,7 @@ export function RecentActivity({ interactions }: RecentActivityProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {interactions.map((interaction) => (
+          {interactions.map(interaction => (
             <div
               key={interaction.id}
               className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0"

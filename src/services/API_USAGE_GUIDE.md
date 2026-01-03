@@ -5,6 +5,7 @@ This guide shows how to use the new API layer to handle Supabase operations for 
 ## Overview
 
 The API layer (`src/services/api.ts`) provides high-level functions for managing data in Supabase. It handles:
+
 - Data transformation (snake_case ↔ camelCase)
 - Tenant context management
 - Error handling
@@ -19,17 +20,14 @@ import { createContact, updateStudent, createInteraction } from '@/services/api'
 import { handleFormSubmission } from '@/utils/formSubmission';
 
 // In your form submission handler
-const handleSubmit = async (formData) => {
-  const result = await handleFormSubmission(
-    () => createContact(formData),
-    {
-      successMessage: 'Contact created successfully',
-      onSuccess: (newContact) => {
-        // Update UI with new contact
-        setContacts([...contacts, newContact]);
-      },
-    }
-  );
+const handleSubmit = async formData => {
+  const result = await handleFormSubmission(() => createContact(formData), {
+    successMessage: 'Contact created successfully',
+    onSuccess: newContact => {
+      // Update UI with new contact
+      setContacts([...contacts, newContact]);
+    },
+  });
 };
 ```
 
@@ -63,19 +61,20 @@ const { data: student, error } = await fetchStudent(studentId);
 import { createStudent } from '@/services/api';
 import { handleFormSubmission } from '@/utils/formSubmission';
 
-const handleCreateStudent = async (formData) => {
+const handleCreateStudent = async formData => {
   const result = await handleFormSubmission(
-    () => createStudent({
-      studentId: formData.studentId,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      gradeLevel: formData.gradeLevel,
-      email: formData.email,
-      phone: formData.phone,
-    }),
+    () =>
+      createStudent({
+        studentId: formData.studentId,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        gradeLevel: formData.gradeLevel,
+        email: formData.email,
+        phone: formData.phone,
+      }),
     {
       successMessage: 'Student created successfully',
-      onSuccess: (newStudent) => {
+      onSuccess: newStudent => {
         setStudents([...students, newStudent]);
       },
     }
@@ -119,20 +118,21 @@ const { data: contacts, error } = await fetchContacts();
 import { createContact } from '@/services/api';
 import { handleFormSubmission } from '@/utils/formSubmission';
 
-const handleCreateContact = async (formData) => {
+const handleCreateContact = async formData => {
   const result = await handleFormSubmission(
-    () => createContact({
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      relationship: formData.relationship,
-      email: formData.email,
-      phone: formData.phone,
-      organization: formData.organization,
-      notes: formData.notes,
-    }),
+    () =>
+      createContact({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        relationship: formData.relationship,
+        email: formData.email,
+        phone: formData.phone,
+        organization: formData.organization,
+        notes: formData.notes,
+      }),
     {
       successMessage: 'Contact created successfully',
-      onSuccess: (newContact) => {
+      onSuccess: newContact => {
         setContacts([...contacts, newContact]);
       },
     }
@@ -175,26 +175,27 @@ const { data: interactions, error } = await fetchInteractions();
 import { createInteraction } from '@/services/api';
 import { handleFormSubmission } from '@/utils/formSubmission';
 
-const handleCreateInteraction = async (formData) => {
+const handleCreateInteraction = async formData => {
   const result = await handleFormSubmission(
-    () => createInteraction({
-      type: 'student', // or 'contact'
-      studentId: formData.studentId,
-      contactId: formData.contactId,
-      regardingStudentId: formData.regardingStudentId,
-      categoryId: formData.categoryId,
-      subcategoryId: formData.subcategoryId,
-      customReason: formData.customReason,
-      startTime: formData.startTime,
-      durationMinutes: formData.durationMinutes,
-      notes: formData.notes,
-      needsFollowUp: formData.needsFollowUp,
-      followUpDate: formData.followUpDate,
-      followUpNotes: formData.followUpNotes,
-    }),
+    () =>
+      createInteraction({
+        type: 'student', // or 'contact'
+        studentId: formData.studentId,
+        contactId: formData.contactId,
+        regardingStudentId: formData.regardingStudentId,
+        categoryId: formData.categoryId,
+        subcategoryId: formData.subcategoryId,
+        customReason: formData.customReason,
+        startTime: formData.startTime,
+        durationMinutes: formData.durationMinutes,
+        notes: formData.notes,
+        needsFollowUp: formData.needsFollowUp,
+        followUpDate: formData.followUpDate,
+        followUpNotes: formData.followUpNotes,
+      }),
     {
       successMessage: 'Interaction created successfully',
-      onSuccess: (newInteraction) => {
+      onSuccess: newInteraction => {
         setInteractions([...interactions, newInteraction]);
       },
     }

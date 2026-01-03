@@ -4,5 +4,6 @@ export * from './contact';
 export * from './interaction';
 export * from './reasonCategory';
 export * from './report';
+export * from './setup';
 export * from './student';
 export * from './user';

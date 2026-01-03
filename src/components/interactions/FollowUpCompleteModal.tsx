@@ -30,7 +30,7 @@ export function FollowUpCompleteModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!interaction) return;
 
     setIsSubmitting(true);
@@ -92,9 +92,7 @@ export function FollowUpCompleteModal({
               <div className="bg-muted/50 p-4 rounded-lg space-y-2">
                 <div>
                   <span className="text-sm font-medium">Student/Contact:</span>
-                  <p className="text-sm text-muted-foreground">
-                    {getStudentName()}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{getStudentName()}</p>
                 </div>
                 {interaction.followUpDate && (
                   <div>
@@ -107,9 +105,7 @@ export function FollowUpCompleteModal({
                 {interaction.followUpNotes && (
                   <div>
                     <span className="text-sm font-medium">Original Notes:</span>
-                    <p className="text-sm text-muted-foreground">
-                      {interaction.followUpNotes}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{interaction.followUpNotes}</p>
                   </div>
                 )}
               </div>
@@ -121,7 +117,7 @@ export function FollowUpCompleteModal({
                 label="Completion Notes (Optional)"
                 placeholder="Add any notes about completing this follow-up..."
                 value={completionNotes}
-                onChange={(e) => setCompletionNotes(e.target.value)}
+                onChange={e => setCompletionNotes(e.target.value)}
                 rows={4}
               />
               <p className="text-xs text-muted-foreground">
@@ -138,12 +134,7 @@ export function FollowUpCompleteModal({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

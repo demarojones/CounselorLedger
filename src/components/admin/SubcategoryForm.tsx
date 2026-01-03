@@ -68,7 +68,7 @@ export function SubcategoryForm({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: FormErrors = {};
-        error.issues.forEach((err) => {
+        error.issues.forEach(err => {
           const field = err.path[0] as keyof FormErrors;
           if (field) {
             newErrors[field] = err.message;
@@ -146,9 +146,7 @@ export function SubcategoryForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {subcategory ? 'Edit Subcategory' : 'Create New Subcategory'}
-          </DialogTitle>
+          <DialogTitle>{subcategory ? 'Edit Subcategory' : 'Create New Subcategory'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -161,9 +159,7 @@ export function SubcategoryForm({
               onChange={e => handleChange('name', e.target.value)}
               placeholder="e.g., Study Skills"
             />
-            {errors.name && (
-              <p className="text-sm text-red-600">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
           </div>
 
           <DialogFooter>

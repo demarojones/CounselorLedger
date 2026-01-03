@@ -17,11 +17,11 @@ export function formatFullName(firstName: string, lastName: string, middleName?:
   if (!firstName && !lastName) {
     return 'Unknown';
   }
-  
+
   if (middleName) {
     return `${firstName} ${middleName} ${lastName}`.trim();
   }
-  
+
   return `${firstName} ${lastName}`.trim();
 }
 
@@ -37,15 +37,15 @@ export function formatLastFirst(firstName: string, lastName: string): string {
   if (!firstName && !lastName) {
     return 'Unknown';
   }
-  
+
   if (!firstName) {
     return lastName;
   }
-  
+
   if (!lastName) {
     return firstName;
   }
-  
+
   return `${lastName}, ${firstName}`;
 }
 
@@ -61,13 +61,13 @@ export function formatLastFirst(firstName: string, lastName: string): string {
  */
 export function getInitials(firstName: string, lastName: string, middleName?: string): string {
   const parts = [firstName, middleName, lastName].filter(Boolean);
-  
+
   if (parts.length === 0) {
     return '?';
   }
-  
+
   return parts
-    .map(part => part ? part.charAt(0).toUpperCase() : '')
+    .map(part => (part ? part.charAt(0).toUpperCase() : ''))
     .filter(Boolean)
     .join('');
 }
@@ -84,15 +84,15 @@ export function formatInitialLastName(firstName: string, lastName: string): stri
   if (!firstName && !lastName) {
     return 'Unknown';
   }
-  
+
   if (!firstName) {
     return lastName;
   }
-  
+
   if (!lastName) {
     return firstName;
   }
-  
+
   return `${firstName.charAt(0)}. ${lastName}`;
 }
 
@@ -108,7 +108,7 @@ export function capitalizeWords(text: string): string {
   if (!text) {
     return '';
   }
-  
+
   return text
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -128,7 +128,7 @@ export function formatProperName(name: string): string {
   if (!name) {
     return '';
   }
-  
+
   // Handle special cases like "McDonald", "O'Brien", etc.
   return name
     .split(' ')
@@ -136,19 +136,21 @@ export function formatProperName(name: string): string {
       if (word.includes("'")) {
         // Handle names like O'Brien
         const parts = word.split("'");
-        return parts.map(part => part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : '').join("'");
+        return parts
+          .map(part => (part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : ''))
+          .join("'");
       }
-      
+
       if (word.toLowerCase().startsWith('mc') && word.length > 2) {
         // Handle names like McDonald
         return 'Mc' + word.charAt(2).toUpperCase() + word.slice(3).toLowerCase();
       }
-      
+
       if (word.toLowerCase().startsWith('mac') && word.length > 3) {
         // Handle names like MacLeod
         return 'Mac' + word.charAt(3).toUpperCase() + word.slice(4).toLowerCase();
       }
-      
+
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
     .join(' ');
@@ -175,19 +177,19 @@ export function getDisplayName(
   if (firstName && lastName) {
     return formatFullName(firstName, lastName);
   }
-  
+
   if (firstName) {
     return firstName;
   }
-  
+
   if (lastName) {
     return lastName;
   }
-  
+
   if (email) {
     return email.split('@')[0];
   }
-  
+
   return fallback;
 }
 
@@ -203,21 +205,21 @@ export function parseFullName(fullName: string): { firstName: string; lastName: 
   if (!fullName) {
     return { firstName: '', lastName: '' };
   }
-  
+
   const parts = fullName.trim().split(/\s+/);
-  
+
   if (parts.length === 0) {
     return { firstName: '', lastName: '' };
   }
-  
+
   if (parts.length === 1) {
     return { firstName: parts[0], lastName: '' };
   }
-  
+
   // First part is first name, rest is last name
   const firstName = parts[0];
   const lastName = parts.slice(1).join(' ');
-  
+
   return { firstName, lastName };
 }
 
@@ -234,23 +236,23 @@ export function parseFullName(fullName: string): { firstName: string; lastName: 
  */
 export function truncateName(firstName: string, lastName: string, maxLength: number): string {
   const fullName = formatFullName(firstName, lastName);
-  
+
   if (fullName.length <= maxLength) {
     return fullName;
   }
-  
+
   // Try with initial and last name
   const initialLastName = formatInitialLastName(firstName, lastName);
   if (initialLastName.length <= maxLength) {
     return initialLastName;
   }
-  
+
   // Try with just initials
   const initials = getInitials(firstName, lastName);
   if (initials.length <= maxLength) {
     return initials;
   }
-  
+
   // Last resort: truncate with ellipsis
   return fullName.substring(0, maxLength - 3) + '...';
 }
@@ -273,10 +275,10 @@ export function compareNames(
   b: { firstName: string; lastName: string }
 ): number {
   const lastNameCompare = a.lastName.localeCompare(b.lastName);
-  
+
   if (lastNameCompare !== 0) {
     return lastNameCompare;
   }
-  
+
   return a.firstName.localeCompare(b.firstName);
 }

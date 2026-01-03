@@ -2,11 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/services/supabase';
 import { toast } from '@/utils/toast';
 import { handleApiError } from '@/utils/errorHandling';
-import type {
-  Interaction,
-  InteractionFormData,
-  InteractionDbResponse,
-} from '@/types/interaction';
+import type { Interaction, InteractionFormData, InteractionDbResponse } from '@/types/interaction';
 import type { Student, StudentDbResponse } from '@/types/student';
 import type { Contact, ContactDbResponse } from '@/types/contact';
 import type {
@@ -41,14 +37,12 @@ function convertInteractionFromDb(
   subcategories: ReasonSubcategory[],
   counselors: User[]
 ): Interaction {
-  const student = students.find((s) => s.id === dbInteraction.student_id);
-  const contact = contacts.find((c) => c.id === dbInteraction.contact_id);
-  const regardingStudent = students.find((s) => s.id === dbInteraction.regarding_student_id);
-  const category = categories.find((c) => c.id === dbInteraction.category_id);
-  const subcategory = subcategories.find(
-    (s) => s.id === dbInteraction.subcategory_id
-  );
-  const counselor = counselors.find((c) => c.id === dbInteraction.counselor_id);
+  const student = students.find(s => s.id === dbInteraction.student_id);
+  const contact = contacts.find(c => c.id === dbInteraction.contact_id);
+  const regardingStudent = students.find(s => s.id === dbInteraction.regarding_student_id);
+  const category = categories.find(c => c.id === dbInteraction.category_id);
+  const subcategory = subcategories.find(s => s.id === dbInteraction.subcategory_id);
+  const counselor = counselors.find(c => c.id === dbInteraction.counselor_id);
 
   return {
     id: dbInteraction.id,
@@ -64,9 +58,7 @@ function convertInteractionFromDb(
     endTime: new Date(dbInteraction.end_time),
     notes: dbInteraction.notes,
     needsFollowUp: dbInteraction.needs_follow_up,
-    followUpDate: dbInteraction.follow_up_date
-      ? new Date(dbInteraction.follow_up_date)
-      : undefined,
+    followUpDate: dbInteraction.follow_up_date ? new Date(dbInteraction.follow_up_date) : undefined,
     followUpNotes: dbInteraction.follow_up_notes,
     isFollowUpComplete: dbInteraction.is_follow_up_complete,
     createdAt: new Date(dbInteraction.created_at),
@@ -111,9 +103,7 @@ function convertContactFromDb(dbContact: ContactDbResponse): Contact {
   };
 }
 
-function convertCategoryFromDb(
-  dbCategory: ReasonCategoryDbResponse
-): ReasonCategory {
+function convertCategoryFromDb(dbCategory: ReasonCategoryDbResponse): ReasonCategory {
   return {
     id: dbCategory.id,
     name: dbCategory.name,
@@ -124,9 +114,7 @@ function convertCategoryFromDb(
   };
 }
 
-function convertSubcategoryFromDb(
-  dbSubcategory: ReasonSubcategoryDbResponse
-): ReasonSubcategory {
+function convertSubcategoryFromDb(dbSubcategory: ReasonSubcategoryDbResponse): ReasonSubcategory {
   return {
     id: dbSubcategory.id,
     categoryId: dbSubcategory.category_id,
@@ -162,7 +150,7 @@ export function useInteractions(): UseInteractionsResult {
   const [subcategories, setSubcategories] = useState<ReasonSubcategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Store counselors in a ref to avoid re-renders but keep it accessible
   const [, setCounselorsCache] = useState<User[]>([]);
 
@@ -197,11 +185,10 @@ export function useInteractions(): UseInteractionsResult {
       if (categoriesError) throw categoriesError;
 
       // Fetch subcategories
-      const { data: subcategoriesData, error: subcategoriesError } =
-        await supabase
-          .from('reason_subcategories')
-          .select('*')
-          .order('sort_order', { ascending: true });
+      const { data: subcategoriesData, error: subcategoriesError } = await supabase
+        .from('reason_subcategories')
+        .select('*')
+        .order('sort_order', { ascending: true });
 
       if (subcategoriesError) throw subcategoriesError;
 
@@ -213,23 +200,18 @@ export function useInteractions(): UseInteractionsResult {
       if (counselorsError) throw counselorsError;
 
       // Fetch interactions
-      const { data: interactionsData, error: interactionsError } =
-        await supabase
-          .from('interactions')
-          .select('*')
-          .order('start_time', { ascending: false });
+      const { data: interactionsData, error: interactionsError } = await supabase
+        .from('interactions')
+        .select('*')
+        .order('start_time', { ascending: false });
 
       if (interactionsError) throw interactionsError;
 
       // Convert data
       const convertedStudents = (studentsData || []).map(convertStudentFromDb);
       const convertedContacts = (contactsData || []).map(convertContactFromDb);
-      const convertedCategories = (categoriesData || []).map(
-        convertCategoryFromDb
-      );
-      const convertedSubcategories = (subcategoriesData || []).map(
-        convertSubcategoryFromDb
-      );
+      const convertedCategories = (categoriesData || []).map(convertCategoryFromDb);
+      const convertedSubcategories = (subcategoriesData || []).map(convertSubcategoryFromDb);
       const convertedCounselors = (counselorsData || []).map((user: any) => ({
         id: user.id,
         email: user.email,
@@ -249,7 +231,7 @@ export function useInteractions(): UseInteractionsResult {
       setCounselorsCache(convertedCounselors);
 
       // Convert interactions with all related data
-      const convertedInteractions = (interactionsData || []).map((interaction) =>
+      const convertedInteractions = (interactionsData || []).map(interaction =>
         convertInteractionFromDb(
           interaction,
           convertedStudents,
@@ -288,9 +270,7 @@ export function useInteractions(): UseInteractionsResult {
 
         // Calculate end time
         const startTime = new Date(data.startTime);
-        const endTime = new Date(
-          startTime.getTime() + data.durationMinutes * 60000
-        );
+        const endTime = new Date(startTime.getTime() + data.durationMinutes * 60000);
 
         // Prepare data for insertion
         const insertData = {
@@ -311,9 +291,7 @@ export function useInteractions(): UseInteractionsResult {
           is_follow_up_complete: false,
         };
 
-        const { error: insertError } = await supabase
-          .from('interactions')
-          .insert(insertData);
+        const { error: insertError } = await supabase.from('interactions').insert(insertData);
 
         if (insertError) throw insertError;
 
@@ -339,35 +317,27 @@ export function useInteractions(): UseInteractionsResult {
         // Prepare update data
         const updateData: any = {};
 
-        if (data.studentId !== undefined)
-          updateData.student_id = data.studentId || null;
-        if (data.contactId !== undefined)
-          updateData.contact_id = data.contactId || null;
+        if (data.studentId !== undefined) updateData.student_id = data.studentId || null;
+        if (data.contactId !== undefined) updateData.contact_id = data.contactId || null;
         if (data.regardingStudentId !== undefined)
           updateData.regarding_student_id = data.regardingStudentId || null;
-        if (data.categoryId !== undefined)
-          updateData.category_id = data.categoryId;
+        if (data.categoryId !== undefined) updateData.category_id = data.categoryId;
         if (data.subcategoryId !== undefined)
           updateData.subcategory_id = data.subcategoryId || null;
-        if (data.customReason !== undefined)
-          updateData.custom_reason = data.customReason || null;
+        if (data.customReason !== undefined) updateData.custom_reason = data.customReason || null;
         if (data.startTime !== undefined) updateData.start_time = data.startTime;
         if (data.durationMinutes !== undefined) {
           updateData.duration_minutes = data.durationMinutes;
           // Recalculate end time if duration or start time changed
           if (data.startTime || updateData.start_time) {
             const startTime = new Date(data.startTime || updateData.start_time);
-            const endTime = new Date(
-              startTime.getTime() + data.durationMinutes * 60000
-            );
+            const endTime = new Date(startTime.getTime() + data.durationMinutes * 60000);
             updateData.end_time = endTime.toISOString();
           }
         }
         if (data.notes !== undefined) updateData.notes = data.notes || null;
-        if (data.needsFollowUp !== undefined)
-          updateData.needs_follow_up = data.needsFollowUp;
-        if (data.followUpDate !== undefined)
-          updateData.follow_up_date = data.followUpDate || null;
+        if (data.needsFollowUp !== undefined) updateData.needs_follow_up = data.needsFollowUp;
+        if (data.followUpDate !== undefined) updateData.follow_up_date = data.followUpDate || null;
         if (data.followUpNotes !== undefined)
           updateData.follow_up_notes = data.followUpNotes || null;
 
@@ -392,30 +362,24 @@ export function useInteractions(): UseInteractionsResult {
   );
 
   // Delete interaction
-  const deleteInteraction = useCallback(
-    async (id: string) => {
-      setError(null);
+  const deleteInteraction = useCallback(async (id: string) => {
+    setError(null);
 
-      try {
-        const { error: deleteError } = await supabase
-          .from('interactions')
-          .delete()
-          .eq('id', id);
+    try {
+      const { error: deleteError } = await supabase.from('interactions').delete().eq('id', id);
 
-        if (deleteError) throw deleteError;
+      if (deleteError) throw deleteError;
 
-        // Optimistically remove from state
-        setInteractions((prev) => prev.filter((i) => i.id !== id));
-        toast.success('Interaction deleted successfully');
-      } catch (err) {
-        console.error('Error deleting interaction:', err);
-        const error = handleApiError(err, { customMessage: 'Failed to delete interaction' });
-        setError(error.message);
-        throw err;
-      }
-    },
-    []
-  );
+      // Optimistically remove from state
+      setInteractions(prev => prev.filter(i => i.id !== id));
+      toast.success('Interaction deleted successfully');
+    } catch (err) {
+      console.error('Error deleting interaction:', err);
+      const error = handleApiError(err, { customMessage: 'Failed to delete interaction' });
+      setError(error.message);
+      throw err;
+    }
+  }, []);
 
   // Complete follow-up
   const completeFollowUp = useCallback(
@@ -424,7 +388,7 @@ export function useInteractions(): UseInteractionsResult {
 
       try {
         // Get the current interaction to append completion notes
-        const interaction = interactions.find((i) => i.id === id);
+        const interaction = interactions.find(i => i.id === id);
         if (!interaction) {
           throw new Error('Interaction not found');
         }
