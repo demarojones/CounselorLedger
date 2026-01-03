@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { fetchStudent } from '@/services/api';
 import { supabase } from '@/services/supabase';
 import type { Student } from '@/types/student';
 import type { Interaction, InteractionDbResponse } from '@/types/interaction';
@@ -29,14 +30,16 @@ export function StudentDetail() {
       setLoading(true);
       setError(null);
 
-      // Fetch student
-      const { data: studentData, error: studentError } = await supabase
-        .from('students')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Fetch student using the API
+      const studentResponse = await fetchStudent(id);
+      
+      if (studentResponse.error) {
+        throw new Error(studentResponse.error.message);
+      }
 
-      if (studentError) throw studentError;
+      if (!studentResponse.data) {
+        throw new Error('Student not found');
+      }
 
       // Fetch interactions for this student (both direct and regarding)
       const { data: interactionsData, error: interactionsError } = await supabase
@@ -55,24 +58,9 @@ export function StudentDetail() {
 
       if (categoriesError) throw categoriesError;
 
-      // Transform student data
-      console.log('Raw student data from DB:', studentData);
+      const transformedStudent = studentResponse.data;
       
-      const transformedStudent: Student = {
-        id: studentData.id,
-        studentId: studentData.student_id || '',
-        firstName: studentData.first_name || '',
-        lastName: studentData.last_name || '',
-        gradeLevel: studentData.grade_level || '',
-        email: studentData.email || null,
-        phone: studentData.phone || null,
-        needsFollowUp: studentData.needs_follow_up || false,
-        followUpNotes: studentData.follow_up_notes || null,
-        createdAt: new Date(studentData.created_at),
-        updatedAt: new Date(studentData.updated_at),
-      };
-      
-      console.log('Transformed student:', transformedStudent);
+      console.log('Fetched student:', transformedStudent);
 
       // Transform interactions data
       const transformedInteractions: Interaction[] = (
@@ -126,7 +114,7 @@ export function StudentDetail() {
       setCategories(transformedCategories);
     } catch (err) {
       console.error('Error fetching student data:', err);
-      setError('Failed to load student. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to load student. Please try again.');
     } finally {
       setLoading(false);
     }

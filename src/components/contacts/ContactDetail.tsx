@@ -24,6 +24,7 @@ interface ContactDetailProps {
   onOpenChange: (open: boolean) => void;
   onAddInteraction?: () => void;
   onEdit?: () => void;
+  onDelete?: (contactId: string) => void;
 }
 
 export function ContactDetail({
@@ -33,6 +34,7 @@ export function ContactDetail({
   onOpenChange,
   onAddInteraction,
   onEdit,
+  onDelete,
 }: ContactDetailProps) {
   // Filter interactions for this contact and sort by most recent
   const contactInteractions = useMemo(() => {
@@ -93,6 +95,16 @@ export function ContactDetail({
               <Button variant="outline" size="sm" onClick={onEdit} className="flex-1 sm:flex-none">
                 Edit
               </Button>
+              {onDelete && (
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={() => onDelete(contact.id)} 
+                  className="flex-1 sm:flex-none"
+                >
+                  Delete
+                </Button>
+              )}
               <Button size="sm" onClick={onAddInteraction} className="flex-1 sm:flex-none">
                 Add Interaction
               </Button>

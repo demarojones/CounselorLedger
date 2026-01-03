@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/services/supabase';
-import type { Student, StudentDbResponse } from '@/types/student';
-import type { Interaction, InteractionDbResponse } from '@/types/interaction';
+import { fetchStudents, fetchInteractions } from '@/services/api';
+import type { Student } from '@/types/student';
+import type { Interaction } from '@/types/interaction';
 import { StudentList } from '@/components/students/StudentList';
 import { StudentSearch } from '@/components/students/StudentSearch';
 import { StudentFormModal } from '@/components/students/StudentFormModal';
@@ -27,68 +27,25 @@ export function Students() {
       setLoading(true);
       setError(null);
 
-      // Fetch students
-      const { data: studentsData, error: studentsError } = await supabase
-        .from('students')
-        .select('*')
-        .order('last_name', { ascending: true });
+      // Fetch students and interactions using the API
+      const [studentsResponse, interactionsResponse] = await Promise.all([
+        fetchStudents(),
+        fetchInteractions(),
+      ]);
 
-      if (studentsError) throw studentsError;
+      if (studentsResponse.error) {
+        throw new Error(studentsResponse.error.message);
+      }
 
-      // Fetch interactions
-      const { data: interactionsData, error: interactionsError } = await supabase
-        .from('interactions')
-        .select('*');
+      if (interactionsResponse.error) {
+        throw new Error(interactionsResponse.error.message);
+      }
 
-      if (interactionsError) throw interactionsError;
-
-      // Transform students data
-      const transformedStudents: Student[] = (studentsData as StudentDbResponse[]).map(
-        (student) => ({
-          id: student.id,
-          studentId: student.student_id,
-          firstName: student.first_name,
-          lastName: student.last_name,
-          gradeLevel: student.grade_level,
-          email: student.email,
-          phone: student.phone,
-          needsFollowUp: student.needs_follow_up,
-          followUpNotes: student.follow_up_notes,
-          createdAt: new Date(student.created_at),
-          updatedAt: new Date(student.updated_at),
-        })
-      );
-
-      // Transform interactions data
-      const transformedInteractions: Interaction[] = (
-        interactionsData as InteractionDbResponse[]
-      ).map((interaction) => ({
-        id: interaction.id,
-        counselorId: interaction.counselor_id,
-        studentId: interaction.student_id,
-        contactId: interaction.contact_id,
-        categoryId: interaction.category_id,
-        subcategoryId: interaction.subcategory_id,
-        customReason: interaction.custom_reason,
-        startTime: new Date(interaction.start_time),
-        durationMinutes: interaction.duration_minutes,
-        endTime: new Date(interaction.end_time),
-        notes: interaction.notes,
-        needsFollowUp: interaction.needs_follow_up,
-        followUpDate: interaction.follow_up_date
-          ? new Date(interaction.follow_up_date)
-          : undefined,
-        followUpNotes: interaction.follow_up_notes,
-        isFollowUpComplete: interaction.is_follow_up_complete,
-        createdAt: new Date(interaction.created_at),
-        updatedAt: new Date(interaction.updated_at),
-      }));
-
-      setStudents(transformedStudents);
-      setInteractions(transformedInteractions);
+      setStudents(studentsResponse.data || []);
+      setInteractions(interactionsResponse.data || []);
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Failed to load students. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to load students. Please try again.');
     } finally {
       setLoading(false);
     }

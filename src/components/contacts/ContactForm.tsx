@@ -12,8 +12,6 @@ import { FormSelect } from '@/components/common/FormSelect';
 import { FormTextarea } from '@/components/common/FormTextarea';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import type { Contact, ContactRelationship } from '@/types/contact';
-import { contactFormSchema } from '@/schemas/contact';
-import { z } from 'zod';
 
 interface ContactFormData {
   firstName: string;
@@ -30,6 +28,7 @@ interface ContactFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: ContactFormData) => Promise<void>;
+  errors?: Record<string, string>;
 }
 
 const relationshipOptions: ContactRelationship[] = [
@@ -42,7 +41,7 @@ const relationshipOptions: ContactRelationship[] = [
   'Other',
 ];
 
-export function ContactForm({ contact, open, onOpenChange, onSubmit }: ContactFormProps) {
+export function ContactForm({ contact, open, onOpenChange, onSubmit, errors = {} }: ContactFormProps) {
   const [formData, setFormData] = useState<ContactFormData>({
     firstName: '',
     lastName: '',
@@ -53,10 +52,7 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit }: ContactFo
     notes: '',
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const isEditMode = !!contact;
 
@@ -84,53 +80,17 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit }: ContactFo
           notes: '',
         });
       }
-      setErrors({});
-      setSubmitError(null);
-      setSubmitSuccess(false);
     }
   }, [contact, open]);
 
-  const validateForm = (): boolean => {
-    try {
-      contactFormSchema.parse(formData);
-      setErrors({});
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const newErrors: Partial<Record<keyof ContactFormData, string>> = {};
-        error.issues.forEach((err) => {
-          const field = err.path[0] as keyof ContactFormData;
-          if (field) {
-            newErrors[field] = err.message;
-          }
-        });
-        setErrors(newErrors);
-      }
-      return false;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitError(null);
-    setSubmitSuccess(false);
-
-    if (!validateForm()) {
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
       await onSubmit(formData);
-      setSubmitSuccess(true);
-      
-      // Close modal after short delay to show success
-      setTimeout(() => {
-        onOpenChange(false);
-      }, 1000);
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Failed to save contact');
+      console.error('Form submission error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -138,10 +98,6 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit }: ContactFo
 
   const handleChange = (field: keyof ContactFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error for this field when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
   };
 
   return (
@@ -226,20 +182,6 @@ export function ContactForm({ contact, open, onOpenChange, onSubmit }: ContactFo
             rows={4}
             helperText="Additional information about this contact"
           />
-
-          {submitError && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{submitError}</p>
-            </div>
-          )}
-
-          {submitSuccess && (
-            <div className="rounded-md bg-green-50 p-4">
-              <p className="text-sm text-green-800">
-                Contact {isEditMode ? 'updated' : 'created'} successfully!
-              </p>
-            </div>
-          )}
 
           <DialogFooter className="flex-col-reverse sm:flex-row gap-3">
             <Button

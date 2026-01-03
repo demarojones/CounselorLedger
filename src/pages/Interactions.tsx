@@ -14,6 +14,8 @@ import {
   FollowUpCompleteModal,
 } from '@/components/interactions';
 import { useInteractions } from '@/hooks/useInteractions';
+import { createInteraction, updateInteraction, deleteInteraction, completeFollowUp } from '@/services/api';
+import { handleFormSubmission } from '@/utils/formSubmission';
 import type { Interaction, InteractionFormData } from '@/types/interaction';
 
 export function Interactions() {
@@ -25,10 +27,7 @@ export function Interactions() {
     subcategories,
     isLoading,
     error,
-    createInteraction,
-    updateInteraction,
-    deleteInteraction,
-    completeFollowUp,
+    refreshInteractions,
   } = useInteractions();
 
   const [activeTab, setActiveTab] = useState<'all' | 'followups'>('all');
@@ -67,34 +66,55 @@ export function Interactions() {
     }
 
     setIsDeleting(true);
-    try {
-      await deleteInteraction(interaction.id);
-      setIsDetailOpen(false);
-      setSelectedInteraction(null);
-    } catch (err) {
-      console.error('Failed to delete interaction:', err);
-      alert('Failed to delete interaction. Please try again.');
-    } finally {
-      setIsDeleting(false);
-    }
+    
+    const result = await handleFormSubmission(
+      () => deleteInteraction(interaction.id),
+      {
+        successMessage: 'Interaction deleted successfully',
+        onSuccess: () => {
+          setIsDetailOpen(false);
+          setSelectedInteraction(null);
+          refreshInteractions();
+        },
+        showErrorToast: true,
+      }
+    );
+
+    setIsDeleting(false);
   };
 
   const handleSubmit = async (data: InteractionFormData) => {
     setIsSubmitting(true);
-    try {
-      if (editingInteraction) {
-        await updateInteraction(editingInteraction.id, data);
-      } else {
-        await createInteraction(data);
-      }
-      setIsFormOpen(false);
-      setEditingInteraction(null);
-    } catch (err) {
-      console.error('Failed to save interaction:', err);
-      alert('Failed to save interaction. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+    
+    if (editingInteraction) {
+      const result = await handleFormSubmission(
+        () => updateInteraction(editingInteraction.id, data),
+        {
+          successMessage: 'Interaction updated successfully',
+          onSuccess: () => {
+            setIsFormOpen(false);
+            setEditingInteraction(null);
+            refreshInteractions();
+          },
+          showErrorToast: true,
+        }
+      );
+    } else {
+      const result = await handleFormSubmission(
+        () => createInteraction(data),
+        {
+          successMessage: 'Interaction created successfully',
+          onSuccess: () => {
+            setIsFormOpen(false);
+            setEditingInteraction(null);
+            refreshInteractions();
+          },
+          showErrorToast: true,
+        }
+      );
     }
+    
+    setIsSubmitting(false);
   };
 
   const handleFormCancel = () => {
@@ -111,13 +131,21 @@ export function Interactions() {
     interactionId: string,
     completionNotes: string
   ) => {
-    try {
-      await completeFollowUp(interactionId, completionNotes);
-      setIsCompleteModalOpen(false);
-      setSelectedInteraction(null);
-    } catch (err) {
-      console.error('Failed to complete follow-up:', err);
-      throw err;
+    const result = await handleFormSubmission(
+      () => completeFollowUp(interactionId, completionNotes),
+      {
+        successMessage: 'Follow-up completed successfully',
+        onSuccess: () => {
+          setIsCompleteModalOpen(false);
+          setSelectedInteraction(null);
+          refreshInteractions();
+        },
+        showErrorToast: true,
+      }
+    );
+
+    if (!result.success) {
+      throw new Error(result.error?.message || 'Failed to complete follow-up');
     }
   };
 

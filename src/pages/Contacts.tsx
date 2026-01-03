@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { ContactList, ContactDetail, ContactForm } from '@/components/contacts';
 import type { Contact } from '@/types/contact';
 import type { Interaction } from '@/types/interaction';
-import { getMockData } from '@/mocks/data/seedData';
+import { fetchContacts, fetchInteractions, createContact, updateContact, deleteContact } from '@/services/api';
+import { handleFormSubmission, prepareFormData } from '@/utils/formSubmission';
 
 export function Contacts() {
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -13,31 +14,33 @@ export function Contacts() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // Load mock data
+  // Load data from API
   useEffect(() => {
-    const mockData = getMockData();
-    
-    // Transform mock data to match expected types
-    const transformedContacts: Contact[] = mockData.contacts.map((c: any) => ({
-      ...c,
-      createdAt: new Date(c.createdAt),
-      updatedAt: new Date(c.updatedAt),
-    }));
-    
-    const transformedInteractions: Interaction[] = mockData.interactions.map((i: any) => ({
-      ...i,
-      startTime: new Date(i.startTime),
-      endTime: new Date(i.endTime),
-      followUpDate: i.followUpDate ? new Date(i.followUpDate) : undefined,
-      createdAt: new Date(i.createdAt),
-      updatedAt: new Date(i.updatedAt),
-    }));
-    
-    setContacts(transformedContacts);
-    setInteractions(transformedInteractions);
-    setIsLoading(false);
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [contactsResponse, interactionsResponse] = await Promise.all([
+        fetchContacts(),
+        fetchInteractions(),
+      ]);
+
+      if (contactsResponse.data) {
+        setContacts(contactsResponse.data);
+      }
+      if (interactionsResponse.data) {
+        setInteractions(interactionsResponse.data);
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleViewContact = (contactId: string) => {
     const contact = contacts.find((c) => c.id === contactId);
@@ -61,27 +64,69 @@ export function Contacts() {
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = async (data: any) => {
-    // In a real app, this would call the API
+  const handleFormSubmit = async (formData: any) => {
+    // Validate and sanitize form data
+    const { valid, data, errors } = prepareFormData(formData, [
+      'firstName',
+      'lastName',
+      'relationship',
+    ]);
+
+    if (!valid) {
+      setFormErrors(errors);
+      return;
+    }
+
     if (editingContact) {
       // Update existing contact
-      setContacts((prev) =>
-        prev.map((c) =>
-          c.id === editingContact.id
-            ? { ...c, ...data, updatedAt: new Date() }
-            : c
-        )
+      await handleFormSubmission(
+        () => updateContact(editingContact.id, data as any),
+        {
+          successMessage: 'Contact updated successfully',
+          onSuccess: (updatedContact) => {
+            setContacts((prev) =>
+              prev.map((c) =>
+                c.id === editingContact.id ? updatedContact : c
+              )
+            );
+            setIsFormOpen(false);
+            setEditingContact(null);
+            setFormErrors({});
+          },
+        }
       );
     } else {
       // Create new contact
-      const newContact: Contact = {
-        id: crypto.randomUUID(),
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      setContacts((prev) => [...prev, newContact]);
+      await handleFormSubmission(
+        () => createContact(data as any),
+        {
+          successMessage: 'Contact created successfully',
+          onSuccess: (newContact) => {
+            setContacts((prev) => [...prev, newContact]);
+            setIsFormOpen(false);
+            setFormErrors({});
+          },
+        }
+      );
     }
+  };
+
+  const handleDeleteContact = async (contactId: string) => {
+    if (!confirm('Are you sure you want to delete this contact?')) {
+      return;
+    }
+
+    await handleFormSubmission(
+      () => deleteContact(contactId),
+      {
+        successMessage: 'Contact deleted successfully',
+        onSuccess: () => {
+          setContacts((prev) => prev.filter((c) => c.id !== contactId));
+          setIsDetailOpen(false);
+          setSelectedContact(null);
+        },
+      }
+    );
   };
 
   const handleAddInteraction = () => {
@@ -94,6 +139,7 @@ export function Contacts() {
     if (selectedContact) {
       setEditingContact(selectedContact);
       setIsDetailOpen(false);
+      setFormErrors({});
       setIsFormOpen(true);
     }
   };
@@ -132,6 +178,7 @@ export function Contacts() {
         onOpenChange={setIsDetailOpen}
         onAddInteraction={handleAddInteraction}
         onEdit={handleEditFromDetail}
+        onDelete={handleDeleteContact}
       />
 
       <ContactForm
@@ -139,6 +186,7 @@ export function Contacts() {
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         onSubmit={handleFormSubmit}
+        errors={formErrors}
       />
     </div>
   );
