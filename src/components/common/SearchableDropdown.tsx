@@ -229,7 +229,7 @@ const SearchableDropdown = React.forwardRef<HTMLInputElement, SearchableDropdown
         </div>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md max-h-60 overflow-auto">
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
             {loading ? (
               <div className="p-4 text-center text-sm text-muted-foreground">Loading...</div>
             ) : filteredOptions.length === 0 ? (
@@ -244,9 +244,9 @@ const SearchableDropdown = React.forwardRef<HTMLInputElement, SearchableDropdown
                     aria-selected={option.value === value}
                     className={cn(
                       'px-3 py-2 cursor-pointer transition-colors',
-                      'hover:bg-accent hover:text-accent-foreground',
-                      index === highlightedIndex && 'bg-accent text-accent-foreground',
-                      option.value === value && 'bg-primary/10'
+                      'hover:bg-gray-100 hover:text-gray-900',
+                      index === highlightedIndex && 'bg-gray-100 text-gray-900',
+                      option.value === value && 'bg-blue-50 text-blue-900'
                     )}
                     onClick={() => handleOptionSelect(option)}
                     onMouseEnter={() => setHighlightedIndex(index)}
@@ -254,7 +254,7 @@ const SearchableDropdown = React.forwardRef<HTMLInputElement, SearchableDropdown
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">{option.label}</span>
                       {option.subtitle && (
-                        <span className="text-xs text-muted-foreground">{option.subtitle}</span>
+                        <span className="text-xs text-gray-500">{option.subtitle}</span>
                       )}
                     </div>
                   </li>

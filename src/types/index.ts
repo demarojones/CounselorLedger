@@ -50,3 +50,9 @@ export type {
   SecurityEventFilters,
   SecurityEventStats,
 } from './security';
+export type {
+  Notification,
+  NotificationType,
+  NotificationPriority,
+  NotificationStats,
+} from './notification';

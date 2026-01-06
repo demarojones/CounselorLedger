@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { loginSchema } from '../../schemas/auth';
 import type { LoginFormData } from '../../schemas/auth';
@@ -84,7 +84,14 @@ export function Login() {
             </div>
           </div>
           <h2 className="heading-1 text-center">School Counselor Ledger</h2>
-          <p className="mt-2 text-center body-text-sm">Sign in to your account</p>
+          <p className="mt-2 text-center body-text-sm">
+            Sign in to your account
+          </p>
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+            <p className="text-sm text-blue-800 dark:text-blue-400 text-center">
+              <strong>New here?</strong> This simplified version lets you create an account instantly - no setup required!
+            </p>
+          </div>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -185,19 +192,17 @@ export function Login() {
             </button>
           </div>
 
-          {import.meta.env.VITE_USE_MOCK_DATA === 'true' && (
-            <div className="mt-4 p-4 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-900/50 rounded-md">
-              <p className="text-sm text-yellow-800 dark:text-yellow-400 font-medium">
-                Development Mode
-              </p>
-              <p className="text-xs text-yellow-700 dark:text-yellow-400/90 mt-1">
-                Using mock data. Try any email from the seed data with any password.
-              </p>
-              <p className="text-xs text-yellow-700 dark:text-yellow-400/90 mt-1">
-                Example: admin@school1.edu
-              </p>
-            </div>
-          )}
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Don't have an account?{' '}
+              <Link
+                to="/register"
+                className="font-medium text-primary hover:text-primary/90 transition-colors"
+              >
+                Create one
+              </Link>
+            </p>
+          </div>
         </form>
       </div>
     </div>

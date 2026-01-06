@@ -1,6 +1,8 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Menu, LogOut, Bell, Search } from 'lucide-react';
+import { NotificationDropdown } from '@/components/common/NotificationDropdown';
+import { useNotifications } from '@/hooks/useNotifications';
+import { Menu, LogOut, Search } from 'lucide-react';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -9,6 +11,15 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
+  const {
+    notifications,
+    stats,
+    isLoading: notificationsLoading,
+    refreshNotifications,
+    markAsRead,
+    markAllAsRead,
+    removeNotification,
+  } = useNotifications();
 
   const handleLogout = async () => {
     await logout();
@@ -41,13 +52,15 @@ export function Header({ onMenuClick }: HeaderProps) {
         {/* Right section - User info and actions */}
         <div className="flex items-center gap-3">
           {/* Notifications */}
-          <button
-            className="relative p-2 rounded-lg hover:bg-slate-100 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-            aria-label="Notifications"
-          >
-            <Bell className="w-5 h-5 text-slate-600" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-          </button>
+          <NotificationDropdown
+            notifications={notifications}
+            unreadCount={stats.unread}
+            isLoading={notificationsLoading}
+            onMarkAsRead={markAsRead}
+            onMarkAllAsRead={markAllAsRead}
+            onRemoveNotification={removeNotification}
+            onRefresh={refreshNotifications}
+          />
 
           {/* User info */}
           {user && (
@@ -59,7 +72,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                   </p>
                   <p className="text-xs text-slate-500 capitalize">{user.role.toLowerCase()}</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold shadow-md">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-black font-semibold shadow-md">
                   {user.firstName[0]}
                   {user.lastName[0]}
                 </div>

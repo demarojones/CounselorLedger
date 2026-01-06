@@ -4,12 +4,13 @@ import { AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { queryClient } from './lib/queryClient';
 import { Login } from './components/auth/Login';
+import { Register } from './components/auth/Register';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { RoleBasedRoute } from './components/auth/RoleBasedRoute';
 import { AppLayout } from './components/layout';
 import { Toaster } from './components/ui/toast';
-import { ErrorBoundary, SetupErrorBoundary } from './components/common';
-import { useTokenCleanup } from './hooks/useTokenCleanup';
+import { ErrorBoundary } from './components/common';
+
 import {
   Dashboard,
   Interactions,
@@ -19,8 +20,6 @@ import {
   Contacts,
   Reports,
   Admin,
-  InitialSetup,
-  InvitationAccept,
   NotFound,
   Unauthorized,
 } from './pages';
@@ -28,6 +27,7 @@ import './App.css';
 
 // Import integration verification for development
 import './utils/integrationVerification';
+import './utils/debugAuth';
 
 // Component to handle authenticated user redirects for setup/invitation pages
 function AuthenticatedRedirect({ children }: { children: React.ReactNode }) {
@@ -87,22 +87,10 @@ function AnimatedRoutes() {
           }
         />
         <Route
-          path="/setup/:token"
+          path="/register"
           element={
             <AuthenticatedRedirect>
-              <SetupErrorBoundary context="setup">
-                <InitialSetup />
-              </SetupErrorBoundary>
-            </AuthenticatedRedirect>
-          }
-        />
-        <Route
-          path="/invite/:token"
-          element={
-            <AuthenticatedRedirect>
-              <SetupErrorBoundary context="invitation">
-                <InvitationAccept />
-              </SetupErrorBoundary>
+              <Register />
             </AuthenticatedRedirect>
           }
         />
@@ -137,7 +125,7 @@ function AnimatedRoutes() {
         </Route>
 
         {/* Redirects and 404 */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
@@ -145,13 +133,6 @@ function AnimatedRoutes() {
 }
 
 function App() {
-  // Initialize automatic token cleanup
-  useTokenCleanup({
-    intervalMs: 60 * 60 * 1000, // 1 hour
-    autoStart: true,
-    runOnMount: false,
-  });
-
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

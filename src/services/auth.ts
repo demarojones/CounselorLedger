@@ -1,14 +1,35 @@
 import { supabase, type AuthError } from './supabase';
 import type { User } from '../types/user';
+import {
+  mockRegisterUser,
+  mockSignIn,
+  mockSignOut,
+  mockGetCurrentUser,
+  mockOnAuthStateChange,
+} from './mockAuth';
 
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
+export interface RegisterCredentials {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: 'ADMIN' | 'COUNSELOR';
+  tenantId?: string; // Optional for single tenancy
+}
+
 export interface AuthResponse {
   user: User | null;
   error: AuthError | null;
+}
+
+export interface RegisterResponse {
+  success: boolean;
+  error?: string;
 }
 
 export interface SessionData {
@@ -95,9 +116,85 @@ async function transformSupabaseUser(supabaseUser: {
 }
 
 /**
+ * Register a new user
+ */
+export async function registerUser(credentials: RegisterCredentials): Promise<RegisterResponse> {
+  // Use mock auth in development mode
+  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    return mockRegisterUser(credentials);
+  }
+
+  try {
+    const defaultTenantId = '00000000-0000-0000-0000-000000000001';
+    
+    // Create the auth user with Supabase
+    const { data, error } = await supabase.auth.signUp({
+      email: credentials.email,
+      password: credentials.password,
+      options: {
+        data: {
+          first_name: credentials.firstName,
+          last_name: credentials.lastName,
+          role: credentials.role,
+          tenant_id: credentials.tenantId || defaultTenantId,
+        },
+      },
+    });
+
+    if (error) {
+      return { 
+        success: false, 
+        error: error.message 
+      };
+    }
+
+    if (!data.user) {
+      return {
+        success: false,
+        error: 'Registration failed - no user created',
+      };
+    }
+
+    // For single tenancy, we need to create the user record directly
+    // since we don't have complex setup flows
+    if (data.user.id) {
+      const { error: userError } = await supabase
+        .from('users')
+        .insert({
+          id: data.user.id,
+          tenant_id: credentials.tenantId || defaultTenantId,
+          email: credentials.email,
+          first_name: credentials.firstName,
+          last_name: credentials.lastName,
+          role: credentials.role,
+          is_active: true,
+        });
+
+      if (userError) {
+        console.error('Failed to create user record:', userError);
+        // Don't fail registration if user record creation fails
+        // The auth user is still created
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Registration failed',
+    };
+  }
+}
+
+/**
  * Sign in with email and password
  */
 export async function signIn(credentials: LoginCredentials): Promise<AuthResponse> {
+  // Use mock auth in development mode
+  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    return mockSignIn(credentials);
+  }
+
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: credentials.email,
@@ -145,6 +242,11 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthRespons
  * Sign out the current user
  */
 export async function signOut(): Promise<{ error: AuthError | null }> {
+  // Use mock auth in development mode
+  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    return mockSignOut();
+  }
+
   try {
     const { error } = await supabase.auth.signOut();
     return { error };
@@ -163,6 +265,11 @@ export async function signOut(): Promise<{ error: AuthError | null }> {
  * Get the current authenticated user
  */
 export async function getCurrentUser(): Promise<AuthResponse> {
+  // Use mock auth in development mode
+  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    return mockGetCurrentUser();
+  }
+
   try {
     const { data, error } = await supabase.auth.getUser();
 
@@ -240,6 +347,11 @@ export async function refreshSession(): Promise<{ error: AuthError | null }> {
  * Subscribe to auth state changes
  */
 export function onAuthStateChange(callback: (user: User | null) => void) {
+  // Use mock auth in development mode
+  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    return mockOnAuthStateChange(callback);
+  }
+
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange(async (_event, session) => {

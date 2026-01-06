@@ -1,6 +1,35 @@
 # School Counselor Ledger
 
-A comprehensive SaaS application for school counselors to track student interactions, manage contacts, and generate reports.
+A comprehensive application for school counselors to track student interactions, manage contacts, and generate reports.
+
+## 🚀 Quick Start (Simplified Setup)
+
+This version has been simplified for immediate deployment without complex multi-tenant setup.
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. **Clone and install:**
+   ```bash
+   git clone <repository-url>
+   cd counselor-ledger
+   npm install
+   ```
+
+2. **Start development:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Access the app:**
+   - Open http://localhost:5174
+   - Click "Create one" to register a new account
+   - Or use demo credentials: `admin@school.edu` / `password123`
+
+That's it! No database setup, no complex configuration needed.
 
 ## Tech Stack
 

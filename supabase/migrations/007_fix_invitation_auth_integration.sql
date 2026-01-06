@@ -113,4 +113,4 @@ COMMENT ON FUNCTION accept_invitation IS
   'Atomically accepts invitation and creates user account with proper Supabase Auth integration';
 
 COMMENT ON FUNCTION complete_initial_setup IS 
-  'Atomically creates tenant, admin user, and marks setup token as used with proper Supabase Auth integration';
+  'Atomically creates tenant, admin user, and marks setup token as used with proper Supabase Auth integratio

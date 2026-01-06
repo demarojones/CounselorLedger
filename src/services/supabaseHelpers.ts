@@ -121,6 +121,29 @@ export function getUserFriendlyErrorMessage(error: SupabaseError | null): string
  */
 export async function getTenantContext(): Promise<TenantContext | null> {
   try {
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      // In mock mode, get the current user from localStorage
+      const sessionData = localStorage.getItem('mock_session');
+      if (!sessionData) return null;
+
+      const session = JSON.parse(sessionData);
+      const users = localStorage.getItem('mock_users');
+      if (!users) return null;
+
+      const mockUsers = JSON.parse(users);
+      const user = mockUsers.find((u: any) => u.id === session.userId);
+      
+      if (!user) return null;
+
+      return {
+        tenantId: user.tenantId,
+        userId: user.id,
+        userRole: user.role,
+      };
+    }
+
+    // Real Supabase mode
     const {
       data: { user },
     } = await supabase.auth.getUser();

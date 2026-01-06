@@ -130,7 +130,7 @@ BEGIN
   WHERE expires_at < NOW() - INTERVAL '7 days'
     AND accepted_at IS NULL;
   
-  GET DIAGNOSTICS v_deleted_count = v_deleted_count + ROW_COUNT;
+  GET DIAGNOSTICS v_deleted_count = ROW_COUNT;
   
   RETURN v_deleted_count;
 END;

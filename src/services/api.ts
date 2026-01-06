@@ -20,6 +20,54 @@ import type { Interaction, InteractionFormData, InteractionDbResponse } from '@/
  */
 export async function fetchStudents(): Promise<SupabaseResponse<Student[]>> {
   try {
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      // Return mock students data
+      const mockStudents: Student[] = [
+        {
+          id: '1',
+          studentId: 'STU001',
+          firstName: 'John',
+          lastName: 'Doe',
+          gradeLevel: '9th Grade',
+          email: 'john.doe@school.edu',
+          phone: '555-0101',
+          needsFollowUp: false,
+          followUpNotes: null,
+          createdAt: new Date('2024-01-15'),
+          updatedAt: new Date('2024-01-15'),
+        },
+        {
+          id: '2',
+          studentId: 'STU002',
+          firstName: 'Jane',
+          lastName: 'Smith',
+          gradeLevel: '10th Grade',
+          email: 'jane.smith@school.edu',
+          phone: '555-0102',
+          needsFollowUp: true,
+          followUpNotes: 'Check on academic progress',
+          createdAt: new Date('2024-01-16'),
+          updatedAt: new Date('2024-01-20'),
+        },
+        {
+          id: '3',
+          studentId: 'STU003',
+          firstName: 'Mike',
+          lastName: 'Johnson',
+          gradeLevel: '11th Grade',
+          email: 'mike.johnson@school.edu',
+          phone: '555-0103',
+          needsFollowUp: false,
+          followUpNotes: null,
+          createdAt: new Date('2024-01-17'),
+          updatedAt: new Date('2024-01-17'),
+        },
+      ];
+      
+      return { data: mockStudents, error: null };
+    }
+
     const context = await getTenantContext();
     if (!context) {
       return {
@@ -451,6 +499,75 @@ export async function deleteContact(id: string): Promise<SupabaseResponse<null>>
  */
 export async function fetchInteractions(): Promise<SupabaseResponse<Interaction[]>> {
   try {
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      // Return mock interactions data with some follow-ups
+      const mockInteractions: Interaction[] = [
+        {
+          id: '1',
+          counselorId: '2', // counselor user ID
+          studentId: '1',
+          contactId: null,
+          regardingStudentId: null,
+          categoryId: '10000000-0000-0000-0000-000000000001', // Academic
+          subcategoryId: null,
+          customReason: null,
+          startTime: new Date('2024-01-15T10:00:00'),
+          durationMinutes: 30,
+          endTime: new Date('2024-01-15T10:30:00'),
+          notes: 'Discussed course selection for next semester',
+          needsFollowUp: false,
+          followUpDate: undefined,
+          followUpNotes: null,
+          isFollowUpComplete: false,
+          createdAt: new Date('2024-01-15'),
+          updatedAt: new Date('2024-01-15'),
+        },
+        {
+          id: '2',
+          counselorId: '2',
+          studentId: '2',
+          contactId: null,
+          regardingStudentId: null,
+          categoryId: '10000000-0000-0000-0000-000000000003', // Social-Emotional
+          subcategoryId: null,
+          customReason: null,
+          startTime: new Date('2024-01-16T14:00:00'),
+          durationMinutes: 45,
+          endTime: new Date('2024-01-16T14:45:00'),
+          notes: 'Student expressed concerns about peer relationships',
+          needsFollowUp: true,
+          followUpDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+          followUpNotes: 'Schedule follow-up to check progress',
+          isFollowUpComplete: false,
+          createdAt: new Date('2024-01-16'),
+          updatedAt: new Date('2024-01-16'),
+        },
+        {
+          id: '3',
+          counselorId: '2',
+          studentId: '3',
+          contactId: null,
+          regardingStudentId: null,
+          categoryId: '10000000-0000-0000-0000-000000000005', // Crisis Intervention
+          subcategoryId: null,
+          customReason: null,
+          startTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          durationMinutes: 60,
+          endTime: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+          notes: 'Crisis intervention - student safety concern addressed',
+          needsFollowUp: true,
+          followUpDate: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday (overdue)
+          followUpNotes: 'Urgent follow-up required',
+          isFollowUpComplete: false,
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+          updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        },
+      ];
+      
+      return { data: mockInteractions, error: null };
+    }
+
     const context = await getTenantContext();
     if (!context) {
       return {
