@@ -39,11 +39,19 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
   // Populate form when editing
   useEffect(() => {
     if (student) {
+      // Convert grade level from "9th Grade" format to "9" format for the form
+      const convertGradeLevel = (gradeLevel: string) => {
+        if (gradeLevel.includes('th Grade')) {
+          return gradeLevel.replace('th Grade', '');
+        }
+        return gradeLevel;
+      };
+
       setFormData({
         studentId: student.studentId || '',
         firstName: student.firstName || '',
         lastName: student.lastName || '',
-        gradeLevel: student.gradeLevel || '',
+        gradeLevel: convertGradeLevel(student.gradeLevel || ''),
         email: student.email || '',
         phone: student.phone || '',
       });
@@ -98,28 +106,33 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
       return;
     }
 
+    // Convert grade level back to full format
+    const convertGradeLevelToFull = (gradeLevel: string) => {
+      if (gradeLevel && !gradeLevel.includes('Grade')) {
+        return `${gradeLevel}th Grade`;
+      }
+      return gradeLevel;
+    };
+
+    const submissionData = {
+      studentId: formData.studentId,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      gradeLevel: convertGradeLevelToFull(formData.gradeLevel),
+      email: formData.email || undefined,
+      phone: formData.phone || undefined,
+    };
+
     try {
       if (isEditing && student) {
         // Update existing student
         await updateStudent.mutateAsync({
           id: student.id,
-          studentId: formData.studentId,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          gradeLevel: formData.gradeLevel,
-          email: formData.email || undefined,
-          phone: formData.phone || undefined,
+          ...submissionData,
         });
       } else {
         // Create new student
-        await createStudent.mutateAsync({
-          studentId: formData.studentId,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          gradeLevel: formData.gradeLevel,
-          email: formData.email || undefined,
-          phone: formData.phone || undefined,
-        });
+        await createStudent.mutateAsync(submissionData);
       }
 
       // Reset form and close modal

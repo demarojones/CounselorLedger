@@ -73,12 +73,19 @@ export function RegardingStudentSelector({
 
   // Convert students to dropdown options
   const studentOptions: SearchableDropdownOption[] = React.useMemo(() => {
-    return students.map(student => ({
-      value: student.id,
-      label: `${student.firstName} ${student.lastName}`,
-      subtitle: `${student.studentId} • Grade ${student.gradeLevel}`,
-      metadata: { student },
-    }));
+    return students.map(student => {
+      // Convert grade level for display
+      const displayGradeLevel = student.gradeLevel?.includes('Grade') 
+        ? student.gradeLevel 
+        : student.gradeLevel ? `${student.gradeLevel}th Grade` : 'Unknown Grade';
+      
+      return {
+        value: student.id,
+        label: `${student.firstName} ${student.lastName}`,
+        subtitle: `${student.studentId} • ${displayGradeLevel}`,
+        metadata: { student },
+      };
+    });
   }, [students]);
 
   // Custom filter function for students

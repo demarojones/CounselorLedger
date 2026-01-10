@@ -93,7 +93,9 @@ export function StudentProfile({ student, onAddInteraction }: StudentProfileProp
             <div>
               <dt className="text-sm font-semibold text-slate-600 mb-1">Grade Level</dt>
               <dd className="text-base text-slate-900">
-                {student.gradeLevel ? `${student.gradeLevel}th Grade` : 'N/A'}
+                {student.gradeLevel ? 
+                  (student.gradeLevel.includes('Grade') ? student.gradeLevel : `${student.gradeLevel}th Grade`) 
+                  : 'N/A'}
               </dd>
             </div>
             <div>

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchStudent } from '@/services/api';
-import { supabase } from '@/services/supabase';
+import { fetchStudent, fetchStudentInteractions, fetchReasonCategories } from '@/services/api';
 import type { Student } from '@/types/student';
-import type { Interaction, InteractionDbResponse } from '@/types/interaction';
+import type { Interaction } from '@/types/interaction';
 import type { ReasonCategory } from '@/types/reason';
 import { StudentProfile } from '@/components/students/StudentProfile';
 import { InteractionHistory } from '@/components/students/InteractionHistory';
@@ -41,50 +40,26 @@ export function StudentDetail() {
         throw new Error('Student not found');
       }
 
-      // Fetch interactions for this student (both direct and regarding)
-      const { data: interactionsData, error: interactionsError } = await supabase
-        .from('interactions')
-        .select('*')
-        .or(`student_id.eq.${id},regarding_student_id.eq.${id}`)
-        .order('start_time', { ascending: false });
+      // Fetch interactions for this student using the API
+      const interactionsResponse = await fetchStudentInteractions(id);
+      
+      if (interactionsResponse.error) {
+        throw new Error(interactionsResponse.error.message);
+      }
 
-      if (interactionsError) throw interactionsError;
-
-      // Fetch reason categories
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('reason_categories')
-        .select('*')
-        .order('sort_order', { ascending: true });
-
-      if (categoriesError) throw categoriesError;
+      // Fetch reason categories using the API
+      const categoriesResponse = await fetchReasonCategories();
+      
+      if (categoriesResponse.error) {
+        throw new Error(categoriesResponse.error.message);
+      }
 
       const transformedStudent = studentResponse.data;
+      const transformedInteractions = interactionsResponse.data || [];
+      const transformedCategories = categoriesResponse.data || [];
 
       console.log('Fetched student:', transformedStudent);
-
-      // Transform interactions data
-      const transformedInteractions: Interaction[] = (
-        interactionsData as InteractionDbResponse[]
-      ).map(interaction => ({
-        id: interaction.id,
-        counselorId: interaction.counselor_id,
-        studentId: interaction.student_id,
-        contactId: interaction.contact_id,
-        regardingStudentId: interaction.regarding_student_id,
-        categoryId: interaction.category_id,
-        subcategoryId: interaction.subcategory_id,
-        customReason: interaction.custom_reason,
-        startTime: new Date(interaction.start_time),
-        durationMinutes: interaction.duration_minutes,
-        endTime: new Date(interaction.end_time),
-        notes: interaction.notes,
-        needsFollowUp: interaction.needs_follow_up,
-        followUpDate: interaction.follow_up_date ? new Date(interaction.follow_up_date) : undefined,
-        followUpNotes: interaction.follow_up_notes,
-        isFollowUpComplete: interaction.is_follow_up_complete,
-        createdAt: new Date(interaction.created_at),
-        updatedAt: new Date(interaction.updated_at),
-      }));
+      console.log('Fetched interactions:', transformedInteractions);
 
       // Calculate stats
       const interactionCount = transformedInteractions.length;
@@ -92,16 +67,6 @@ export function StudentDetail() {
         (sum, interaction) => sum + interaction.durationMinutes,
         0
       );
-
-      // Transform categories data
-      const transformedCategories: ReasonCategory[] = categoriesData.map((cat: any) => ({
-        id: cat.id,
-        name: cat.name,
-        color: cat.color,
-        sortOrder: cat.sort_order,
-        createdAt: new Date(cat.created_at),
-        updatedAt: new Date(cat.updated_at),
-      }));
 
       setStudent({
         ...transformedStudent,

@@ -110,6 +110,65 @@ export async function fetchStudents(): Promise<SupabaseResponse<Student[]>> {
  */
 export async function fetchStudent(id: string): Promise<SupabaseResponse<Student>> {
   try {
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      // Return mock student data
+      const mockStudents: Student[] = [
+        {
+          id: '1',
+          studentId: 'STU001',
+          firstName: 'John',
+          lastName: 'Doe',
+          gradeLevel: '9th Grade',
+          email: 'john.doe@school.edu',
+          phone: '555-0101',
+          needsFollowUp: false,
+          followUpNotes: null,
+          createdAt: new Date('2024-01-15'),
+          updatedAt: new Date('2024-01-15'),
+        },
+        {
+          id: '2',
+          studentId: 'STU002',
+          firstName: 'Jane',
+          lastName: 'Smith',
+          gradeLevel: '10th Grade',
+          email: 'jane.smith@school.edu',
+          phone: '555-0102',
+          needsFollowUp: true,
+          followUpNotes: 'Check on academic progress',
+          createdAt: new Date('2024-01-16'),
+          updatedAt: new Date('2024-01-20'),
+        },
+        {
+          id: '3',
+          studentId: 'STU003',
+          firstName: 'Mike',
+          lastName: 'Johnson',
+          gradeLevel: '11th Grade',
+          email: 'mike.johnson@school.edu',
+          phone: '555-0103',
+          needsFollowUp: false,
+          followUpNotes: null,
+          createdAt: new Date('2024-01-17'),
+          updatedAt: new Date('2024-01-17'),
+        },
+      ];
+      
+      const student = mockStudents.find(s => s.id === id);
+      if (!student) {
+        return {
+          data: null,
+          error: {
+            code: 'NOT_FOUND',
+            message: 'Student not found',
+          },
+        };
+      }
+      
+      return { data: student, error: null };
+    }
+
     const { data, error } = await supabase.from('students').select('*').eq('id', id).single();
 
     if (error) {
@@ -250,11 +309,120 @@ export async function updateStudent(
 }
 
 /**
- * Delete a student
+ * Fetch interactions for a specific student
  */
-export async function deleteStudent(id: string): Promise<SupabaseResponse<null>> {
+export async function fetchStudentInteractions(studentId: string): Promise<SupabaseResponse<Interaction[]>> {
   try {
-    const { error } = await supabase.from('students').delete().eq('id', id);
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      // Return mock interactions for the specific student
+      const allMockInteractions: Interaction[] = [
+        {
+          id: '1',
+          counselorId: '2',
+          studentId: '1',
+          contactId: null,
+          regardingStudentId: null,
+          categoryId: '10000000-0000-0000-0000-000000000001', // Academic
+          subcategoryId: null,
+          customReason: null,
+          startTime: new Date('2024-01-15T10:00:00'),
+          durationMinutes: 30,
+          endTime: new Date('2024-01-15T10:30:00'),
+          notes: 'Discussed course selection for next semester',
+          needsFollowUp: false,
+          followUpDate: undefined,
+          followUpNotes: null,
+          isFollowUpComplete: false,
+          createdAt: new Date('2024-01-15'),
+          updatedAt: new Date('2024-01-15'),
+        },
+        {
+          id: '2',
+          counselorId: '2',
+          studentId: '2',
+          contactId: null,
+          regardingStudentId: null,
+          categoryId: '10000000-0000-0000-0000-000000000003', // Social-Emotional
+          subcategoryId: null,
+          customReason: null,
+          startTime: new Date('2024-01-16T14:00:00'),
+          durationMinutes: 45,
+          endTime: new Date('2024-01-16T14:45:00'),
+          notes: 'Student expressed concerns about peer relationships',
+          needsFollowUp: true,
+          followUpDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+          followUpNotes: 'Schedule follow-up to check progress',
+          isFollowUpComplete: false,
+          createdAt: new Date('2024-01-16'),
+          updatedAt: new Date('2024-01-16'),
+        },
+        {
+          id: '3',
+          counselorId: '2',
+          studentId: '3',
+          contactId: null,
+          regardingStudentId: null,
+          categoryId: '10000000-0000-0000-0000-000000000005', // Crisis Intervention
+          subcategoryId: null,
+          customReason: null,
+          startTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          durationMinutes: 60,
+          endTime: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+          notes: 'Crisis intervention - student safety concern addressed',
+          needsFollowUp: true,
+          followUpDate: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday (overdue)
+          followUpNotes: 'Urgent follow-up required',
+          isFollowUpComplete: false,
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+          updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        },
+        {
+          id: '4',
+          counselorId: '2',
+          studentId: '1',
+          contactId: null,
+          regardingStudentId: null,
+          categoryId: '10000000-0000-0000-0000-000000000001', // Academic
+          subcategoryId: null,
+          customReason: null,
+          startTime: new Date('2024-01-20T11:00:00'),
+          durationMinutes: 25,
+          endTime: new Date('2024-01-20T11:25:00'),
+          notes: 'Follow-up on course selection - student decided on AP Biology',
+          needsFollowUp: false,
+          followUpDate: undefined,
+          followUpNotes: null,
+          isFollowUpComplete: false,
+          createdAt: new Date('2024-01-20'),
+          updatedAt: new Date('2024-01-20'),
+        },
+      ];
+      
+      const studentInteractions = allMockInteractions.filter(
+        interaction => interaction.studentId === studentId || interaction.regardingStudentId === studentId
+      );
+      
+      return { data: studentInteractions, error: null };
+    }
+
+    const context = await getTenantContext();
+    if (!context) {
+      return {
+        data: null,
+        error: {
+          code: 'AUTH_ERROR',
+          message: 'User not authenticated',
+        },
+      };
+    }
+
+    const { data, error } = await supabase
+      .from('interactions')
+      .select('*')
+      .eq('tenant_id', context.tenantId)
+      .or(`student_id.eq.${studentId},regarding_student_id.eq.${studentId}`)
+      .order('start_time', { ascending: false });
 
     if (error) {
       return {
@@ -263,13 +431,104 @@ export async function deleteStudent(id: string): Promise<SupabaseResponse<null>>
       };
     }
 
-    return { data: null, error: null };
+    const interactions = (data || []).map(convertInteractionFromDb);
+    return { data: interactions, error: null };
   } catch (error) {
     return {
       data: null,
       error: {
         code: 'UNKNOWN_ERROR',
-        message: error instanceof Error ? error.message : 'Failed to delete student',
+        message: error instanceof Error ? error.message : 'Failed to fetch student interactions',
+      },
+    };
+  }
+}
+
+/**
+ * Fetch all reason categories
+ */
+export async function fetchReasonCategories(): Promise<SupabaseResponse<any[]>> {
+  try {
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      // Return mock categories
+      const mockCategories = [
+        {
+          id: '10000000-0000-0000-0000-000000000001',
+          name: 'Academic',
+          color: '#3B82F6',
+          sortOrder: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '10000000-0000-0000-0000-000000000002',
+          name: 'Behavioral',
+          color: '#EF4444',
+          sortOrder: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '10000000-0000-0000-0000-000000000003',
+          name: 'Social-Emotional',
+          color: '#10B981',
+          sortOrder: 3,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '10000000-0000-0000-0000-000000000004',
+          name: 'Career/College',
+          color: '#8B5CF6',
+          sortOrder: 4,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '10000000-0000-0000-0000-000000000005',
+          name: 'Crisis Intervention',
+          color: '#F59E0B',
+          sortOrder: 5,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+      
+      return { data: mockCategories, error: null };
+    }
+
+    const context = await getTenantContext();
+    if (!context) {
+      return {
+        data: null,
+        error: {
+          code: 'AUTH_ERROR',
+          message: 'User not authenticated',
+        },
+      };
+    }
+
+    const { data, error } = await supabase
+      .from('reason_categories')
+      .select('*')
+      .eq('tenant_id', context.tenantId)
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      return {
+        data: null,
+        error: handleSupabaseError(error),
+      };
+    }
+
+    return { data: data || [], error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Failed to fetch reason categories',
       },
     };
   }
