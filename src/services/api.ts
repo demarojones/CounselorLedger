@@ -205,6 +205,29 @@ export async function createStudent(studentData: {
   phone?: string;
 }): Promise<SupabaseResponse<Student>> {
   try {
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      // Create a new mock student
+      const newStudent: Student = {
+        id: Date.now().toString(), // Simple ID generation for mock
+        studentId: studentData.studentId,
+        firstName: studentData.firstName,
+        lastName: studentData.lastName,
+        gradeLevel: studentData.gradeLevel,
+        email: studentData.email || null,
+        phone: studentData.phone || null,
+        needsFollowUp: false,
+        followUpNotes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // In a real app, you'd save to localStorage or a mock database here
+      console.log('Mock: Created student', newStudent);
+      
+      return { data: newStudent, error: null };
+    }
+
     const context = await getTenantContext();
     if (!context) {
       return {
@@ -267,6 +290,82 @@ export async function updateStudent(
   }>
 ): Promise<SupabaseResponse<Student>> {
   try {
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      // Get current mock students
+      const mockStudents: Student[] = [
+        {
+          id: '1',
+          studentId: 'STU001',
+          firstName: 'John',
+          lastName: 'Doe',
+          gradeLevel: '9th Grade',
+          email: 'john.doe@school.edu',
+          phone: '555-0101',
+          needsFollowUp: false,
+          followUpNotes: null,
+          createdAt: new Date('2024-01-15'),
+          updatedAt: new Date('2024-01-15'),
+        },
+        {
+          id: '2',
+          studentId: 'STU002',
+          firstName: 'Jane',
+          lastName: 'Smith',
+          gradeLevel: '10th Grade',
+          email: 'jane.smith@school.edu',
+          phone: '555-0102',
+          needsFollowUp: true,
+          followUpNotes: 'Check on academic progress',
+          createdAt: new Date('2024-01-16'),
+          updatedAt: new Date('2024-01-20'),
+        },
+        {
+          id: '3',
+          studentId: 'STU003',
+          firstName: 'Mike',
+          lastName: 'Johnson',
+          gradeLevel: '11th Grade',
+          email: 'mike.johnson@school.edu',
+          phone: '555-0103',
+          needsFollowUp: false,
+          followUpNotes: null,
+          createdAt: new Date('2024-01-17'),
+          updatedAt: new Date('2024-01-17'),
+        },
+      ];
+
+      const student = mockStudents.find(s => s.id === id);
+      if (!student) {
+        return {
+          data: null,
+          error: {
+            code: 'NOT_FOUND',
+            message: 'Student not found',
+          },
+        };
+      }
+
+      // Create updated student
+      const updatedStudent: Student = {
+        ...student,
+        studentId: updates.studentId !== undefined ? updates.studentId : student.studentId,
+        firstName: updates.firstName !== undefined ? updates.firstName : student.firstName,
+        lastName: updates.lastName !== undefined ? updates.lastName : student.lastName,
+        gradeLevel: updates.gradeLevel !== undefined ? updates.gradeLevel : student.gradeLevel,
+        email: updates.email !== undefined ? updates.email : student.email,
+        phone: updates.phone !== undefined ? updates.phone : student.phone,
+        needsFollowUp: updates.needsFollowUp !== undefined ? updates.needsFollowUp : student.needsFollowUp,
+        followUpNotes: updates.followUpNotes !== undefined ? updates.followUpNotes : student.followUpNotes,
+        updatedAt: new Date(),
+      };
+
+      // In a real app, you'd update localStorage or a mock database here
+      console.log('Mock: Updated student', updatedStudent);
+      
+      return { data: updatedStudent, error: null };
+    }
+
     const updateData: any = {};
 
     if (updates.studentId !== undefined) updateData.student_id = updates.studentId;

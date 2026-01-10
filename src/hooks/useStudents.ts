@@ -1,45 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/services/supabase';
+import { fetchStudents, fetchStudent, createStudent as apiCreateStudent, updateStudent as apiUpdateStudent } from '@/services/api';
 import { toast } from '@/utils/toast';
 import { handleApiError } from '@/utils/errorHandling';
 import { queryKeys } from '@/lib/queryClient';
-import type { Student, StudentDbResponse } from '@/types/student';
-
-// Helper function to convert snake_case DB response to camelCase
-function convertStudentFromDb(dbStudent: StudentDbResponse): Student {
-  return {
-    id: dbStudent.id,
-    studentId: dbStudent.student_id,
-    firstName: dbStudent.first_name,
-    lastName: dbStudent.last_name,
-    gradeLevel: dbStudent.grade_level,
-    email: dbStudent.email,
-    phone: dbStudent.phone,
-    needsFollowUp: dbStudent.needs_follow_up,
-    followUpNotes: dbStudent.follow_up_notes,
-    createdAt: new Date(dbStudent.created_at),
-    updatedAt: new Date(dbStudent.updated_at),
-  };
-}
-
-// Fetch all students
-async function fetchStudents(): Promise<Student[]> {
-  const { data, error } = await supabase
-    .from('students')
-    .select('*')
-    .order('last_name', { ascending: true });
-
-  if (error) throw error;
-  return (data || []).map(convertStudentFromDb);
-}
-
-// Fetch single student by ID
-async function fetchStudent(id: string): Promise<Student> {
-  const { data, error } = await supabase.from('students').select('*').eq('id', id).single();
-
-  if (error) throw error;
-  return convertStudentFromDb(data);
-}
+import type { Student } from '@/types/student';
 
 // Create student
 interface CreateStudentData {
@@ -52,23 +16,14 @@ interface CreateStudentData {
 }
 
 async function createStudent(data: CreateStudentData): Promise<Student> {
-  const insertData = {
-    student_id: data.studentId,
-    first_name: data.firstName,
-    last_name: data.lastName,
-    grade_level: data.gradeLevel,
-    email: data.email || null,
-    phone: data.phone || null,
-  };
-
-  const { data: newStudent, error } = await supabase
-    .from('students')
-    .insert(insertData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return convertStudentFromDb(newStudent);
+  const response = await apiCreateStudent(data);
+  if (response.error) {
+    throw new Error(response.error.message);
+  }
+  if (!response.data) {
+    throw new Error('Failed to create student');
+  }
+  return response.data;
 }
 
 // Update student
@@ -86,35 +41,34 @@ interface UpdateStudentData {
 
 async function updateStudent(data: UpdateStudentData): Promise<Student> {
   const { id, ...updateFields } = data;
-
-  const updateData: any = {};
-  if (updateFields.studentId !== undefined) updateData.student_id = updateFields.studentId;
-  if (updateFields.firstName !== undefined) updateData.first_name = updateFields.firstName;
-  if (updateFields.lastName !== undefined) updateData.last_name = updateFields.lastName;
-  if (updateFields.gradeLevel !== undefined) updateData.grade_level = updateFields.gradeLevel;
-  if (updateFields.email !== undefined) updateData.email = updateFields.email || null;
-  if (updateFields.phone !== undefined) updateData.phone = updateFields.phone || null;
-  if (updateFields.needsFollowUp !== undefined)
-    updateData.needs_follow_up = updateFields.needsFollowUp;
-  if (updateFields.followUpNotes !== undefined)
-    updateData.follow_up_notes = updateFields.followUpNotes || null;
-
-  const { data: updatedStudent, error } = await supabase
-    .from('students')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return convertStudentFromDb(updatedStudent);
+  const response = await apiUpdateStudent(id, updateFields);
+  if (response.error) {
+    throw new Error(response.error.message);
+  }
+  if (!response.data) {
+    throw new Error('Failed to update student');
+  }
+  return response.data;
 }
 
-// Delete student
-async function deleteStudent(id: string): Promise<void> {
-  const { error } = await supabase.from('students').delete().eq('id', id);
+// Wrapper functions for the API
+async function fetchStudentsWrapper(): Promise<Student[]> {
+  const response = await fetchStudents();
+  if (response.error) {
+    throw new Error(response.error.message);
+  }
+  return response.data || [];
+}
 
-  if (error) throw error;
+async function fetchStudentWrapper(id: string): Promise<Student> {
+  const response = await fetchStudent(id);
+  if (response.error) {
+    throw new Error(response.error.message);
+  }
+  if (!response.data) {
+    throw new Error('Student not found');
+  }
+  return response.data;
 }
 
 /**
@@ -126,7 +80,7 @@ async function deleteStudent(id: string): Promise<void> {
 export function useStudents() {
   return useQuery({
     queryKey: queryKeys.students,
-    queryFn: fetchStudents,
+    queryFn: fetchStudentsWrapper,
   });
 }
 
@@ -140,7 +94,7 @@ export function useStudents() {
 export function useStudent(id: string) {
   return useQuery({
     queryKey: queryKeys.student(id),
-    queryFn: () => fetchStudent(id),
+    queryFn: () => fetchStudentWrapper(id),
     enabled: !!id,
   });
 }
@@ -243,7 +197,10 @@ export function useDeleteStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteStudent,
+    mutationFn: async (id: string) => {
+      // For now, just throw an error since delete is not implemented in mock mode
+      throw new Error('Delete student functionality not implemented in mock mode');
+    },
     onMutate: async id => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.students });
