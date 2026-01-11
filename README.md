@@ -31,6 +31,31 @@ This version has been simplified for immediate deployment without complex multi-
 
 That's it! No database setup, no complex configuration needed.
 
+## Features
+
+### Core Functionality
+- **Interaction Tracking** - Record and manage student counseling sessions
+- **Student Management** - Comprehensive student profiles and history
+- **Contact Management** - Track interactions with parents, teachers, and staff
+- **Calendar Integration** - Visual scheduling and appointment management
+- **Follow-up System** - Automated reminders and task tracking
+- **Reporting Suite** - Comprehensive analytics and data export
+
+### Privacy & Security
+- **Counselor Privacy** - Interactions remain private to the creating counselor
+- **Collaborative Data** - Shared student/contact information within schools
+- **Admin Oversight** - Aggregated reporting without privacy violations
+- **Multi-Tenant Security** - Complete data isolation between schools
+- **Audit Logging** - Comprehensive security event tracking
+- **FERPA Compliance** - Built-in support for educational privacy requirements
+
+### Technical Features
+- **Real-time Updates** - Live data synchronization
+- **Offline Capability** - Works with intermittent connectivity
+- **Mobile Responsive** - Full functionality on all devices
+- **Data Export** - CSV and PDF report generation
+- **Role-Based Access** - Granular permission system
+
 ## Tech Stack
 
 - **Frontend**: React 19 + TypeScript + Vite
@@ -142,6 +167,20 @@ Set `VITE_USE_MOCK_DATA=false` and configure Supabase credentials to connect to 
 ## Multi-Tenant Architecture
 
 The application uses Row Level Security (RLS) in Supabase to ensure complete data isolation between different school tenants.
+
+### Privacy Controls
+
+The system implements comprehensive privacy controls to protect counselor interactions:
+
+- **Counselor Privacy**: Interaction records remain private to the counselor who created them
+- **Shared Collaboration**: Student and contact information is shared within the school
+- **Admin Oversight**: Administrators can view aggregated data without accessing private details
+- **Audit Logging**: All data access is logged for security and compliance
+- **Multi-Layer Security**: Database, API, and UI layers all enforce privacy boundaries
+
+For detailed information, see:
+- [Privacy User Guide](./docs/PRIVACY_USER_GUIDE.md) - Understanding privacy features
+- [Privacy Controls Documentation](./docs/PRIVACY_CONTROLS.md) - Technical implementation details
 
 ## License
 

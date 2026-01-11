@@ -42,8 +42,8 @@ function initializeMockUsers() {
         id: '2',
         email: 'counselor@school.edu',
         password: 'password123',
-        firstName: 'Jane',
-        lastName: 'Counselor',
+        firstName: 'Eleanor',
+        lastName: 'Jones',
         role: 'COUNSELOR',
         tenantId: DEFAULT_TENANT_ID,
         isActive: true,
@@ -79,13 +79,15 @@ function transformMockUser(mockUser: MockUser): User {
   };
 }
 
-export async function mockRegisterUser(credentials: RegisterCredentials): Promise<RegisterResponse> {
+export async function mockRegisterUser(
+  credentials: RegisterCredentials
+): Promise<RegisterResponse> {
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   const users = getMockUsers();
   console.log('Mock registration attempt:', credentials.email);
-  
+
   // Check if user already exists
   if (users.find(user => user.email === credentials.email)) {
     console.log('User already exists:', credentials.email);
@@ -122,8 +124,11 @@ export async function mockSignIn(credentials: LoginCredentials): Promise<AuthRes
 
   const users = getMockUsers();
   console.log('Mock sign in attempt:', credentials.email);
-  console.log('Available users:', users.map(u => ({ email: u.email, id: u.id })));
-  
+  console.log(
+    'Available users:',
+    users.map(u => ({ email: u.email, id: u.id }))
+  );
+
   const user = users.find(
     u => u.email === credentials.email && u.password === credentials.password
   );
@@ -183,7 +188,7 @@ export async function mockGetCurrentUser(): Promise<AuthResponse> {
 
   try {
     const session = JSON.parse(sessionData);
-    
+
     // Check if session is expired
     if (Date.now() > session.expiresAt) {
       localStorage.removeItem(MOCK_SESSION_KEY);

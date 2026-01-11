@@ -6,5 +6,7 @@ export { ReasonManagement } from './ReasonManagement';
 export { CategoryForm } from './CategoryForm';
 export { SubcategoryForm } from './SubcategoryForm';
 export { AdminDashboard } from './AdminDashboard';
+export { AdminReports } from './AdminReports';
 export { TenantManagement } from './TenantManagement';
 export { SecurityEventManagement } from './SecurityEventManagement';
+export { PrivacyComplianceReports } from './PrivacyComplianceReports';

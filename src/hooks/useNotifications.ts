@@ -26,31 +26,31 @@ export function useNotifications() {
   const refreshNotifications = useCallback(async () => {
     try {
       setIsLoading(true);
-      
+
       // Clean up expired notifications first
       cleanupExpiredNotifications();
-      
+
       // Get stored notifications
-      let storedNotifications = getStoredNotifications();
-      
+      const storedNotifications = getStoredNotifications();
+
       // Generate new notifications from current data
       const [studentsResponse, interactionsResponse] = await Promise.all([
         fetchStudents(),
         fetchInteractions(),
       ]);
-      
+
       if (studentsResponse.data && interactionsResponse.data) {
         const newNotifications = generateNotifications(
           interactionsResponse.data,
           studentsResponse.data
         );
-        
+
         // Merge with stored notifications, avoiding duplicates
         const existingIds = new Set(storedNotifications.map(n => n.id));
         const uniqueNewNotifications = newNotifications.filter(n => !existingIds.has(n.id));
-        
+
         const allNotifications = [...storedNotifications, ...uniqueNewNotifications];
-        
+
         // Sort by priority and date
         const sortedNotifications = allNotifications.sort((a, b) => {
           const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
@@ -58,7 +58,7 @@ export function useNotifications() {
           if (priorityDiff !== 0) return priorityDiff;
           return b.createdAt.getTime() - a.createdAt.getTime();
         });
-        
+
         setNotifications(sortedNotifications);
         setStats(getNotificationStats(sortedNotifications));
         saveNotifications(sortedNotifications);
@@ -81,9 +81,7 @@ export function useNotifications() {
   // Mark notification as read
   const markAsRead = useCallback((notificationId: string) => {
     markNotificationAsRead(notificationId);
-    setNotifications(prev => 
-      prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
-    );
+    setNotifications(prev => prev.map(n => (n.id === notificationId ? { ...n, isRead: true } : n)));
     setStats(prev => ({ ...prev, unread: Math.max(0, prev.unread - 1) }));
   }, []);
 

@@ -16,9 +16,14 @@ import { UserForm } from './UserForm';
 import { UserInvitationForm } from './UserInvitationForm';
 import { InvitationManagement } from './InvitationManagement';
 
+interface UserWithStats extends User {
+  interactionCount?: number;
+  studentCount?: number;
+  totalHours?: number;
+}
 export function UserManagement() {
   const { user: currentUser } = useAuth();
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserWithStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -40,7 +45,8 @@ export function UserManagement() {
         return;
       }
 
-      const { data, error: fetchError } = await supabase
+      // Fetch users
+      const { data: usersData, error: fetchError } = await supabase
         .from('users')
         .select('*')
         .eq('tenant_id', currentUser.tenantId) // Ensure tenant boundary
@@ -48,18 +54,39 @@ export function UserManagement() {
 
       if (fetchError) throw fetchError;
 
-      // Transform DB response to User type
-      const transformedUsers: User[] = (data || []).map(u => ({
-        id: u.id,
-        email: u.email,
-        firstName: u.first_name,
-        lastName: u.last_name,
-        role: u.role,
-        tenantId: u.tenant_id,
-        isActive: u.is_active,
-        createdAt: new Date(u.created_at),
-        updatedAt: new Date(u.updated_at),
-      }));
+      // Fetch interaction statistics for counselors
+      const { data: interactionStats, error: statsError } = await supabase
+        .from('interactions')
+        .select('counselor_id, student_id, duration_minutes');
+
+      if (statsError) {
+        console.warn('Could not fetch interaction statistics:', statsError);
+      }
+
+      // Transform DB response to User type with stats
+      const transformedUsers: UserWithStats[] = (usersData || []).map(u => {
+        const userInteractions = (interactionStats || []).filter(i => i.counselor_id === u.id);
+        const uniqueStudents = new Set(userInteractions.map(i => i.student_id)).size;
+        const totalMinutes = userInteractions.reduce(
+          (sum, i) => sum + (i.duration_minutes || 0),
+          0
+        );
+
+        return {
+          id: u.id,
+          email: u.email,
+          firstName: u.first_name,
+          lastName: u.last_name,
+          role: u.role,
+          tenantId: u.tenant_id,
+          isActive: u.is_active,
+          createdAt: new Date(u.created_at),
+          updatedAt: new Date(u.updated_at),
+          interactionCount: userInteractions.length,
+          studentCount: uniqueStudents,
+          totalHours: Math.round((totalMinutes / 60) * 10) / 10,
+        };
+      });
 
       setUsers(transformedUsers);
     } catch (err) {
@@ -196,6 +223,7 @@ export function UserManagement() {
                 <TableHead>Name</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Activity</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -203,7 +231,7 @@ export function UserManagement() {
             <TableBody>
               {users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                     No users found
                   </TableCell>
                 </TableRow>
@@ -235,6 +263,18 @@ export function UserManagement() {
                       >
                         {user.isActive ? 'Active' : 'Inactive'}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      {user.role === 'COUNSELOR' ? (
+                        <div className="text-sm">
+                          <div>{user.interactionCount || 0} interactions</div>
+                          <div className="text-gray-500">
+                            {user.studentCount || 0} students, {user.totalHours || 0}h
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">N/A</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-gray-600">
                       {user.createdAt.toLocaleDateString()}

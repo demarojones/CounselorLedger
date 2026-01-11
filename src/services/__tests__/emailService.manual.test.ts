@@ -1,11 +1,16 @@
 /**
  * EmailService Tests
- * 
+ *
  * This file contains automated tests for the email service functionality.
  */
 
 import { describe, it, expect } from 'vitest';
-import { EmailService, sendInvitationEmail, sendSetupConfirmationEmail, getEmailQueueStatus } from '../emailService';
+import {
+  EmailService,
+  sendInvitationEmail,
+  sendSetupConfirmationEmail,
+  getEmailQueueStatus,
+} from '../emailService';
 
 describe('EmailService Tests', () => {
   it('should have email service functions available', async () => {
@@ -23,10 +28,10 @@ describe('EmailService Tests', () => {
       maxRetryDelayMs: 5000,
       queueProcessIntervalMs: 2000,
     });
-    
+
     expect(emailService).toBeDefined();
     expect(typeof emailService.stopQueueProcessor).toBe('function');
-    
+
     // Clean up
     emailService.stopQueueProcessor();
   });

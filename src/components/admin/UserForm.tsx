@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -163,83 +164,90 @@ export function UserForm({ open, onOpenChange, user, onSuccess }: UserFormProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>{user ? 'Edit User' : 'Create New User'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={e => handleChange('email', e.target.value)}
-              placeholder="user@example.com"
-              disabled={!!user}
-            />
-            {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
-          </div>
+        <DialogBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={e => handleChange('email', e.target.value)}
+                placeholder="user@example.com"
+                disabled={!!user}
+              />
+              {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name *</Label>
-            <Input
-              id="firstName"
-              type="text"
-              value={formData.firstName}
-              onChange={e => handleChange('firstName', e.target.value)}
-              placeholder="John"
-            />
-            {errors.firstName && <p className="text-sm text-red-600">{errors.firstName}</p>}
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name *</Label>
+              <Input
+                id="firstName"
+                type="text"
+                value={formData.firstName}
+                onChange={e => handleChange('firstName', e.target.value)}
+                placeholder="John"
+              />
+              {errors.firstName && <p className="text-sm text-red-600">{errors.firstName}</p>}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name *</Label>
-            <Input
-              id="lastName"
-              type="text"
-              value={formData.lastName}
-              onChange={e => handleChange('lastName', e.target.value)}
-              placeholder="Doe"
-            />
-            {errors.lastName && <p className="text-sm text-red-600">{errors.lastName}</p>}
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name *</Label>
+              <Input
+                id="lastName"
+                type="text"
+                value={formData.lastName}
+                onChange={e => handleChange('lastName', e.target.value)}
+                placeholder="Doe"
+              />
+              {errors.lastName && <p className="text-sm text-red-600">{errors.lastName}</p>}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="role">Role *</Label>
-            <Select
-              id="role"
-              value={formData.role}
-              onChange={e => handleChange('role', e.target.value as UserRole)}
-            >
-              <option value="COUNSELOR">Counselor</option>
-              <option value="ADMIN">Admin</option>
-            </Select>
-            {errors.role && <p className="text-sm text-red-600">{errors.role}</p>}
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role *</Label>
+              <Select
+                id="role"
+                value={formData.role}
+                onChange={e => handleChange('role', e.target.value as UserRole)}
+              >
+                <option value="COUNSELOR">Counselor</option>
+                <option value="ADMIN">Admin</option>
+              </Select>
+              {errors.role && <p className="text-sm text-red-600">{errors.role}</p>}
+            </div>
+          </form>
+        </DialogBody>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="relative">
-              {isSubmitting && (
-                <span className="absolute inset-0 flex items-center justify-center">
-                  <LoadingSpinner size="sm" />
-                </span>
-              )}
-              <span className={isSubmitting ? 'invisible' : ''}>
-                {user ? 'Update User' : 'Create User'}
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting} 
+            onClick={handleSubmit}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200 relative"
+          >
+            {isSubmitting && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <LoadingSpinner size="sm" />
               </span>
-            </Button>
-          </DialogFooter>
-        </form>
+            )}
+            <span className={isSubmitting ? 'invisible' : ''}>
+              {user ? 'Update User' : 'Create User'}
+            </span>
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

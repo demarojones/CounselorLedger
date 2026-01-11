@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table } from '@/components/ui/table';
+import { PrivacyIndicator } from '@/components/common/PrivacyIndicator';
 import type { Interaction } from '@/types';
 
 interface FrequencyReportProps {
@@ -100,63 +101,71 @@ export function FrequencyReport({ interactions }: FrequencyReportProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Interaction Frequency by Student</CardTitle>
-        <p className="text-sm text-muted-foreground">Students ranked by number of interactions</p>
-      </CardHeader>
-      <CardContent>
-        {sortedData.length > 0 ? (
-          <div className="overflow-x-auto">
-            <Table>
-              <thead>
-                <tr>
-                  <th className="text-left">#</th>
-                  <th
-                    className="text-left cursor-pointer hover:bg-muted"
-                    onClick={() => handleSort('studentName')}
-                  >
-                    Student Name {getSortIcon('studentName')}
-                  </th>
-                  <th
-                    className="text-left cursor-pointer hover:bg-muted"
-                    onClick={() => handleSort('gradeLevel')}
-                  >
-                    Grade {getSortIcon('gradeLevel')}
-                  </th>
-                  <th
-                    className="text-right cursor-pointer hover:bg-muted"
-                    onClick={() => handleSort('interactionCount')}
-                  >
-                    Interactions {getSortIcon('interactionCount')}
-                  </th>
-                  <th
-                    className="text-right cursor-pointer hover:bg-muted"
-                    onClick={() => handleSort('totalTimeSpent')}
-                  >
-                    Total Time {getSortIcon('totalTimeSpent')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedData.map((student, index) => (
-                  <tr key={student.studentId}>
-                    <td className="text-muted-foreground">{index + 1}</td>
-                    <td className="font-medium">{student.studentName}</td>
-                    <td>{student.gradeLevel}</td>
-                    <td className="text-right">{student.interactionCount}</td>
-                    <td className="text-right">{formatTime(student.totalTimeSpent)}</td>
+    <div className="space-y-6">
+      {/* Privacy Context */}
+      <PrivacyIndicator type="reports" />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            Interaction Frequency by Student
+            <PrivacyIndicator type="reports" variant="inline" />
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">Students ranked by number of interactions</p>
+        </CardHeader>
+        <CardContent>
+          {sortedData.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <thead>
+                  <tr>
+                    <th className="text-left">#</th>
+                    <th
+                      className="text-left cursor-pointer hover:bg-muted"
+                      onClick={() => handleSort('studentName')}
+                    >
+                      Student Name {getSortIcon('studentName')}
+                    </th>
+                    <th
+                      className="text-left cursor-pointer hover:bg-muted"
+                      onClick={() => handleSort('gradeLevel')}
+                    >
+                      Grade {getSortIcon('gradeLevel')}
+                    </th>
+                    <th
+                      className="text-right cursor-pointer hover:bg-muted"
+                      onClick={() => handleSort('interactionCount')}
+                    >
+                      Interactions {getSortIcon('interactionCount')}
+                    </th>
+                    <th
+                      className="text-right cursor-pointer hover:bg-muted"
+                      onClick={() => handleSort('totalTimeSpent')}
+                    >
+                      Total Time {getSortIcon('totalTimeSpent')}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        ) : (
-          <p className="text-center text-muted-foreground py-8">
-            No interaction data available for the selected period
-          </p>
-        )}
-      </CardContent>
-    </Card>
+                </thead>
+                <tbody>
+                  {sortedData.map((student, index) => (
+                    <tr key={student.studentId}>
+                      <td className="text-muted-foreground">{index + 1}</td>
+                      <td className="font-medium">{student.studentName}</td>
+                      <td>{student.gradeLevel}</td>
+                      <td className="text-right">{student.interactionCount}</td>
+                      <td className="text-right">{formatTime(student.totalTimeSpent)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              No interaction data available for the selected period
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-export type NotificationType = 
+export type NotificationType =
   | 'follow_up_due'
   | 'follow_up_overdue'
   | 'crisis_intervention'

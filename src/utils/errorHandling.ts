@@ -30,6 +30,13 @@ export const ErrorCodes = {
   TENANT_NOT_FOUND: 'TENANT_001',
   TENANT_ACCESS_DENIED: 'TENANT_002',
 
+  // Privacy and access control errors
+  PRIVACY_VIOLATION: 'PRIVACY_001',
+  UNAUTHORIZED_INTERACTION_ACCESS: 'PRIVACY_002',
+  CROSS_COUNSELOR_ACCESS_DENIED: 'PRIVACY_003',
+  INTERACTION_NOT_FOUND: 'PRIVACY_004',
+  BULK_ACCESS_VIOLATION: 'PRIVACY_005',
+
   // Setup and invitation errors
   SETUP_TOKEN_INVALID: 'SETUP_001',
   SETUP_TOKEN_EXPIRED: 'SETUP_002',
@@ -82,6 +89,39 @@ export function parseSupabaseError(error: any): AppError {
       return new AppError(
         ErrorCodes.AUTH_INSUFFICIENT_PERMISSIONS,
         'You do not have permission to perform this action.',
+        error
+      );
+    }
+
+    // Privacy violation errors
+    if (message.includes('privacy_violation') || message.includes('cross_counselor_access')) {
+      return new AppError(
+        ErrorCodes.PRIVACY_VIOLATION,
+        'Access denied. You can only access your own interaction records.',
+        error
+      );
+    }
+
+    if (message.includes('unauthorized_interaction_access')) {
+      return new AppError(
+        ErrorCodes.UNAUTHORIZED_INTERACTION_ACCESS,
+        'You do not have permission to access this interaction.',
+        error
+      );
+    }
+
+    if (message.includes('interaction belongs to another counselor')) {
+      return new AppError(
+        ErrorCodes.CROSS_COUNSELOR_ACCESS_DENIED,
+        'This interaction belongs to another counselor and cannot be accessed.',
+        error
+      );
+    }
+
+    if (message.includes('interaction belongs to different tenant')) {
+      return new AppError(
+        ErrorCodes.TENANT_ACCESS_DENIED,
+        'Access denied. This resource belongs to a different organization.',
         error
       );
     }
@@ -140,6 +180,47 @@ export function parseSupabaseError(error: any): AppError {
     }
   }
 
+  // Handle privacy-specific error codes directly
+  if (error?.code === 'PRIVACY_VIOLATION') {
+    return new AppError(
+      ErrorCodes.PRIVACY_VIOLATION,
+      'Access denied. You can only access your own interaction records.',
+      error
+    );
+  }
+
+  if (error?.code === 'UNAUTHORIZED_INTERACTION_ACCESS') {
+    return new AppError(
+      ErrorCodes.UNAUTHORIZED_INTERACTION_ACCESS,
+      'You do not have permission to access this interaction.',
+      error
+    );
+  }
+
+  if (error?.code === 'CROSS_COUNSELOR_ACCESS_DENIED') {
+    return new AppError(
+      ErrorCodes.CROSS_COUNSELOR_ACCESS_DENIED,
+      'This interaction belongs to another counselor and cannot be accessed.',
+      error
+    );
+  }
+
+  if (error?.code === 'INTERACTION_NOT_FOUND') {
+    return new AppError(
+      ErrorCodes.INTERACTION_NOT_FOUND,
+      'The requested interaction was not found or you do not have permission to access it.',
+      error
+    );
+  }
+
+  if (error?.code === 'BULK_ACCESS_VIOLATION') {
+    return new AppError(
+      ErrorCodes.BULK_ACCESS_VIOLATION,
+      'Access denied to one or more interactions in the bulk operation.',
+      error
+    );
+  }
+
   // Handle network errors
   if (error?.name === 'NetworkError' || !navigator.onLine) {
     return new AppError(
@@ -166,18 +247,24 @@ export function handleApiError(
     showToast?: boolean;
     onAuthError?: () => void;
     onPermissionError?: () => void;
+    onPrivacyViolation?: () => void;
     customMessage?: string;
     context?: string;
     email?: string;
+    interactionId?: string;
+    operation?: string;
   }
 ): AppError {
   const {
     showToast: shouldShowToast = true,
     onAuthError,
     onPermissionError,
+    onPrivacyViolation,
     customMessage,
     context,
     email,
+    interactionId,
+    operation,
   } = options || {};
 
   const appError = parseSupabaseError(error);
@@ -205,6 +292,35 @@ export function handleApiError(
     }).catch(loggingError => {
       console.error('Failed to log auth failure:', loggingError);
     });
+  }
+
+  // Log privacy violation attempts
+  if (
+    appError.code === ErrorCodes.PRIVACY_VIOLATION ||
+    appError.code === ErrorCodes.UNAUTHORIZED_INTERACTION_ACCESS ||
+    appError.code === ErrorCodes.CROSS_COUNSELOR_ACCESS_DENIED ||
+    appError.code === ErrorCodes.BULK_ACCESS_VIOLATION
+  ) {
+    logSecurityEvent({
+      eventType: 'PRIVACY_VIOLATION_ATTEMPT',
+      severity: 'HIGH',
+      email,
+      details: {
+        errorCode: appError.code,
+        errorMessage: 'Privacy boundary violation attempted',
+        context: context || 'interaction_access',
+        operation: operation || 'unknown',
+        interactionId: interactionId || 'unknown',
+        timestamp: new Date().toISOString(),
+        // Note: We don't log the actual error details to avoid exposing sensitive information
+      },
+    }).catch(loggingError => {
+      console.error('Failed to log privacy violation:', loggingError);
+    });
+
+    if (onPrivacyViolation) {
+      onPrivacyViolation();
+    }
   }
 
   // Log suspicious activity for repeated permission errors
@@ -242,6 +358,19 @@ export function handleApiError(
     }
     if (onPermissionError) {
       onPermissionError();
+    }
+    return appError;
+  }
+
+  // Handle privacy violations with generic messages
+  if (
+    appError.code === ErrorCodes.PRIVACY_VIOLATION ||
+    appError.code === ErrorCodes.UNAUTHORIZED_INTERACTION_ACCESS ||
+    appError.code === ErrorCodes.CROSS_COUNSELOR_ACCESS_DENIED ||
+    appError.code === ErrorCodes.BULK_ACCESS_VIOLATION
+  ) {
+    if (shouldShowToast) {
+      toast.error('Access denied. You can only access your own interaction records.');
     }
     return appError;
   }
@@ -330,4 +459,133 @@ export async function retryOperation<T>(
   }
 
   throw lastError;
+}
+
+/**
+ * Helper function to log suspicious activity patterns
+ */
+export async function logSuspiciousActivity(details: Record<string, any>): Promise<void> {
+  await logSecurityEvent({
+    eventType: 'SUSPICIOUS_ACTIVITY',
+    severity: 'HIGH',
+    details,
+  });
+}
+
+/**
+ * Create a privacy violation error with security logging
+ */
+export function createPrivacyViolationError(
+  interactionId?: string,
+  operation?: string,
+  context?: string
+): AppError {
+  // Log the privacy violation attempt (without sensitive details)
+  logSecurityEvent({
+    eventType: 'PRIVACY_VIOLATION_ATTEMPT',
+    severity: 'HIGH',
+    details: {
+      operation: operation || 'unknown',
+      context: context || 'interaction_access',
+      interactionId: interactionId || 'unknown',
+      timestamp: new Date().toISOString(),
+      // Intentionally not logging specific error details to prevent information leakage
+    },
+  }).catch(error => {
+    console.error('Failed to log privacy violation:', error);
+  });
+
+  return new AppError(
+    ErrorCodes.PRIVACY_VIOLATION,
+    'Access denied. You can only access your own interaction records.',
+    { interactionId, operation, context }
+  );
+}
+
+/**
+ * Create an unauthorized interaction access error with security logging
+ */
+export function createUnauthorizedAccessError(
+  interactionId?: string,
+  operation?: string,
+  denialReason?: string
+): AppError {
+  // Log the unauthorized access attempt
+  logSecurityEvent({
+    eventType: 'UNAUTHORIZED_INTERACTION_ACCESS',
+    severity: 'HIGH',
+    details: {
+      operation: operation || 'unknown',
+      interactionId: interactionId || 'unknown',
+      denialReason: 'Access control violation',
+      timestamp: new Date().toISOString(),
+    },
+  }).catch(error => {
+    console.error('Failed to log unauthorized access:', error);
+  });
+
+  return new AppError(
+    ErrorCodes.UNAUTHORIZED_INTERACTION_ACCESS,
+    'You do not have permission to access this interaction.',
+    { interactionId, operation }
+  );
+}
+
+/**
+ * Create a cross-counselor access denied error with security logging
+ */
+export function createCrossCounselorAccessError(
+  interactionId?: string,
+  operation?: string
+): AppError {
+  // Log the cross-counselor access attempt
+  logSecurityEvent({
+    eventType: 'CROSS_COUNSELOR_ACCESS_DENIED',
+    severity: 'HIGH',
+    details: {
+      operation: operation || 'unknown',
+      interactionId: interactionId || 'unknown',
+      violationType: 'cross_counselor_access',
+      timestamp: new Date().toISOString(),
+    },
+  }).catch(error => {
+    console.error('Failed to log cross-counselor access attempt:', error);
+  });
+
+  return new AppError(
+    ErrorCodes.CROSS_COUNSELOR_ACCESS_DENIED,
+    'This interaction belongs to another counselor and cannot be accessed.',
+    { interactionId, operation }
+  );
+}
+
+/**
+ * Create a bulk access violation error with security logging
+ */
+export function createBulkAccessViolationError(
+  interactionIds: string[],
+  operation?: string,
+  invalidIds?: string[]
+): AppError {
+  // Log the bulk access violation
+  logSecurityEvent({
+    eventType: 'PRIVACY_VIOLATION_ATTEMPT',
+    severity: 'HIGH',
+    details: {
+      operation: operation || 'bulk_operation',
+      violationType: 'bulk_access_violation',
+      totalInteractions: interactionIds.length,
+      invalidInteractionCount: invalidIds?.length || 0,
+      timestamp: new Date().toISOString(),
+      // Not logging specific IDs to prevent information leakage
+    },
+  }).catch(error => {
+    console.error('Failed to log bulk access violation:', error);
+  });
+
+  return new AppError(
+    ErrorCodes.BULK_ACCESS_VIOLATION,
+    'Access denied to one or more interactions in the bulk operation.',
+    { interactionIds, operation, invalidIds }
+  );
 }

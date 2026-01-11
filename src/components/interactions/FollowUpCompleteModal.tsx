@@ -6,6 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { FormTextarea } from '@/components/common/FormTextarea';
@@ -77,16 +78,16 @@ export function FollowUpCompleteModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Complete Follow-up</DialogTitle>
-            <DialogDescription>
-              Mark this follow-up as complete and add any completion notes.
-            </DialogDescription>
-          </DialogHeader>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle>Complete Follow-up</DialogTitle>
+          <DialogDescription>
+            Mark this follow-up as complete and add any completion notes.
+          </DialogDescription>
+        </DialogHeader>
 
-          <div className="space-y-4 py-4">
+        <DialogBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Follow-up Details */}
             {interaction && (
               <div className="bg-muted/50 p-4 rounded-lg space-y-2">
@@ -131,17 +132,22 @@ export function FollowUpCompleteModal({
                 <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
-          </div>
+          </form>
+        </DialogBody>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Completing...' : 'Mark Complete'}
-            </Button>
-          </DialogFooter>
-        </form>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            onClick={handleSubmit}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            {isSubmitting ? 'Completing...' : 'Mark Complete'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

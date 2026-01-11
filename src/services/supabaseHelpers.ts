@@ -133,7 +133,7 @@ export async function getTenantContext(): Promise<TenantContext | null> {
 
       const mockUsers = JSON.parse(users);
       const user = mockUsers.find((u: any) => u.id === session.userId);
-      
+
       if (!user) return null;
 
       return {

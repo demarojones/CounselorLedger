@@ -305,6 +305,64 @@ export const handlers = [
     return HttpResponse.json(dbContact, { status: 201 });
   }),
 
+  // PATCH handler for updating contacts
+  http.patch(`${SUPABASE_URL}/rest/v1/contacts`, async ({ request }) => {
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id')?.replace('eq.', '');
+    const body = (await request.json()) as any;
+
+    const index = mockData.contacts.findIndex(c => c.id === id);
+
+    if (index !== -1) {
+      // Update the contact with new data
+      mockData.contacts[index] = {
+        ...mockData.contacts[index],
+        firstName: body.first_name !== undefined ? body.first_name : mockData.contacts[index].firstName,
+        lastName: body.last_name !== undefined ? body.last_name : mockData.contacts[index].lastName,
+        relationship: body.relationship !== undefined ? body.relationship : mockData.contacts[index].relationship,
+        email: body.email !== undefined ? body.email : mockData.contacts[index].email,
+        phone: body.phone !== undefined ? body.phone : mockData.contacts[index].phone,
+        organization: body.organization !== undefined ? body.organization : mockData.contacts[index].organization,
+        notes: body.notes !== undefined ? body.notes : mockData.contacts[index].notes,
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Return in DB format
+      const dbContact = {
+        id: mockData.contacts[index].id,
+        tenant_id: mockData.contacts[index].tenantId,
+        first_name: mockData.contacts[index].firstName,
+        last_name: mockData.contacts[index].lastName,
+        relationship: mockData.contacts[index].relationship,
+        email: mockData.contacts[index].email,
+        phone: mockData.contacts[index].phone,
+        organization: mockData.contacts[index].organization,
+        notes: mockData.contacts[index].notes,
+        created_at: mockData.contacts[index].createdAt,
+        updated_at: mockData.contacts[index].updatedAt,
+      };
+
+      return HttpResponse.json(dbContact);
+    }
+
+    return HttpResponse.json({ error: 'Contact not found' }, { status: 404 });
+  }),
+
+  // DELETE handler for deleting contacts
+  http.delete(`${SUPABASE_URL}/rest/v1/contacts`, ({ request }) => {
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id')?.replace('eq.', '');
+
+    const index = mockData.contacts.findIndex(c => c.id === id);
+
+    if (index !== -1) {
+      mockData.contacts.splice(index, 1);
+      return HttpResponse.json({}, { status: 204 });
+    }
+
+    return HttpResponse.json({ error: 'Contact not found' }, { status: 404 });
+  }),
+
   // Interactions endpoints
   http.get(`${SUPABASE_URL}/rest/v1/interactions`, ({ request }) => {
     const url = new URL(request.url);

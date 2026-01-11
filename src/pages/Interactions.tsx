@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
   InteractionForm,
@@ -17,6 +17,7 @@ import {
 } from '@/services/api';
 import { handleFormSubmission } from '@/utils/formSubmission';
 import type { Interaction, InteractionFormData } from '@/types/interaction';
+import type { Student } from '@/types/student';
 
 export function Interactions() {
   const {
@@ -42,6 +43,11 @@ export function Interactions() {
   const handleCreateClick = () => {
     setEditingInteraction(null);
     setIsFormOpen(true);
+  };
+
+  const handleStudentAdded = (newStudent: Student) => {
+    // Refresh the interactions data to get the updated student list
+    refreshInteractions();
   };
 
   const handleView = (interaction: Interaction) => {
@@ -231,23 +237,27 @@ export function Interactions() {
 
       {/* Create/Edit Form Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto sm:rounded-lg w-full sm:max-w-3xl h-full sm:h-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>
               {editingInteraction ? 'Edit Interaction' : 'Add New Interaction'}
             </DialogTitle>
           </DialogHeader>
-          <InteractionForm
-            initialData={editingInteraction ? getInitialFormData(editingInteraction) : undefined}
-            students={students}
-            contacts={contacts}
-            categories={categories}
-            subcategories={subcategories}
-            onSubmit={handleSubmit}
-            onCancel={handleFormCancel}
-            isLoading={isSubmitting}
-            submitLabel={editingInteraction ? 'Update Interaction' : 'Create Interaction'}
-          />
+
+          <DialogBody>
+            <InteractionForm
+              initialData={editingInteraction ? getInitialFormData(editingInteraction) : undefined}
+              students={students}
+              contacts={contacts}
+              categories={categories}
+              subcategories={subcategories}
+              onSubmit={handleSubmit}
+              onCancel={handleFormCancel}
+              onStudentAdded={handleStudentAdded}
+              isLoading={isSubmitting}
+              submitLabel={editingInteraction ? 'Update Interaction' : 'Create Interaction'}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -145,7 +146,7 @@ export function UserInvitationForm({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="w-5 h-5" />
@@ -153,126 +154,135 @@ export function UserInvitationForm({
           </DialogTitle>
         </DialogHeader>
 
-        {successMessage ? (
-          <div className="py-6">
-            <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-              <p className="text-sm text-green-800">{successMessage}</p>
+        <DialogBody>
+          {successMessage ? (
+            <div className="py-6">
+              <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                <p className="text-sm text-green-800">{successMessage}</p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={e => handleChange('email', e.target.value)}
-                placeholder="user@example.com"
-                disabled={isSubmitting}
-                autoComplete="email"
-              />
-              {errors.email && (
-                <p className="text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.email}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name *</Label>
+                <Label htmlFor="email">Email Address *</Label>
                 <Input
-                  id="firstName"
-                  type="text"
-                  value={formData.firstName}
-                  onChange={e => handleChange('firstName', e.target.value)}
-                  placeholder="John"
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={e => handleChange('email', e.target.value)}
+                  placeholder="user@example.com"
                   disabled={isSubmitting}
-                  autoComplete="given-name"
+                  autoComplete="email"
                 />
-                {errors.firstName && (
+                {errors.email && (
                   <p className="text-sm text-red-600 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
-                    {errors.firstName}
+                    {errors.email}
                   </p>
                 )}
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name *</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    value={formData.firstName}
+                    onChange={e => handleChange('firstName', e.target.value)}
+                    placeholder="John"
+                    disabled={isSubmitting}
+                    autoComplete="given-name"
+                  />
+                  {errors.firstName && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.firstName}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    value={formData.lastName}
+                    onChange={e => handleChange('lastName', e.target.value)}
+                    placeholder="Doe"
+                    disabled={isSubmitting}
+                    autoComplete="family-name"
+                  />
+                  {errors.lastName && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.lastName}
+                    </p>
+                  )}
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name *</Label>
-                <Input
-                  id="lastName"
-                  type="text"
-                  value={formData.lastName}
-                  onChange={e => handleChange('lastName', e.target.value)}
-                  placeholder="Doe"
+                <Label htmlFor="role">Role *</Label>
+                <Select
+                  id="role"
+                  value={formData.role}
+                  onChange={e => handleChange('role', e.target.value as 'ADMIN' | 'COUNSELOR')}
                   disabled={isSubmitting}
-                  autoComplete="family-name"
-                />
-                {errors.lastName && (
+                >
+                  <option value="COUNSELOR">Counselor</option>
+                  <option value="ADMIN">Admin</option>
+                </Select>
+                {errors.role && (
                   <p className="text-sm text-red-600 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
-                    {errors.lastName}
+                    {errors.role}
                   </p>
                 )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role">Role *</Label>
-              <Select
-                id="role"
-                value={formData.role}
-                onChange={e => handleChange('role', e.target.value as 'ADMIN' | 'COUNSELOR')}
-                disabled={isSubmitting}
-              >
-                <option value="COUNSELOR">Counselor</option>
-                <option value="ADMIN">Admin</option>
-              </Select>
-              {errors.role && (
-                <p className="text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.role}
+                <p className="text-xs text-gray-500">
+                  {formData.role === 'ADMIN'
+                    ? 'Admins can manage users and system settings'
+                    : 'Counselors can manage student interactions and reports'}
                 </p>
+              </div>
+
+              {errors.submit && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.submit}
+                  </p>
+                </div>
               )}
-              <p className="text-xs text-gray-500">
-                {formData.role === 'ADMIN'
-                  ? 'Admins can manage users and system settings'
-                  : 'Counselors can manage student interactions and reports'}
-              </p>
-            </div>
+            </form>
+          )}
+        </DialogBody>
 
-            {errors.submit && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-800 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.submit}
-                </p>
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="relative">
-                {isSubmitting && (
-                  <span className="absolute inset-0 flex items-center justify-center">
-                    <LoadingSpinner size="sm" />
-                  </span>
-                )}
-                <span className={isSubmitting ? 'invisible' : ''}>Send Invitation</span>
-              </Button>
-            </DialogFooter>
-          </form>
+        {!successMessage && (
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting} 
+              onClick={handleSubmit}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200 relative"
+            >
+              {isSubmitting && (
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <LoadingSpinner size="sm" />
+                </span>
+              )}
+              <span className={isSubmitting ? 'invisible' : ''}>Send Invitation</span>
+            </Button>
+          </DialogFooter>
         )}
       </DialogContent>
     </Dialog>

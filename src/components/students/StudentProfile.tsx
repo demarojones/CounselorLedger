@@ -93,8 +93,10 @@ export function StudentProfile({ student, onAddInteraction }: StudentProfileProp
             <div>
               <dt className="text-sm font-semibold text-slate-600 mb-1">Grade Level</dt>
               <dd className="text-base text-slate-900">
-                {student.gradeLevel ? 
-                  (student.gradeLevel.includes('Grade') ? student.gradeLevel : `${student.gradeLevel}th Grade`) 
+                {student.gradeLevel
+                  ? student.gradeLevel.includes('Grade')
+                    ? student.gradeLevel
+                    : `${student.gradeLevel}th Grade`
                   : 'N/A'}
               </dd>
             </div>
@@ -129,7 +131,12 @@ export function StudentProfile({ student, onAddInteraction }: StudentProfileProp
       {/* Interaction Statistics */}
       <Card>
         <CardHeader>
-          <CardTitle>Interaction Summary</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Interaction Summary
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+              Your Interactions Only
+            </span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">

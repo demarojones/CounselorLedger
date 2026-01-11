@@ -84,12 +84,11 @@ export function Login() {
             </div>
           </div>
           <h2 className="heading-1 text-center">School Counselor Ledger</h2>
-          <p className="mt-2 text-center body-text-sm">
-            Sign in to your account
-          </p>
+          <p className="mt-2 text-center body-text-sm">Sign in to your account</p>
           <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
             <p className="text-sm text-blue-800 dark:text-blue-400 text-center">
-              <strong>New here?</strong> This simplified version lets you create an account instantly - no setup required!
+              <strong>New here?</strong> This simplified version lets you create an account
+              instantly - no setup required!
             </p>
           </div>
         </div>

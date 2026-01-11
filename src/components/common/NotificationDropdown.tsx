@@ -2,16 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { 
-  Bell, 
-  AlertTriangle, 
-  Clock, 
-  User, 
-  MessageSquare, 
-  CheckCheck, 
+import {
+  Bell,
+  AlertTriangle,
+  Clock,
+  User,
+  MessageSquare,
+  CheckCheck,
   X,
   ExternalLink,
-  Trash2
+  Trash2,
 } from 'lucide-react';
 import type { Notification, NotificationPriority } from '@/types/notification';
 
@@ -41,17 +41,17 @@ const typeIcons = {
   reminder: User,
 };
 
-function NotificationItem({ 
-  notification, 
-  onMarkAsRead, 
-  onRemove 
-}: { 
+function NotificationItem({
+  notification,
+  onMarkAsRead,
+  onRemove,
+}: {
   notification: Notification;
   onMarkAsRead: (id: string) => void;
   onRemove: (id: string) => void;
 }) {
   const Icon = typeIcons[notification.type] || Bell;
-  
+
   const handleMarkAsRead = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -73,25 +73,26 @@ function NotificationItem({
       )}
     >
       <div className="flex items-start gap-3">
-        <Icon className={cn(
-          'w-5 h-5 mt-0.5 flex-shrink-0',
-          notification.priority === 'urgent' ? 'text-red-600' :
-          notification.priority === 'high' ? 'text-orange-600' :
-          notification.priority === 'medium' ? 'text-blue-600' : 'text-gray-600'
-        )} />
-        
+        <Icon
+          className={cn(
+            'w-5 h-5 mt-0.5 flex-shrink-0',
+            notification.priority === 'urgent'
+              ? 'text-red-600'
+              : notification.priority === 'high'
+                ? 'text-orange-600'
+                : notification.priority === 'medium'
+                  ? 'text-blue-600'
+                  : 'text-gray-600'
+          )}
+        />
+
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1">
-              <h4 className={cn(
-                'text-sm font-medium',
-                !notification.isRead && 'font-semibold'
-              )}>
+              <h4 className={cn('text-sm font-medium', !notification.isRead && 'font-semibold')}>
                 {notification.title}
               </h4>
-              <p className="text-sm text-gray-600 mt-1">
-                {notification.message}
-              </p>
+              <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
               <div className="flex items-center gap-4 mt-2">
                 <span className="text-xs text-gray-500">
                   {notification.createdAt.toLocaleString()}
@@ -104,7 +105,7 @@ function NotificationItem({
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center gap-1 flex-shrink-0">
               {!notification.isRead && (
                 <button
@@ -131,7 +132,7 @@ function NotificationItem({
 
   if (notification.actionUrl) {
     return (
-      <Link 
+      <Link
         to={notification.actionUrl}
         className="block hover:no-underline"
         onClick={() => !notification.isRead && onMarkAsRead(notification.id)}
@@ -203,12 +204,7 @@ export function NotificationDropdown({
               </h3>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onMarkAllAsRead}
-                    className="text-xs"
-                  >
+                  <Button variant="ghost" size="sm" onClick={onMarkAllAsRead} className="text-xs">
                     Mark all read
                   </Button>
                 )}

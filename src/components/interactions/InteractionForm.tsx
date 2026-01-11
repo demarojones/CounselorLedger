@@ -9,8 +9,10 @@ import { SearchableDropdown } from '@/components/common/SearchableDropdown';
 import type { SearchableDropdownOption } from '@/components/common/SearchableDropdown';
 import { RegardingStudentSelector } from './RegardingStudentSelector';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { StudentFormModal } from '@/components/students/StudentFormModal';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Plus } from 'lucide-react';
 import type { InteractionFormData } from '@/types/interaction';
 import type { Student } from '@/types/student';
 import type { Contact } from '@/types/contact';
@@ -26,6 +28,7 @@ export interface InteractionFormProps {
   subcategories: ReasonSubcategory[];
   onSubmit: (data: InteractionFormData) => void | Promise<void>;
   onCancel?: () => void;
+  onStudentAdded?: (student: Student) => void; // Callback when a new student is added
   isLoading?: boolean;
   submitLabel?: string;
 }
@@ -38,6 +41,7 @@ export function InteractionForm({
   subcategories,
   onSubmit,
   onCancel,
+  onStudentAdded,
   isLoading = false,
   submitLabel = 'Save Interaction',
 }: InteractionFormProps) {
@@ -62,6 +66,22 @@ export function InteractionForm({
 
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Student modal state
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+
+  // Handle new student creation
+  const handleStudentCreated = (newStudent: Student) => {
+    // Auto-select the newly created student
+    setStudentId(newStudent.id);
+    setErrors(prev => ({ ...prev, studentId: '' }));
+    
+    // Close the modal
+    setIsStudentModalOpen(false);
+    
+    // Notify parent component if callback provided
+    onStudentAdded?.(newStudent);
+  };
 
   // Calculate end time
   const endTime = useMemo(() => {
@@ -233,20 +253,39 @@ export function InteractionForm({
 
       {/* Student/Contact Selection */}
       {type === 'student' ? (
-        <SearchableDropdown
-          label="Student"
-          placeholder="Search for a student..."
-          options={studentOptions}
-          value={studentId}
-          onChange={value => {
-            setStudentId(value);
-            setErrors(prev => ({ ...prev, studentId: '' }));
-          }}
-          error={errors.studentId}
-          disabled={isLoading}
-          required
-          emptyMessage="No students found"
-        />
+        <div className="space-y-2">
+          <Label>
+            Student <span className="text-destructive">*</span>
+          </Label>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <SearchableDropdown
+                placeholder="Search for a student..."
+                options={studentOptions}
+                value={studentId}
+                onChange={value => {
+                  setStudentId(value);
+                  setErrors(prev => ({ ...prev, studentId: '' }));
+                }}
+                error={errors.studentId}
+                disabled={isLoading}
+                required
+                emptyMessage="No students found"
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="default"
+              onClick={() => setIsStudentModalOpen(true)}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-3 whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" />
+              Add New
+            </Button>
+          </div>
+        </div>
       ) : (
         <>
           <SearchableDropdown
@@ -459,6 +498,13 @@ export function InteractionForm({
           <span className={isLoading ? 'invisible' : ''}>{submitLabel}</span>
         </Button>
       </div>
+
+      {/* Student Creation Modal */}
+      <StudentFormModal
+        open={isStudentModalOpen}
+        onOpenChange={setIsStudentModalOpen}
+        onSuccess={handleStudentCreated}
+      />
     </form>
   );
 }

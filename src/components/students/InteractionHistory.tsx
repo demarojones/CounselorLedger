@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { PrivacyIndicator } from '@/components/common/PrivacyIndicator';
 
 interface InteractionHistoryProps {
   interactions: Interaction[];
@@ -91,6 +92,9 @@ export function InteractionHistory({
 
   return (
     <div className="space-y-4">
+      {/* Privacy indicator */}
+      <PrivacyIndicator type="shared-data" />
+
       {/* Filters */}
       <div className="bg-gray-50 p-4 rounded-lg border">
         <h3 className="text-sm font-medium text-gray-900 mb-3">Filter Interactions</h3>

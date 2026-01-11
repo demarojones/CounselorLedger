@@ -13,10 +13,10 @@ export interface Contact {
   firstName: string;
   lastName: string;
   relationship: string;
-  email?: string;
-  phone?: string;
-  organization?: string;
-  notes?: string;
+  email?: string | null;
+  phone?: string | null;
+  organization?: string | null;
+  notes?: string | null;
   createdAt: Date;
   updatedAt: Date;
 

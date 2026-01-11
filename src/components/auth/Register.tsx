@@ -18,7 +18,9 @@ export function Register() {
     role: 'COUNSELOR',
   });
 
-  const [validationErrors, setValidationErrors] = useState<Partial<Record<keyof RegisterFormData, string>>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Partial<Record<keyof RegisterFormData, string>>
+  >({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -85,12 +87,11 @@ export function Register() {
             </div>
           </div>
           <h2 className="heading-1 text-center">Create Account</h2>
-          <p className="mt-2 text-center body-text-sm">
-            Join School Counselor Ledger
-          </p>
+          <p className="mt-2 text-center body-text-sm">Join School Counselor Ledger</p>
           <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
             <p className="text-sm text-green-800 dark:text-green-400 text-center">
-              <strong>Simplified Setup:</strong> Create your account and start using the app immediately!
+              <strong>Simplified Setup:</strong> Create your account and start using the app
+              immediately!
             </p>
           </div>
         </div>

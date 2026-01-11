@@ -126,7 +126,7 @@ export async function registerUser(credentials: RegisterCredentials): Promise<Re
 
   try {
     const defaultTenantId = '00000000-0000-0000-0000-000000000001';
-    
+
     // Create the auth user with Supabase
     const { data, error } = await supabase.auth.signUp({
       email: credentials.email,
@@ -142,9 +142,9 @@ export async function registerUser(credentials: RegisterCredentials): Promise<Re
     });
 
     if (error) {
-      return { 
-        success: false, 
-        error: error.message 
+      return {
+        success: false,
+        error: error.message,
       };
     }
 
@@ -158,17 +158,15 @@ export async function registerUser(credentials: RegisterCredentials): Promise<Re
     // For single tenancy, we need to create the user record directly
     // since we don't have complex setup flows
     if (data.user.id) {
-      const { error: userError } = await supabase
-        .from('users')
-        .insert({
-          id: data.user.id,
-          tenant_id: credentials.tenantId || defaultTenantId,
-          email: credentials.email,
-          first_name: credentials.firstName,
-          last_name: credentials.lastName,
-          role: credentials.role,
-          is_active: true,
-        });
+      const { error: userError } = await supabase.from('users').insert({
+        id: data.user.id,
+        tenant_id: credentials.tenantId || defaultTenantId,
+        email: credentials.email,
+        first_name: credentials.firstName,
+        last_name: credentials.lastName,
+        role: credentials.role,
+        is_active: true,
+      });
 
       if (userError) {
         console.error('Failed to create user record:', userError);

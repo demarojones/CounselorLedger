@@ -10,6 +10,7 @@ import type {
   EventContentArg,
 } from '@fullcalendar/core';
 import { formatDuration } from '@/utils/dateHelpers';
+import { PrivacyIndicator } from '@/components/common/PrivacyIndicator';
 import './calendar.css';
 
 interface CalendarViewProps {
@@ -126,50 +127,55 @@ export const CalendarView = forwardRef<CalendarViewRef, CalendarViewProps>(
     const isEditable = !isMobile;
 
     return (
-      <div className="calendar-container bg-white rounded-lg shadow p-2 sm:p-4">
-        <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView={initialView}
-          headerToolbar={
-            isMobile
-              ? {
-                  left: 'prev,next',
-                  center: 'title',
-                  right: 'today',
-                }
-              : {
-                  left: 'prev,next today',
-                  center: 'title',
-                  right: 'dayGridMonth,timeGridWeek,timeGridDay',
-                }
-          }
-          events={events}
-          editable={isEditable}
-          selectable={true}
-          selectMirror={true}
-          dayMaxEvents={isMobile ? 3 : true}
-          weekends={true}
-          eventClick={onEventClick}
-          select={onDateSelect}
-          eventDrop={isEditable ? onEventDrop : undefined}
-          eventContent={renderEventContent}
-          height="auto"
-          slotMinTime="07:00:00"
-          slotMaxTime="18:00:00"
-          allDaySlot={false}
-          eventTimeFormat={{
-            hour: 'numeric',
-            minute: '2-digit',
-            meridiem: 'short',
-          }}
-          slotLabelFormat={{
-            hour: 'numeric',
-            minute: '2-digit',
-            meridiem: 'short',
-          }}
-          eventClassNames={isMobile ? 'fc-event-mobile' : ''}
-        />
+      <div className="space-y-4">
+        {/* Privacy Context */}
+        <PrivacyIndicator type="interactions" />
+
+        <div className="calendar-container bg-white rounded-lg shadow p-2 sm:p-4">
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView={initialView}
+            headerToolbar={
+              isMobile
+                ? {
+                    left: 'prev,next',
+                    center: 'title',
+                    right: 'today',
+                  }
+                : {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                  }
+            }
+            events={events}
+            editable={isEditable}
+            selectable={true}
+            selectMirror={true}
+            dayMaxEvents={isMobile ? 3 : true}
+            weekends={true}
+            eventClick={onEventClick}
+            select={onDateSelect}
+            eventDrop={isEditable ? onEventDrop : undefined}
+            eventContent={renderEventContent}
+            height="auto"
+            slotMinTime="07:00:00"
+            slotMaxTime="18:00:00"
+            allDaySlot={false}
+            eventTimeFormat={{
+              hour: 'numeric',
+              minute: '2-digit',
+              meridiem: 'short',
+            }}
+            slotLabelFormat={{
+              hour: 'numeric',
+              minute: '2-digit',
+              meridiem: 'short',
+            }}
+            eventClassNames={isMobile ? 'fc-event-mobile' : ''}
+          />
+        </div>
       </div>
     );
   }

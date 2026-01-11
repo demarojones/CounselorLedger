@@ -6,6 +6,7 @@ import type { Interaction } from '@/types/interaction';
 import {
   fetchContacts,
   fetchInteractions,
+  fetchContactInteractions,
   createContact,
   updateContact,
   deleteContact,
@@ -15,6 +16,7 @@ import { handleFormSubmission, prepareFormData } from '@/utils/formSubmission';
 export function Contacts() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [interactions, setInteractions] = useState<Interaction[]>([]);
+  const [contactInteractions, setContactInteractions] = useState<Interaction[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -48,17 +50,31 @@ export function Contacts() {
     }
   };
 
-  const handleViewContact = (contactId: string) => {
+  const handleViewContact = async (contactId: string) => {
     const contact = contacts.find(c => c.id === contactId);
     if (contact) {
       setSelectedContact(contact);
       setIsDetailOpen(true);
+
+      // Fetch contact-specific interactions filtered by current counselor
+      try {
+        const response = await fetchContactInteractions(contactId);
+        if (response.data) {
+          setContactInteractions(response.data);
+        } else {
+          setContactInteractions([]);
+        }
+      } catch (error) {
+        console.error('Error loading contact interactions:', error);
+        setContactInteractions([]);
+      }
     }
   };
 
   const handleEditContact = (contactId: string) => {
     const contact = contacts.find(c => c.id === contactId);
     if (contact) {
+      console.log('contact to be edited', contact);
       setEditingContact(contact);
       setIsFormOpen(true);
       setIsDetailOpen(false);
@@ -77,13 +93,15 @@ export function Contacts() {
       'lastName',
       'relationship',
     ]);
-
+    console.log('formData', formData);
     if (!valid) {
+      console.log('Form data is invalid', errors);
       setFormErrors(errors);
       return;
     }
 
     if (editingContact) {
+      console.log('editingContact', editingContact);
       // Update existing contact
       await handleFormSubmission(() => updateContact(editingContact.id, data as any), {
         successMessage: 'Contact updated successfully',
@@ -170,7 +188,7 @@ export function Contacts() {
 
       <ContactDetail
         contact={selectedContact}
-        interactions={interactions}
+        interactions={contactInteractions}
         open={isDetailOpen}
         onOpenChange={setIsDetailOpen}
         onAddInteraction={handleAddInteraction}

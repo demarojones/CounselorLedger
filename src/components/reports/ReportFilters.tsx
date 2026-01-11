@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { FormSelect } from '@/components/common/FormSelect';
 import { SearchableDropdown } from '@/components/common/SearchableDropdown';
+import { PrivacyIndicator } from '@/components/common/PrivacyIndicator';
 import type { SearchableDropdownOption } from '@/components/common/SearchableDropdown';
 import { useAuth } from '@/contexts/AuthContext';
 import type { ReportFilters as ReportFiltersType } from '@/types';
@@ -129,6 +130,9 @@ export function ReportFilters({
     <Card>
       <CardContent className="pt-6">
         <div className="space-y-6">
+          {/* Privacy Context Header */}
+          <PrivacyIndicator type="reports" />
+
           {/* Date Range Presets */}
           <div>
             <h3 className="text-sm font-medium mb-3">Date Range</h3>

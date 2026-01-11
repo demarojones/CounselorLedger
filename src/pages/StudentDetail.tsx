@@ -42,14 +42,14 @@ export function StudentDetail() {
 
       // Fetch interactions for this student using the API
       const interactionsResponse = await fetchStudentInteractions(id);
-      
+
       if (interactionsResponse.error) {
         throw new Error(interactionsResponse.error.message);
       }
 
       // Fetch reason categories using the API
       const categoriesResponse = await fetchReasonCategories();
-      
+
       if (categoriesResponse.error) {
         throw new Error(categoriesResponse.error.message);
       }
@@ -132,7 +132,12 @@ export function StudentDetail() {
       <div className="mt-6">
         <Card>
           <CardHeader>
-            <CardTitle>Interaction History</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Interaction History
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                Your Interactions
+              </span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <InteractionHistory

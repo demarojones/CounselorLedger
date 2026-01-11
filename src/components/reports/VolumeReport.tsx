@@ -13,6 +13,7 @@ import {
   Line,
 } from 'recharts';
 import { exportToCSV, exportToPDF } from '@/utils/exportHelpers';
+import { PrivacyIndicator } from '@/components/common/PrivacyIndicator';
 import type { Interaction } from '@/types';
 
 interface VolumeReportProps {
@@ -114,6 +115,9 @@ export function VolumeReport({ interactions }: VolumeReportProps) {
 
   return (
     <div id="volume-report-content" className="space-y-6">
+      {/* Privacy Context */}
+      <PrivacyIndicator type="reports" />
+
       {/* Export Buttons */}
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={handleExportCSV}>

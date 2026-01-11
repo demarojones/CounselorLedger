@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -144,42 +145,49 @@ export function SubcategoryForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>{subcategory ? 'Edit Subcategory' : 'Create New Subcategory'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Subcategory Name *</Label>
-            <Input
-              id="name"
-              type="text"
-              value={formData.name}
-              onChange={e => handleChange('name', e.target.value)}
-              placeholder="e.g., Study Skills"
-            />
-            {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
-          </div>
+        <DialogBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Subcategory Name *</Label>
+              <Input
+                id="name"
+                type="text"
+                value={formData.name}
+                onChange={e => handleChange('name', e.target.value)}
+                placeholder="e.g., Study Skills"
+              />
+              {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
+            </div>
+          </form>
+        </DialogBody>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? 'Saving...'
-                : subcategory
-                  ? 'Update Subcategory'
-                  : 'Create Subcategory'}
-            </Button>
-          </DialogFooter>
-        </form>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            onClick={handleSubmit}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            {isSubmitting
+              ? 'Saving...'
+              : subcategory
+                ? 'Update Subcategory'
+                : 'Create Subcategory'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

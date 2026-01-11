@@ -1,5 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchStudents, fetchStudent, createStudent as apiCreateStudent, updateStudent as apiUpdateStudent } from '@/services/api';
+import {
+  fetchStudents,
+  fetchStudent,
+  createStudent as apiCreateStudent,
+  updateStudent as apiUpdateStudent,
+} from '@/services/api';
 import { toast } from '@/utils/toast';
 import { handleApiError } from '@/utils/errorHandling';
 import { queryKeys } from '@/lib/queryClient';

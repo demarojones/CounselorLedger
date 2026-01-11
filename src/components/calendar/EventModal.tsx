@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog';
 import { InteractionForm } from '@/components/interactions/InteractionForm';
 import type { InteractionFormData, Interaction } from '@/types/interaction';
 import type { Student } from '@/types/student';
@@ -15,6 +15,7 @@ export interface EventModalProps {
   categories: ReasonCategory[];
   subcategories: ReasonSubcategory[];
   onSubmit: (data: InteractionFormData) => Promise<void>;
+  onStudentAdded?: (student: Student) => void; // Callback when a new student is added
   isLoading?: boolean;
 }
 
@@ -28,6 +29,7 @@ export function EventModal({
   categories,
   subcategories,
   onSubmit,
+  onStudentAdded,
   isLoading = false,
 }: EventModalProps) {
   // Prepare initial data for the form
@@ -62,22 +64,25 @@ export function EventModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>{interaction ? 'Edit Interaction' : 'Create Interaction'}</DialogTitle>
         </DialogHeader>
 
-        <InteractionForm
-          initialData={initialData}
-          students={students}
-          contacts={contacts}
-          categories={categories}
-          subcategories={subcategories}
-          onSubmit={handleSubmit}
-          onCancel={() => onOpenChange(false)}
-          isLoading={isLoading}
-          submitLabel={interaction ? 'Update Interaction' : 'Create Interaction'}
-        />
+        <DialogBody>
+          <InteractionForm
+            initialData={initialData}
+            students={students}
+            contacts={contacts}
+            categories={categories}
+            subcategories={subcategories}
+            onSubmit={handleSubmit}
+            onCancel={() => onOpenChange(false)}
+            onStudentAdded={onStudentAdded}
+            isLoading={isLoading}
+            submitLabel={interaction ? 'Update Interaction' : 'Create Interaction'}
+          />
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

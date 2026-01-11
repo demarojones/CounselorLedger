@@ -5,6 +5,13 @@ export { DateTimePicker } from './DateTimePicker';
 export { SearchableDropdown } from './SearchableDropdown';
 export type { SearchableDropdownOption } from './SearchableDropdown';
 export { PageTransition } from './PageTransition';
+export { PrivacyIndicator } from './PrivacyIndicator';
+export { AccessDeniedMessage } from './AccessDeniedMessage';
+export {
+  PrivacyErrorMessage,
+  PrivacyErrorBoundary,
+  useIsPrivacyError,
+} from './PrivacyErrorMessage';
 export {
   TableSkeleton,
   CardSkeleton,

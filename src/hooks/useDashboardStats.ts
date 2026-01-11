@@ -29,12 +29,8 @@ export function useDashboardStats({
       });
     }
 
-    // Filter by role: counselors see only their own data, admins see all
-    if (user?.role === 'COUNSELOR') {
-      filteredInteractions = filteredInteractions.filter(
-        interaction => interaction.counselorId === user.id
-      );
-    }
+    // Note: Role-based filtering is now handled at the API layer
+    // The interactions array already contains the appropriate data based on user role
 
     // Calculate total interactions
     const totalInteractions = filteredInteractions.length;

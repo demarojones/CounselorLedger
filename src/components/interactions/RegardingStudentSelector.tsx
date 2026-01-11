@@ -75,10 +75,12 @@ export function RegardingStudentSelector({
   const studentOptions: SearchableDropdownOption[] = React.useMemo(() => {
     return students.map(student => {
       // Convert grade level for display
-      const displayGradeLevel = student.gradeLevel?.includes('Grade') 
-        ? student.gradeLevel 
-        : student.gradeLevel ? `${student.gradeLevel}th Grade` : 'Unknown Grade';
-      
+      const displayGradeLevel = student.gradeLevel?.includes('Grade')
+        ? student.gradeLevel
+        : student.gradeLevel
+          ? `${student.gradeLevel}th Grade`
+          : 'Unknown Grade';
+
       return {
         value: student.id,
         label: `${student.firstName} ${student.lastName}`,

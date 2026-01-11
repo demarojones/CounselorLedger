@@ -7,19 +7,19 @@ import type { ReasonCategory, ReasonSubcategory } from './reason';
 export interface Interaction {
   id: string;
   counselorId: string;
-  studentId?: string;
-  contactId?: string;
-  regardingStudentId?: string; // NEW: For contact interactions - which student is this about
+  studentId?: string | null;
+  contactId?: string | null;
+  regardingStudentId?: string | null; // NEW: For contact interactions - which student is this about
   categoryId: string;
-  subcategoryId?: string;
-  customReason?: string;
+  subcategoryId?: string | null;
+  customReason?: string | null;
   startTime: Date;
   durationMinutes: number;
   endTime: Date;
-  notes?: string;
+  notes?: string | null;
   needsFollowUp: boolean;
   followUpDate?: Date;
-  followUpNotes?: string;
+  followUpNotes?: string | null;
   isFollowUpComplete: boolean;
   createdAt: Date;
   updatedAt: Date;

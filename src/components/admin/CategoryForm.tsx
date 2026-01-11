@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -156,66 +157,73 @@ export function CategoryForm({ open, onOpenChange, category, onSuccess }: Catego
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>{category ? 'Edit Category' : 'Create New Category'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Category Name *</Label>
-            <Input
-              id="name"
-              type="text"
-              value={formData.name}
-              onChange={e => handleChange('name', e.target.value)}
-              placeholder="e.g., Academic Support"
-            />
-            {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="color">Color *</Label>
-            <div className="flex items-center gap-3">
+        <DialogBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Category Name *</Label>
               <Input
-                id="color"
-                type="color"
-                value={formData.color}
-                onChange={e => handleChange('color', e.target.value)}
-                className="w-20 h-10"
+                id="name"
+                type="text"
+                value={formData.name}
+                onChange={e => handleChange('name', e.target.value)}
+                placeholder="e.g., Academic Support"
               />
-              <div className="flex gap-2">
-                {DEFAULT_COLORS.map(color => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => handleChange('color', color)}
-                    className={`w-8 h-8 rounded border-2 ${
-                      formData.color === color ? 'border-gray-900' : 'border-gray-300'
-                    }`}
-                    style={{ backgroundColor: color }}
-                    title={color}
-                  />
-                ))}
-              </div>
+              {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
             </div>
-            {errors.color && <p className="text-sm text-red-600">{errors.color}</p>}
-          </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : category ? 'Update Category' : 'Create Category'}
-            </Button>
-          </DialogFooter>
-        </form>
+            <div className="space-y-2">
+              <Label htmlFor="color">Color *</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  id="color"
+                  type="color"
+                  value={formData.color}
+                  onChange={e => handleChange('color', e.target.value)}
+                  className="w-20 h-10"
+                />
+                <div className="flex gap-2">
+                  {DEFAULT_COLORS.map(color => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => handleChange('color', color)}
+                      className={`w-8 h-8 rounded border-2 transition-all duration-200 hover:scale-110 ${
+                        formData.color === color ? 'border-gray-900 ring-2 ring-primary/30' : 'border-gray-300'
+                      }`}
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
+              {errors.color && <p className="text-sm text-red-600">{errors.color}</p>}
+            </div>
+          </form>
+        </DialogBody>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            onClick={handleSubmit}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            {isSubmitting ? 'Saving...' : category ? 'Update Category' : 'Create Category'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

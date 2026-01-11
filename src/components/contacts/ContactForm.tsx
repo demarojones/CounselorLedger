@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { FormInput } from '@/components/common/FormInput';
@@ -108,109 +109,116 @@ export function ContactForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto sm:rounded-lg w-full sm:max-w-2xl h-full sm:h-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>{isEditMode ? 'Edit Contact' : 'Add New Contact'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormInput
-              label="First Name"
-              value={formData.firstName}
-              onChange={e => handleChange('firstName', e.target.value)}
-              error={errors.firstName}
+        <DialogBody>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormInput
+                label="First Name"
+                value={formData.firstName}
+                onChange={e => handleChange('firstName', e.target.value)}
+                error={errors.firstName}
+                required
+                disabled={isSubmitting}
+              />
+
+              <FormInput
+                label="Last Name"
+                value={formData.lastName}
+                onChange={e => handleChange('lastName', e.target.value)}
+                error={errors.lastName}
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <FormSelect
+              label="Relationship"
+              value={formData.relationship}
+              onChange={e => handleChange('relationship', e.target.value)}
+              error={errors.relationship}
               required
               disabled={isSubmitting}
-            />
-
-            <FormInput
-              label="Last Name"
-              value={formData.lastName}
-              onChange={e => handleChange('lastName', e.target.value)}
-              error={errors.lastName}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-
-          <FormSelect
-            label="Relationship"
-            value={formData.relationship}
-            onChange={e => handleChange('relationship', e.target.value)}
-            error={errors.relationship}
-            required
-            disabled={isSubmitting}
-          >
-            <option value="">Select relationship...</option>
-            {relationshipOptions.map(rel => (
-              <option key={rel} value={rel}>
-                {rel}
-              </option>
-            ))}
-          </FormSelect>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormInput
-              label="Email"
-              type="email"
-              value={formData.email}
-              onChange={e => handleChange('email', e.target.value)}
-              error={errors.email}
-              disabled={isSubmitting}
-            />
-
-            <FormInput
-              label="Phone"
-              type="tel"
-              value={formData.phone}
-              onChange={e => handleChange('phone', e.target.value)}
-              error={errors.phone}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          <FormInput
-            label="Organization"
-            value={formData.organization}
-            onChange={e => handleChange('organization', e.target.value)}
-            error={errors.organization}
-            disabled={isSubmitting}
-            helperText="e.g., School name, company, or department"
-          />
-
-          <FormTextarea
-            label="Notes"
-            value={formData.notes}
-            onChange={e => handleChange('notes', e.target.value)}
-            error={errors.notes}
-            disabled={isSubmitting}
-            rows={4}
-            helperText="Additional information about this contact"
-          />
-
-          <DialogFooter className="flex-col-reverse sm:flex-row gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="w-full sm:w-auto"
             >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto relative">
-              {isSubmitting && (
-                <span className="absolute inset-0 flex items-center justify-center">
-                  <LoadingSpinner size="sm" />
-                </span>
-              )}
-              <span className={isSubmitting ? 'invisible' : ''}>
-                {isEditMode ? 'Update Contact' : 'Create Contact'}
+              <option value="">Select relationship...</option>
+              {relationshipOptions.map(rel => (
+                <option key={rel} value={rel}>
+                  {rel}
+                </option>
+              ))}
+            </FormSelect>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormInput
+                label="Email"
+                type="email"
+                value={formData.email}
+                onChange={e => handleChange('email', e.target.value)}
+                error={errors.email}
+                disabled={isSubmitting}
+              />
+
+              <FormInput
+                label="Phone"
+                type="tel"
+                value={formData.phone}
+                onChange={e => handleChange('phone', e.target.value)}
+                error={errors.phone}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <FormInput
+              label="Organization"
+              value={formData.organization}
+              onChange={e => handleChange('organization', e.target.value)}
+              error={errors.organization}
+              disabled={isSubmitting}
+              helperText="e.g., School name, company, or department"
+            />
+
+            <FormTextarea
+              label="Notes"
+              value={formData.notes}
+              onChange={e => handleChange('notes', e.target.value)}
+              error={errors.notes}
+              disabled={isSubmitting}
+              rows={4}
+              helperText="Additional information about this contact"
+            />
+          </form>
+        </DialogBody>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+            className="w-full sm:w-auto"
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting} 
+            onClick={handleSubmit}
+            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200 relative"
+          >
+            {isSubmitting && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <LoadingSpinner size="sm" />
               </span>
-            </Button>
-          </DialogFooter>
-        </form>
+            )}
+            <span className={isSubmitting ? 'invisible' : ''}>
+              {isEditMode ? 'Update Contact' : 'Create Contact'}
+            </span>
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

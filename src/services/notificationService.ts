@@ -1,4 +1,9 @@
-import type { Notification, NotificationType, NotificationPriority, NotificationStats } from '@/types/notification';
+import type {
+  Notification,
+  NotificationType,
+  NotificationPriority,
+  NotificationStats,
+} from '@/types/notification';
 import type { Interaction } from '@/types/interaction';
 import type { Student } from '@/types/student';
 
@@ -16,17 +21,13 @@ export function generateNotifications(
 
   // 1. Follow-up due notifications
   interactions.forEach(interaction => {
-    if (
-      interaction.needsFollowUp &&
-      !interaction.isFollowUpComplete &&
-      interaction.followUpDate
-    ) {
+    if (interaction.needsFollowUp && !interaction.isFollowUpComplete && interaction.followUpDate) {
       const followUpDate = new Date(interaction.followUpDate);
       const daysDiff = Math.ceil((followUpDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      
+
       let priority: NotificationPriority = 'medium';
       let type: NotificationType = 'follow_up_due';
-      
+
       if (daysDiff < 0) {
         priority = 'high';
         type = 'follow_up_overdue';
@@ -81,7 +82,7 @@ export function generateNotifications(
 
   // 3. Students needing attention
   const studentsNeedingAttention = students.filter(student => student.needsFollowUp);
-  
+
   studentsNeedingAttention.forEach(student => {
     notifications.push({
       id: `attention_${student.id}`,
@@ -114,7 +115,7 @@ export function getStoredNotifications(): Notification[] {
   try {
     const stored = localStorage.getItem(NOTIFICATIONS_KEY);
     if (!stored) return [];
-    
+
     const notifications = JSON.parse(stored);
     return notifications.map((n: any) => ({
       ...n,
@@ -143,9 +144,7 @@ export function saveNotifications(notifications: Notification[]): void {
  */
 export function markNotificationAsRead(notificationId: string): void {
   const notifications = getStoredNotifications();
-  const updated = notifications.map(n => 
-    n.id === notificationId ? { ...n, isRead: true } : n
-  );
+  const updated = notifications.map(n => (n.id === notificationId ? { ...n, isRead: true } : n));
   saveNotifications(updated);
 }
 

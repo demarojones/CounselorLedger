@@ -6,10 +6,190 @@
  */
 
 import { supabase } from './supabase';
-import { getTenantContext, handleSupabaseError, type SupabaseResponse } from './supabaseHelpers';
+import {
+  getTenantContext,
+  handleSupabaseError,
+  validateTenantOperation,
+  type SupabaseResponse,
+  type TenantContext,
+} from './supabaseHelpers';
+import {
+  logInteractionAccess,
+  logPrivacyViolation,
+  logBulkInteractionAccess,
+  logInteractionSearch,
+} from './auditService';
 import type { Student, StudentDbResponse } from '@/types/student';
 import type { Contact, ContactDbResponse } from '@/types/contact';
 import type { Interaction, InteractionFormData, InteractionDbResponse } from '@/types/interaction';
+
+// ============================================================================
+// ACCESS CONTROL VALIDATION
+// ============================================================================
+
+/**
+ * Validate interaction access permissions
+ */
+async function validateInteractionAccess(
+  interactionId: string,
+  operation: 'read' | 'update' | 'delete',
+  context?: TenantContext
+): Promise<{ isValid: boolean; error?: SupabaseResponse<null>['error'] }> {
+  try {
+    const tenantContext = context || (await getTenantContext());
+    if (!tenantContext) {
+      return {
+        isValid: false,
+        error: {
+          code: 'AUTH_ERROR',
+          message: 'User not authenticated',
+        },
+      };
+    }
+
+    // Fetch the interaction to check ownership
+    const { data: interaction, error } = await supabase
+      .from('interactions')
+      .select('counselor_id, tenant_id')
+      .eq('id', interactionId)
+      .single();
+
+    if (error) {
+      return {
+        isValid: false,
+        error: handleSupabaseError(error),
+      };
+    }
+
+    if (!interaction) {
+      return {
+        isValid: false,
+        error: {
+          code: 'INTERACTION_NOT_FOUND',
+          message:
+            'The requested interaction was not found or you do not have permission to access it.',
+        },
+      };
+    }
+
+    // Check tenant boundary
+    if (interaction.tenant_id !== tenantContext.tenantId) {
+      return {
+        isValid: false,
+        error: {
+          code: 'PRIVACY_VIOLATION',
+          message: 'Access denied: interaction belongs to different tenant',
+        },
+      };
+    }
+
+    // Check counselor ownership (admins can access all interactions in their tenant)
+    if (tenantContext.userRole !== 'ADMIN' && interaction.counselor_id !== tenantContext.userId) {
+      return {
+        isValid: false,
+        error: {
+          code: 'CROSS_COUNSELOR_ACCESS_DENIED',
+          message: 'Access denied: interaction belongs to another counselor',
+        },
+      };
+    }
+
+    return { isValid: true };
+  } catch (error) {
+    return {
+      isValid: false,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Failed to validate interaction access',
+      },
+    };
+  }
+}
+
+/**
+ * Validate bulk operation permissions for interactions
+ */
+async function validateBulkInteractionAccess(
+  interactionIds: string[],
+  operation: 'read' | 'update' | 'delete',
+  context?: TenantContext
+): Promise<{ isValid: boolean; error?: SupabaseResponse<null>['error']; invalidIds?: string[] }> {
+  try {
+    const tenantContext = context || (await getTenantContext());
+    if (!tenantContext) {
+      return {
+        isValid: false,
+        error: {
+          code: 'AUTH_ERROR',
+          message: 'User not authenticated',
+        },
+      };
+    }
+
+    // Fetch all interactions to check ownership
+    const { data: interactions, error } = await supabase
+      .from('interactions')
+      .select('id, counselor_id, tenant_id')
+      .in('id', interactionIds);
+
+    if (error) {
+      return {
+        isValid: false,
+        error: handleSupabaseError(error),
+      };
+    }
+
+    if (!interactions || interactions.length !== interactionIds.length) {
+      const foundIds = interactions?.map(i => i.id) || [];
+      const missingIds = interactionIds.filter(id => !foundIds.includes(id));
+      return {
+        isValid: false,
+        error: {
+          code: 'INTERACTION_NOT_FOUND',
+          message: `Some interactions were not found or you do not have permission to access them.`,
+        },
+        invalidIds: missingIds,
+      };
+    }
+
+    // Check tenant boundaries and counselor ownership
+    const invalidIds: string[] = [];
+    for (const interaction of interactions) {
+      // Check tenant boundary
+      if (interaction.tenant_id !== tenantContext.tenantId) {
+        invalidIds.push(interaction.id);
+        continue;
+      }
+
+      // Check counselor ownership (admins can access all interactions in their tenant)
+      if (tenantContext.userRole !== 'ADMIN' && interaction.counselor_id !== tenantContext.userId) {
+        invalidIds.push(interaction.id);
+      }
+    }
+
+    if (invalidIds.length > 0) {
+      return {
+        isValid: false,
+        error: {
+          code: 'BULK_ACCESS_VIOLATION',
+          message: `Access denied to some interactions in the bulk operation.`,
+        },
+        invalidIds,
+      };
+    }
+
+    return { isValid: true };
+  } catch (error) {
+    return {
+      isValid: false,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message:
+          error instanceof Error ? error.message : 'Failed to validate bulk interaction access',
+      },
+    };
+  }
+}
 
 // ============================================================================
 // STUDENTS API
@@ -64,7 +244,7 @@ export async function fetchStudents(): Promise<SupabaseResponse<Student[]>> {
           updatedAt: new Date('2024-01-17'),
         },
       ];
-      
+
       return { data: mockStudents, error: null };
     }
 
@@ -154,7 +334,7 @@ export async function fetchStudent(id: string): Promise<SupabaseResponse<Student
           updatedAt: new Date('2024-01-17'),
         },
       ];
-      
+
       const student = mockStudents.find(s => s.id === id);
       if (!student) {
         return {
@@ -165,7 +345,7 @@ export async function fetchStudent(id: string): Promise<SupabaseResponse<Student
           },
         };
       }
-      
+
       return { data: student, error: null };
     }
 
@@ -224,7 +404,7 @@ export async function createStudent(studentData: {
 
       // In a real app, you'd save to localStorage or a mock database here
       console.log('Mock: Created student', newStudent);
-      
+
       return { data: newStudent, error: null };
     }
 
@@ -355,14 +535,16 @@ export async function updateStudent(
         gradeLevel: updates.gradeLevel !== undefined ? updates.gradeLevel : student.gradeLevel,
         email: updates.email !== undefined ? updates.email : student.email,
         phone: updates.phone !== undefined ? updates.phone : student.phone,
-        needsFollowUp: updates.needsFollowUp !== undefined ? updates.needsFollowUp : student.needsFollowUp,
-        followUpNotes: updates.followUpNotes !== undefined ? updates.followUpNotes : student.followUpNotes,
+        needsFollowUp:
+          updates.needsFollowUp !== undefined ? updates.needsFollowUp : student.needsFollowUp,
+        followUpNotes:
+          updates.followUpNotes !== undefined ? updates.followUpNotes : student.followUpNotes,
         updatedAt: new Date(),
       };
 
       // In a real app, you'd update localStorage or a mock database here
       console.log('Mock: Updated student', updatedStudent);
-      
+
       return { data: updatedStudent, error: null };
     }
 
@@ -408,9 +590,11 @@ export async function updateStudent(
 }
 
 /**
- * Fetch interactions for a specific student
+ * Fetch interactions for a specific student (filtered by current counselor)
  */
-export async function fetchStudentInteractions(studentId: string): Promise<SupabaseResponse<Interaction[]>> {
+export async function fetchStudentInteractions(
+  studentId: string
+): Promise<SupabaseResponse<Interaction[]>> {
   try {
     // Handle mock mode
     if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
@@ -497,11 +681,15 @@ export async function fetchStudentInteractions(studentId: string): Promise<Supab
           updatedAt: new Date('2024-01-20'),
         },
       ];
-      
+
+      // Filter by student and current counselor (mock counselor ID is '2')
+      const currentCounselorId = '2'; // In mock mode, assume counselor ID is '2'
       const studentInteractions = allMockInteractions.filter(
-        interaction => interaction.studentId === studentId || interaction.regardingStudentId === studentId
+        interaction =>
+          (interaction.studentId === studentId || interaction.regardingStudentId === studentId) &&
+          interaction.counselorId === currentCounselorId
       );
-      
+
       return { data: studentInteractions, error: null };
     }
 
@@ -516,12 +704,20 @@ export async function fetchStudentInteractions(studentId: string): Promise<Supab
       };
     }
 
-    const { data, error } = await supabase
+    // Build query with tenant filtering
+    let query = supabase
       .from('interactions')
       .select('*')
       .eq('tenant_id', context.tenantId)
-      .or(`student_id.eq.${studentId},regarding_student_id.eq.${studentId}`)
-      .order('start_time', { ascending: false });
+      .or(`student_id.eq.${studentId},regarding_student_id.eq.${studentId}`);
+
+    // For counselors, filter by their own interactions only
+    // For admins, show all interactions in the tenant
+    if (context.userRole === 'COUNSELOR') {
+      query = query.eq('counselor_id', context.userId);
+    }
+
+    const { data, error } = await query.order('start_time', { ascending: false });
 
     if (error) {
       return {
@@ -531,6 +727,27 @@ export async function fetchStudentInteractions(studentId: string): Promise<Supab
     }
 
     const interactions = (data || []).map(convertInteractionFromDb);
+
+    // Log student interaction history access
+    if (interactions.length > 0) {
+      const accessResults = interactions.map(interaction => ({
+        id: interaction.id,
+        granted: true, // All returned interactions are authorized by RLS
+      }));
+
+      await logBulkInteractionAccess(
+        interactions.map(i => i.id),
+        'read',
+        accessResults,
+        {
+          operation: 'student_interaction_history_access',
+          studentId,
+          resultCount: interactions.length,
+          userRole: context.userRole,
+        }
+      );
+    }
+
     return { data: interactions, error: null };
   } catch (error) {
     return {
@@ -593,7 +810,7 @@ export async function fetchReasonCategories(): Promise<SupabaseResponse<any[]>> 
           updatedAt: new Date(),
         },
       ];
-      
+
       return { data: mockCategories, error: null };
     }
 
@@ -684,7 +901,26 @@ export async function fetchContacts(): Promise<SupabaseResponse<Contact[]>> {
  */
 export async function fetchContact(id: string): Promise<SupabaseResponse<Contact>> {
   try {
-    const { data, error } = await supabase.from('contacts').select('*').eq('id', id).single();
+    // Validate tenant operation
+    const validation = await validateTenantOperation();
+    if (!validation.isValid) {
+      return {
+        data: null,
+        error: {
+          code: 'TENANT_ERROR',
+          message: validation.error || 'Unable to determine tenant context',
+        },
+      };
+    }
+
+    const { context } = validation;
+
+    const { data, error } = await supabase
+      .from('contacts')
+      .select('*')
+      .eq('id', id)
+      .eq('tenant_id', context!.tenantId) // Add tenant validation
+      .single();
 
     if (error) {
       return {
@@ -783,6 +1019,38 @@ export async function updateContact(
   }>
 ): Promise<SupabaseResponse<Contact>> {
   try {
+    // Validate tenant operation
+    const validation = await validateTenantOperation();
+    if (!validation.isValid) {
+      return {
+        data: null,
+        error: {
+          code: 'TENANT_ERROR',
+          message: validation.error || 'Unable to determine tenant context',
+        },
+      };
+    }
+
+    const { context } = validation;
+
+    // First, check if the contact exists and belongs to the tenant
+    const { data: existingContact, error: fetchError } = await supabase
+      .from('contacts')
+      .select('id')
+      .eq('id', id)
+      .eq('tenant_id', context!.tenantId)
+      .single();
+
+    if (fetchError || !existingContact) {
+      return {
+        data: null,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Contact not found or access denied',
+        },
+      };
+    }
+
     const updateData: any = {};
 
     if (updates.firstName !== undefined) updateData.first_name = updates.firstName;
@@ -797,6 +1065,7 @@ export async function updateContact(
       .from('contacts')
       .update(updateData)
       .eq('id', id)
+      .eq('tenant_id', context!.tenantId)
       .select()
       .single();
 
@@ -827,7 +1096,25 @@ export async function updateContact(
  */
 export async function deleteContact(id: string): Promise<SupabaseResponse<null>> {
   try {
-    const { error } = await supabase.from('contacts').delete().eq('id', id);
+    // Validate tenant operation
+    const validation = await validateTenantOperation();
+    if (!validation.isValid) {
+      return {
+        data: null,
+        error: {
+          code: 'TENANT_ERROR',
+          message: validation.error || 'Unable to determine tenant context',
+        },
+      };
+    }
+
+    const { context } = validation;
+
+    const { error } = await supabase
+      .from('contacts')
+      .delete()
+      .eq('id', id)
+      .eq('tenant_id', context!.tenantId); // Add tenant validation
 
     if (error) {
       return {
@@ -848,12 +1135,142 @@ export async function deleteContact(id: string): Promise<SupabaseResponse<null>>
   }
 }
 
+/**
+ * Fetch interactions for a specific contact (filtered by current counselor)
+ */
+export async function fetchContactInteractions(
+  contactId: string
+): Promise<SupabaseResponse<Interaction[]>> {
+  try {
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      // Return mock interactions for the specific contact
+      const allMockInteractions: Interaction[] = [
+        {
+          id: '1',
+          counselorId: '2',
+          studentId: null,
+          contactId: '1',
+          regardingStudentId: '1',
+          categoryId: '10000000-0000-0000-0000-000000000001', // Academic
+          subcategoryId: null,
+          customReason: null,
+          startTime: new Date('2024-01-15T10:00:00'),
+          durationMinutes: 30,
+          endTime: new Date('2024-01-15T10:30:00'),
+          notes: 'Discussed student academic progress with parent',
+          needsFollowUp: false,
+          followUpDate: undefined,
+          followUpNotes: null,
+          isFollowUpComplete: false,
+          createdAt: new Date('2024-01-15'),
+          updatedAt: new Date('2024-01-15'),
+        },
+        {
+          id: '5',
+          counselorId: '2',
+          studentId: null,
+          contactId: '2',
+          regardingStudentId: '2',
+          categoryId: '10000000-0000-0000-0000-000000000003', // Social-Emotional
+          subcategoryId: null,
+          customReason: null,
+          startTime: new Date('2024-01-16T14:00:00'),
+          durationMinutes: 45,
+          endTime: new Date('2024-01-16T14:45:00'),
+          notes: 'Parent meeting about student behavior concerns',
+          needsFollowUp: true,
+          followUpDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+          followUpNotes: 'Schedule follow-up meeting with parent',
+          isFollowUpComplete: false,
+          createdAt: new Date('2024-01-16'),
+          updatedAt: new Date('2024-01-16'),
+        },
+      ];
+
+      // Filter by contact and current counselor (mock counselor ID is '2')
+      const currentCounselorId = '2'; // In mock mode, assume counselor ID is '2'
+      const contactInteractions = allMockInteractions.filter(
+        interaction =>
+          interaction.contactId === contactId && interaction.counselorId === currentCounselorId
+      );
+
+      return { data: contactInteractions, error: null };
+    }
+
+    const context = await getTenantContext();
+    if (!context) {
+      return {
+        data: null,
+        error: {
+          code: 'AUTH_ERROR',
+          message: 'User not authenticated',
+        },
+      };
+    }
+
+    // Build query with tenant filtering
+    let query = supabase
+      .from('interactions')
+      .select('*')
+      .eq('tenant_id', context.tenantId)
+      .eq('contact_id', contactId);
+
+    // For counselors, filter by their own interactions only
+    // For admins, show all interactions in the tenant
+    if (context.userRole === 'COUNSELOR') {
+      query = query.eq('counselor_id', context.userId);
+    }
+
+    const { data, error } = await query.order('start_time', { ascending: false });
+
+    if (error) {
+      return {
+        data: null,
+        error: handleSupabaseError(error),
+      };
+    }
+
+    const interactions = (data || []).map(convertInteractionFromDb);
+
+    // Log contact interaction history access
+    if (interactions.length > 0) {
+      const accessResults = interactions.map(interaction => ({
+        id: interaction.id,
+        granted: true, // All returned interactions are authorized by RLS
+      }));
+
+      await logBulkInteractionAccess(
+        interactions.map(i => i.id),
+        'read',
+        accessResults,
+        {
+          operation: 'contact_interaction_history_access',
+          contactId,
+          resultCount: interactions.length,
+          userRole: context.userRole,
+        }
+      );
+    }
+
+    return { data: interactions, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Failed to fetch contact interactions',
+      },
+    };
+  }
+}
+
 // ============================================================================
 // INTERACTIONS API
 // ============================================================================
 
 /**
- * Fetch all interactions for the current tenant
+ * Fetch all interactions for the current tenant (filtered by current counselor)
  */
 export async function fetchInteractions(): Promise<SupabaseResponse<Interaction[]>> {
   try {
@@ -922,8 +1339,14 @@ export async function fetchInteractions(): Promise<SupabaseResponse<Interaction[
           updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
         },
       ];
-      
-      return { data: mockInteractions, error: null };
+
+      // Filter by current counselor (mock counselor ID is '2')
+      const currentCounselorId = '2'; // In mock mode, assume counselor ID is '2'
+      const counselorInteractions = mockInteractions.filter(
+        interaction => interaction.counselorId === currentCounselorId
+      );
+
+      return { data: counselorInteractions, error: null };
     }
 
     const context = await getTenantContext();
@@ -937,11 +1360,16 @@ export async function fetchInteractions(): Promise<SupabaseResponse<Interaction[
       };
     }
 
-    const { data, error } = await supabase
-      .from('interactions')
-      .select('*')
-      .eq('tenant_id', context.tenantId)
-      .order('start_time', { ascending: false });
+    // Build query with tenant filtering
+    let query = supabase.from('interactions').select('*').eq('tenant_id', context.tenantId);
+
+    // For counselors, filter by their own interactions only
+    // For admins, show all interactions in the tenant
+    if (context.userRole === 'COUNSELOR') {
+      query = query.eq('counselor_id', context.userId);
+    }
+
+    const { data, error } = await query.order('start_time', { ascending: false });
 
     if (error) {
       return {
@@ -951,6 +1379,26 @@ export async function fetchInteractions(): Promise<SupabaseResponse<Interaction[
     }
 
     const interactions = (data || []).map(convertInteractionFromDb);
+
+    // Log bulk interaction access for audit trail
+    if (interactions.length > 0) {
+      const accessResults = interactions.map(interaction => ({
+        id: interaction.id,
+        granted: true, // All returned interactions are authorized by RLS
+      }));
+
+      await logBulkInteractionAccess(
+        interactions.map(i => i.id),
+        'read',
+        accessResults,
+        {
+          operation: 'fetch_interactions',
+          resultCount: interactions.length,
+          userRole: context.userRole,
+        }
+      );
+    }
+
     return { data: interactions, error: null };
   } catch (error) {
     return {
@@ -968,6 +1416,21 @@ export async function fetchInteractions(): Promise<SupabaseResponse<Interaction[
  */
 export async function fetchInteraction(id: string): Promise<SupabaseResponse<Interaction>> {
   try {
+    // Validate access permissions first
+    const accessValidation = await validateInteractionAccess(id, 'read');
+    if (!accessValidation.isValid) {
+      // Log privacy violation attempt with enhanced security logging
+      await logPrivacyViolation('interaction', id, 'cross_counselor_access', 'fetch_interaction', {
+        denialReason: accessValidation.error?.message,
+        errorCode: accessValidation.error?.code,
+      });
+
+      return {
+        data: null,
+        error: accessValidation.error!,
+      };
+    }
+
     const { data, error } = await supabase.from('interactions').select('*').eq('id', id).single();
 
     if (error) {
@@ -976,6 +1439,11 @@ export async function fetchInteraction(id: string): Promise<SupabaseResponse<Int
         error: handleSupabaseError(error),
       };
     }
+
+    // Log successful interaction access
+    await logInteractionAccess(id, 'read', true, undefined, {
+      operation: 'fetch_interaction',
+    });
 
     return {
       data: convertInteractionFromDb(data),
@@ -1046,8 +1514,18 @@ export async function createInteraction(
       };
     }
 
+    const interaction = convertInteractionFromDb(data);
+
+    // Log successful interaction creation
+    await logInteractionAccess(interaction.id, 'create', true, undefined, {
+      operation: 'create_interaction',
+      studentId: formData.studentId,
+      contactId: formData.contactId,
+      categoryId: formData.categoryId,
+    });
+
     return {
-      data: convertInteractionFromDb(data),
+      data: interaction,
       error: null,
     };
   } catch (error) {
@@ -1069,6 +1547,22 @@ export async function updateInteraction(
   updates: Partial<InteractionFormData>
 ): Promise<SupabaseResponse<Interaction>> {
   try {
+    // Validate access permissions first
+    const accessValidation = await validateInteractionAccess(id, 'update');
+    if (!accessValidation.isValid) {
+      // Log privacy violation attempt with enhanced security logging
+      await logPrivacyViolation('interaction', id, 'cross_counselor_access', 'update_interaction', {
+        denialReason: accessValidation.error?.message,
+        errorCode: accessValidation.error?.code,
+        attemptedUpdates: Object.keys(updates),
+      });
+
+      return {
+        data: null,
+        error: accessValidation.error!,
+      };
+    }
+
     const updateData: any = {};
 
     if (updates.studentId !== undefined) updateData.student_id = updates.studentId || null;
@@ -1108,8 +1602,16 @@ export async function updateInteraction(
       };
     }
 
+    const interaction = convertInteractionFromDb(data);
+
+    // Log successful interaction update
+    await logInteractionAccess(id, 'update', true, undefined, {
+      operation: 'update_interaction',
+      updatedFields: Object.keys(updates),
+    });
+
     return {
-      data: convertInteractionFromDb(data),
+      data: interaction,
       error: null,
     };
   } catch (error) {
@@ -1128,6 +1630,21 @@ export async function updateInteraction(
  */
 export async function deleteInteraction(id: string): Promise<SupabaseResponse<null>> {
   try {
+    // Validate access permissions first
+    const accessValidation = await validateInteractionAccess(id, 'delete');
+    if (!accessValidation.isValid) {
+      // Log privacy violation attempt with enhanced security logging
+      await logPrivacyViolation('interaction', id, 'cross_counselor_access', 'delete_interaction', {
+        denialReason: accessValidation.error?.message,
+        errorCode: accessValidation.error?.code,
+      });
+
+      return {
+        data: null,
+        error: accessValidation.error!,
+      };
+    }
+
     const { error } = await supabase.from('interactions').delete().eq('id', id);
 
     if (error) {
@@ -1136,6 +1653,11 @@ export async function deleteInteraction(id: string): Promise<SupabaseResponse<nu
         error: handleSupabaseError(error),
       };
     }
+
+    // Log successful interaction deletion
+    await logInteractionAccess(id, 'delete', true, undefined, {
+      operation: 'delete_interaction',
+    });
 
     return { data: null, error: null };
   } catch (error) {
@@ -1157,6 +1679,21 @@ export async function completeFollowUp(
   completionNotes?: string
 ): Promise<SupabaseResponse<Interaction>> {
   try {
+    // Validate access permissions first
+    const accessValidation = await validateInteractionAccess(id, 'update');
+    if (!accessValidation.isValid) {
+      // Log privacy violation attempt
+      await logPrivacyViolation('interaction', id, 'cross_counselor_access', 'complete_follow_up', {
+        denialReason: accessValidation.error?.message,
+        errorCode: accessValidation.error?.code,
+      });
+
+      return {
+        data: null,
+        error: accessValidation.error!,
+      };
+    }
+
     // Get the current interaction to append completion notes
     const { data: interaction, error: fetchError } = await supabase
       .from('interactions')
@@ -1205,6 +1742,12 @@ export async function completeFollowUp(
       };
     }
 
+    // Log successful follow-up completion
+    await logInteractionAccess(id, 'update', true, undefined, {
+      operation: 'complete_follow_up',
+      hasCompletionNotes: !!completionNotes,
+    });
+
     return {
       data: convertInteractionFromDb(data),
       error: null,
@@ -1215,6 +1758,239 @@ export async function completeFollowUp(
       error: {
         code: 'UNKNOWN_ERROR',
         message: error instanceof Error ? error.message : 'Failed to complete follow-up',
+      },
+    };
+  }
+}
+
+// ============================================================================
+// BULK OPERATIONS WITH ACCESS CONTROL
+// ============================================================================
+
+/**
+ * Bulk update interactions with access control validation
+ */
+export async function bulkUpdateInteractions(
+  updates: Array<{ id: string; data: Partial<InteractionFormData> }>
+): Promise<SupabaseResponse<Interaction[]>> {
+  try {
+    const interactionIds = updates.map(u => u.id);
+
+    // Validate access permissions for all interactions
+    const accessValidation = await validateBulkInteractionAccess(interactionIds, 'update');
+    if (!accessValidation.isValid) {
+      // Log bulk privacy violation attempt
+      await logPrivacyViolation(
+        'interaction',
+        'bulk_operation',
+        'bulk_access_violation',
+        'bulk_update_interactions',
+        {
+          denialReason: accessValidation.error?.message,
+          errorCode: accessValidation.error?.code,
+          totalInteractions: interactionIds.length,
+          invalidInteractionCount: accessValidation.invalidIds?.length || 0,
+        }
+      );
+
+      return {
+        data: null,
+        error: accessValidation.error!,
+      };
+    }
+
+    const results: Interaction[] = [];
+    const errors: string[] = [];
+
+    // Process each update individually to maintain transaction integrity
+    for (const update of updates) {
+      const result = await updateInteraction(update.id, update.data);
+      if (result.error) {
+        errors.push(`Failed to update interaction ${update.id}: ${result.error.message}`);
+      } else if (result.data) {
+        results.push(result.data);
+      }
+    }
+
+    if (errors.length > 0) {
+      return {
+        data: null,
+        error: {
+          code: 'BULK_UPDATE_ERROR',
+          message: `Bulk update failed: ${errors.join('; ')}`,
+        },
+      };
+    }
+
+    // Log successful bulk update
+    await logBulkInteractionAccess(
+      interactionIds,
+      'update',
+      results.map(r => ({ id: r.id, granted: true })),
+      {
+        operation: 'bulk_update_interactions',
+        successCount: results.length,
+      }
+    );
+
+    return { data: results, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Failed to bulk update interactions',
+      },
+    };
+  }
+}
+
+/**
+ * Bulk delete interactions with access control validation
+ */
+export async function bulkDeleteInteractions(
+  interactionIds: string[]
+): Promise<SupabaseResponse<null>> {
+  try {
+    // Validate access permissions for all interactions
+    const accessValidation = await validateBulkInteractionAccess(interactionIds, 'delete');
+    if (!accessValidation.isValid) {
+      // Log bulk privacy violation attempt
+      await logPrivacyViolation(
+        'interaction',
+        'bulk_operation',
+        'bulk_access_violation',
+        'bulk_delete_interactions',
+        {
+          denialReason: accessValidation.error?.message,
+          errorCode: accessValidation.error?.code,
+          totalInteractions: interactionIds.length,
+          invalidInteractionCount: accessValidation.invalidIds?.length || 0,
+        }
+      );
+
+      return {
+        data: null,
+        error: accessValidation.error!,
+      };
+    }
+
+    const errors: string[] = [];
+
+    // Process each deletion individually to maintain transaction integrity
+    for (const id of interactionIds) {
+      const result = await deleteInteraction(id);
+      if (result.error) {
+        errors.push(`Failed to delete interaction ${id}: ${result.error.message}`);
+      }
+    }
+
+    if (errors.length > 0) {
+      return {
+        data: null,
+        error: {
+          code: 'BULK_DELETE_ERROR',
+          message: `Bulk delete failed: ${errors.join('; ')}`,
+        },
+      };
+    }
+
+    // Log successful bulk deletion
+    await logBulkInteractionAccess(
+      interactionIds,
+      'delete',
+      interactionIds.map(id => ({ id, granted: true })),
+      {
+        operation: 'bulk_delete_interactions',
+        successCount: interactionIds.length,
+      }
+    );
+
+    return { data: null, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Failed to bulk delete interactions',
+      },
+    };
+  }
+}
+
+/**
+ * Bulk complete follow-ups with access control validation
+ */
+export async function bulkCompleteFollowUps(
+  completions: Array<{ id: string; completionNotes?: string }>
+): Promise<SupabaseResponse<Interaction[]>> {
+  try {
+    const interactionIds = completions.map(c => c.id);
+
+    // Validate access permissions for all interactions
+    const accessValidation = await validateBulkInteractionAccess(interactionIds, 'update');
+    if (!accessValidation.isValid) {
+      // Log bulk privacy violation attempt
+      await logPrivacyViolation(
+        'interaction',
+        'bulk_operation',
+        'bulk_access_violation',
+        'bulk_complete_follow_ups',
+        {
+          denialReason: accessValidation.error?.message,
+          errorCode: accessValidation.error?.code,
+          totalInteractions: interactionIds.length,
+          invalidInteractionCount: accessValidation.invalidIds?.length || 0,
+        }
+      );
+
+      return {
+        data: null,
+        error: accessValidation.error!,
+      };
+    }
+
+    const results: Interaction[] = [];
+    const errors: string[] = [];
+
+    // Process each completion individually to maintain transaction integrity
+    for (const completion of completions) {
+      const result = await completeFollowUp(completion.id, completion.completionNotes);
+      if (result.error) {
+        errors.push(`Failed to complete follow-up ${completion.id}: ${result.error.message}`);
+      } else if (result.data) {
+        results.push(result.data);
+      }
+    }
+
+    if (errors.length > 0) {
+      return {
+        data: null,
+        error: {
+          code: 'BULK_COMPLETION_ERROR',
+          message: `Bulk completion failed: ${errors.join('; ')}`,
+        },
+      };
+    }
+
+    // Log successful bulk completion
+    await logBulkInteractionAccess(
+      interactionIds,
+      'update',
+      results.map(r => ({ id: r.id, granted: true })),
+      {
+        operation: 'bulk_complete_follow_ups',
+        successCount: results.length,
+      }
+    );
+
+    return { data: results, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Failed to bulk complete follow-ups',
       },
     };
   }

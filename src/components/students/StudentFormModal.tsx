@@ -6,6 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { FormInput } from '@/components/common/FormInput';
@@ -18,9 +19,10 @@ interface StudentFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   student?: Student | null;
+  onSuccess?: (student: Student) => void; // Callback when student is successfully created/updated
 }
 
-export function StudentFormModal({ open, onOpenChange, student }: StudentFormModalProps) {
+export function StudentFormModal({ open, onOpenChange, student, onSuccess }: StudentFormModalProps) {
   const createStudent = useCreateStudent();
   const updateStudent = useUpdateStudent();
   const isEditing = !!student;
@@ -124,15 +126,17 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
     };
 
     try {
+      let resultStudent: Student;
+      
       if (isEditing && student) {
         // Update existing student
-        await updateStudent.mutateAsync({
+        resultStudent = await updateStudent.mutateAsync({
           id: student.id,
           ...submissionData,
         });
       } else {
         // Create new student
-        await createStudent.mutateAsync(submissionData);
+        resultStudent = await createStudent.mutateAsync(submissionData);
       }
 
       // Reset form and close modal
@@ -146,6 +150,9 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
       });
       setErrors({});
       onOpenChange(false);
+      
+      // Call success callback with the created/updated student
+      onSuccess?.(resultStudent);
     } catch (error) {
       console.error(`Error ${isEditing ? 'updating' : 'creating'} student:`, error);
     }
@@ -168,7 +175,7 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit Student' : 'Add New Student'}</DialogTitle>
           <DialogDescription>
@@ -178,78 +185,85 @@ export function StudentFormModal({ open, onOpenChange, student }: StudentFormMod
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <FormInput
-            label="Student ID"
-            placeholder="e.g., S12345"
-            value={formData.studentId}
-            onChange={e => handleChange('studentId', e.target.value)}
-            error={errors.studentId}
-            required
-          />
-
-          <div className="grid grid-cols-2 gap-4">
+        <DialogBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <FormInput
-              label="First Name"
-              placeholder="John"
-              value={formData.firstName}
-              onChange={e => handleChange('firstName', e.target.value)}
-              error={errors.firstName}
+              label="Student ID"
+              placeholder="e.g., S12345"
+              value={formData.studentId}
+              onChange={e => handleChange('studentId', e.target.value)}
+              error={errors.studentId}
               required
             />
 
-            <FormInput
-              label="Last Name"
-              placeholder="Doe"
-              value={formData.lastName}
-              onChange={e => handleChange('lastName', e.target.value)}
-              error={errors.lastName}
-              required
-            />
-          </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput
+                label="First Name"
+                placeholder="John"
+                value={formData.firstName}
+                onChange={e => handleChange('firstName', e.target.value)}
+                error={errors.firstName}
+                required
+              />
 
-          <FormSelect
-            label="Grade Level"
-            value={formData.gradeLevel}
-            onChange={e => handleChange('gradeLevel', e.target.value)}
-            error={errors.gradeLevel}
-            required
+              <FormInput
+                label="Last Name"
+                placeholder="Doe"
+                value={formData.lastName}
+                onChange={e => handleChange('lastName', e.target.value)}
+                error={errors.lastName}
+                required
+              />
+            </div>
+
+            <FormSelect
+              label="Grade Level"
+              value={formData.gradeLevel}
+              onChange={e => handleChange('gradeLevel', e.target.value)}
+              error={errors.gradeLevel}
+              required
+            >
+              <option value="">Select grade level</option>
+              <option value="9">9th Grade</option>
+              <option value="10">10th Grade</option>
+              <option value="11">11th Grade</option>
+              <option value="12">12th Grade</option>
+            </FormSelect>
+
+            <FormInput
+              label="Email"
+              type="email"
+              placeholder="student@school.edu"
+              value={formData.email}
+              onChange={e => handleChange('email', e.target.value)}
+              error={errors.email}
+            />
+
+            <FormInput
+              label="Phone"
+              type="tel"
+              placeholder="(555) 123-4567"
+              value={formData.phone}
+              onChange={e => handleChange('phone', e.target.value)}
+              error={errors.phone}
+            />
+          </form>
+        </DialogBody>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={handleCancel} disabled={isPending}>
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isPending}
+            onClick={handleSubmit}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200"
           >
-            <option value="">Select grade level</option>
-            <option value="9">9th Grade</option>
-            <option value="10">10th Grade</option>
-            <option value="11">11th Grade</option>
-            <option value="12">12th Grade</option>
-          </FormSelect>
-
-          <FormInput
-            label="Email"
-            type="email"
-            placeholder="student@school.edu"
-            value={formData.email}
-            onChange={e => handleChange('email', e.target.value)}
-            error={errors.email}
-          />
-
-          <FormInput
-            label="Phone"
-            type="tel"
-            placeholder="(555) 123-4567"
-            value={formData.phone}
-            onChange={e => handleChange('phone', e.target.value)}
-            error={errors.phone}
-          />
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleCancel} disabled={isPending}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isEditing ? 'Update Student' : 'Add Student'}
-            </Button>
-          </DialogFooter>
-        </form>
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isEditing ? 'Update Student' : 'Add Student'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

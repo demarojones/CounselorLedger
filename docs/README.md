@@ -13,6 +13,8 @@ Welcome to the School Counselor Ledger documentation! This directory contains co
 ### For Users
 
 - **[User Guide](./USER_GUIDE.md)** - Complete guide to using the application, including all features and workflows
+- **[Privacy User Guide](./PRIVACY_USER_GUIDE.md)** - Understanding privacy features and data protection
+- **[Privacy Controls Documentation](./PRIVACY_CONTROLS.md)** - Technical documentation of privacy implementation
 
 ### Additional Resources
 
@@ -35,16 +37,20 @@ Welcome to the School Counselor Ledger documentation! This directory contains co
 - [Managing follow-ups](./USER_GUIDE.md#follow-up-tracking)
 - [Generating reports](./USER_GUIDE.md#reports)
 - [Admin features](./USER_GUIDE.md#admin-features)
+- [Understanding privacy controls](./PRIVACY_USER_GUIDE.md)
+- [Privacy best practices](./PRIVACY_USER_GUIDE.md#security-best-practices)
 
 ## Project Structure
 
 ```
 docs/
-├── README.md           # This file
-├── COMPONENTS.md       # Component documentation
-├── HOOKS.md           # Hooks documentation
-├── UTILITIES.md       # Utility functions documentation
-└── USER_GUIDE.md      # End-user guide
+├── README.md                    # This file
+├── COMPONENTS.md               # Component documentation
+├── HOOKS.md                   # Hooks documentation
+├── UTILITIES.md               # Utility functions documentation
+├── USER_GUIDE.md              # End-user guide
+├── PRIVACY_USER_GUIDE.md      # Privacy features user guide
+└── PRIVACY_CONTROLS.md        # Technical privacy documentation
 ```
 
 ## Getting Started

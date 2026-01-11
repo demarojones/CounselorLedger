@@ -5,10 +5,10 @@ export interface Student {
   firstName: string;
   lastName: string;
   gradeLevel: string;
-  email?: string;
-  phone?: string;
+  email?: string | null;
+  phone?: string | null;
   needsFollowUp: boolean;
-  followUpNotes?: string;
+  followUpNotes?: string | null;
   createdAt: Date;
   updatedAt: Date;
 

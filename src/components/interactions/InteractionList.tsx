@@ -12,6 +12,8 @@ import { FormInput } from '@/components/common/FormInput';
 import { FormSelect } from '@/components/common/FormSelect';
 import { DateTimePicker } from '@/components/common/DateTimePicker';
 import { SearchableDropdown } from '@/components/common/SearchableDropdown';
+import { PrivacyIndicator } from '@/components/common/PrivacyIndicator';
+import { useAuth } from '@/contexts/AuthContext';
 import type { SearchableDropdownOption } from '@/components/common/SearchableDropdown';
 import type { Interaction } from '@/types/interaction';
 import type { Student } from '@/types/student';
@@ -39,6 +41,9 @@ export function InteractionList({
   showFilters = true,
   isLoading = false,
 }: InteractionListProps) {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
+
   // Filter state
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -266,6 +271,9 @@ export function InteractionList({
 
   return (
     <div className="space-y-6">
+      {/* Privacy Indicator Header */}
+      <PrivacyIndicator type="interactions" />
+
       {/* Filters */}
       {showFilters && (
         <div className="bg-muted/50 p-3 sm:p-4 rounded-lg space-y-3 sm:space-y-4">
@@ -363,6 +371,7 @@ export function InteractionList({
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           Showing {filteredInteractions.length} of {interactions.length} interactions
+          {!isAdmin && <PrivacyIndicator type="interactions" variant="inline" className="ml-2" />}
         </p>
       </div>
 

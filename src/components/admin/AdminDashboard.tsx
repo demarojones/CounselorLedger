@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/services/supabase';
+import { logAdminAggregatedAccess } from '@/services/auditService';
 import type { User } from '@/types/user';
 import { Select } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -16,6 +17,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { SecurityEventManagement } from './SecurityEventManagement';
+import { AdminReports } from './AdminReports';
+import { PrivacyComplianceReports } from './PrivacyComplianceReports';
 
 interface CounselorStats {
   counselorId: string;
@@ -31,7 +34,9 @@ export function AdminDashboard() {
   const [selectedCounselorId, setSelectedCounselorId] = useState<string>('all');
   const [stats, setStats] = useState<CounselorStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeView, setActiveView] = useState<'dashboard' | 'security'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'reports' | 'security' | 'compliance'>(
+    'dashboard'
+  );
 
   useEffect(() => {
     fetchCounselors();
@@ -76,10 +81,15 @@ export function AdminDashboard() {
     try {
       setIsLoading(true);
 
-      // Fetch all interactions
-      const { data: interactions, error } = await supabase
-        .from('interactions')
-        .select('counselor_id, student_id, duration_minutes');
+      // Fetch all interactions with additional data for better analytics
+      const { data: interactions, error } = await supabase.from('interactions').select(`
+          counselor_id, 
+          student_id, 
+          duration_minutes,
+          start_time,
+          category_id,
+          created_at
+        `);
 
       if (error) throw error;
 
@@ -115,6 +125,13 @@ export function AdminDashboard() {
       });
 
       setStats(Array.from(counselorStatsMap.values()));
+
+      // Log admin aggregated access for audit trail
+      await logAdminAggregatedAccess('dashboard_stats', (interactions || []).length, {
+        selectedCounselorId,
+        counselorCount: targetCounselors.length,
+        totalInteractions: totalStats.totalInteractions,
+      });
     } catch (err) {
       console.error('Error fetching stats:', err);
     } finally {
@@ -156,16 +173,32 @@ export function AdminDashboard() {
             Dashboard
           </Button>
           <Button
+            onClick={() => setActiveView('reports')}
+            variant={activeView === 'reports' ? 'default' : 'outline'}
+          >
+            Reports
+          </Button>
+          <Button
             onClick={() => setActiveView('security')}
             variant={activeView === 'security' ? 'default' : 'outline'}
           >
             Security Events
+          </Button>
+          <Button
+            onClick={() => setActiveView('compliance')}
+            variant={activeView === 'compliance' ? 'default' : 'outline'}
+          >
+            Privacy Compliance
           </Button>
         </div>
       </div>
 
       {activeView === 'security' ? (
         <SecurityEventManagement />
+      ) : activeView === 'reports' ? (
+        <AdminReports />
+      ) : activeView === 'compliance' ? (
+        <PrivacyComplianceReports />
       ) : (
         <>
           {/* Counselor Filter */}
