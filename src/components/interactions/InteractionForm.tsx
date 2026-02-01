@@ -70,6 +70,9 @@ export function InteractionForm({
   // Student modal state
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
+  // Determine if we're in edit mode (editing existing interaction)
+  const isEditMode = !!initialData && Object.keys(initialData).length > 0;
+
   // Handle new student creation
   const handleStudentCreated = (newStudent: Student) => {
     // Auto-select the newly created student
@@ -257,34 +260,52 @@ export function InteractionForm({
           <Label>
             Student <span className="text-destructive">*</span>
           </Label>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <SearchableDropdown
-                placeholder="Search for a student..."
-                options={studentOptions}
-                value={studentId}
-                onChange={value => {
-                  setStudentId(value);
-                  setErrors(prev => ({ ...prev, studentId: '' }));
-                }}
-                error={errors.studentId}
+          {!isEditMode ? (
+            // Create mode: Show dropdown with "Add New" button
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <SearchableDropdown
+                  placeholder="Search for a student..."
+                  options={studentOptions}
+                  value={studentId}
+                  onChange={value => {
+                    setStudentId(value);
+                    setErrors(prev => ({ ...prev, studentId: '' }));
+                  }}
+                  error={errors.studentId}
+                  disabled={isLoading}
+                  required
+                  emptyMessage="No students found"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="default"
+                onClick={() => setIsStudentModalOpen(true)}
                 disabled={isLoading}
-                required
-                emptyMessage="No students found"
-              />
+                className="flex items-center gap-2 px-3 whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4" />
+                Add New
+              </Button>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="default"
-              onClick={() => setIsStudentModalOpen(true)}
+          ) : (
+            // Edit mode: Show dropdown only (no "Add New" button)
+            <SearchableDropdown
+              placeholder="Search for a student..."
+              options={studentOptions}
+              value={studentId}
+              onChange={value => {
+                setStudentId(value);
+                setErrors(prev => ({ ...prev, studentId: '' }));
+              }}
+              error={errors.studentId}
               disabled={isLoading}
-              className="flex items-center gap-2 px-3 whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4" />
-              Add New
-            </Button>
-          </div>
+              required
+              emptyMessage="No students found"
+            />
+          )}
         </div>
       ) : (
         <>
@@ -499,12 +520,14 @@ export function InteractionForm({
         </Button>
       </div>
 
-      {/* Student Creation Modal */}
-      <StudentFormModal
-        open={isStudentModalOpen}
-        onOpenChange={setIsStudentModalOpen}
-        onSuccess={handleStudentCreated}
-      />
+      {/* Student Creation Modal - Only show in create mode */}
+      {!isEditMode && (
+        <StudentFormModal
+          open={isStudentModalOpen}
+          onOpenChange={setIsStudentModalOpen}
+          onSuccess={handleStudentCreated}
+        />
+      )}
     </form>
   );
 }

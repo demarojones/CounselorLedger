@@ -1,125 +1,161 @@
 -- Seed Data Migration
--- This migration creates initial data for development and testing
+-- This migration adds default reason categories and subcategories for new tenants
+
+-- Note: This seed data is for the default tenant only
+-- When creating new tenants, you should insert similar categories for each tenant
+
+-- Insert default tenant (for development/testing)
+INSERT INTO tenants (id, name, subdomain) 
+VALUES (
+  '00000000-0000-0000-0000-000000000001'::uuid,
+  'Mayfield Elementary School',
+  'mayfield-elementary'
+) ON CONFLICT (subdomain) DO NOTHING;
 
 -- ============================================================================
--- SAMPLE TENANT
+-- DEFAULT REASON CATEGORIES
 -- ============================================================================
 
--- Create a sample school tenant
-INSERT INTO tenants (id, name, subdomain, created_at, updated_at)
-VALUES 
-  ('00000000-0000-0000-0000-000000000001', 'Mayfield Elementary School', 'mayfield-elementary', NOW(), NOW())
-ON CONFLICT (subdomain) DO NOTHING;
+INSERT INTO reason_categories (tenant_id, name, color, sort_order) VALUES
+  ('00000000-0000-0000-0000-000000000001', 'Academic', '#3B82F6', 1),
+  ('00000000-0000-0000-0000-000000000001', 'Behavioral', '#EF4444', 2),
+  ('00000000-0000-0000-0000-000000000001', 'Social-Emotional', '#10B981', 3),
+  ('00000000-0000-0000-0000-000000000001', 'Career/College', '#8B5CF6', 4),
+  ('00000000-0000-0000-0000-000000000001', 'Crisis Intervention', '#F97316', 5),
+  ('00000000-0000-0000-0000-000000000001', 'Parent/Guardian Contact', '#06B6D4', 6),
+  ('00000000-0000-0000-0000-000000000001', 'Teacher Consultation', '#EC4899', 7),
+  ('00000000-0000-0000-0000-000000000001', 'Other', '#6B7280', 8)
+ON CONFLICT (tenant_id, name) DO NOTHING;
 
 -- ============================================================================
--- DEFAULT REASON CATEGORIES AND SUBCATEGORIES
+-- DEFAULT REASON SUBCATEGORIES
 -- ============================================================================
 
--- Insert default reason categories for the sample tenant
-INSERT INTO reason_categories (id, tenant_id, name, color, sort_order, created_at, updated_at)
-VALUES
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Academic', '#3B82F6', 1, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Behavioral', '#EF4444', 2, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001', 'Social-Emotional', '#10B981', 3, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000001', 'Career/College', '#8B5CF6', 4, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000001', 'Crisis Intervention', '#F59E0B', 5, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-000000000001', 'Parent/Guardian Contact', '#06B6D4', 6, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000001', 'Teacher Consultation', '#EC4899', 7, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000001', 'Other', '#6B7280', 8, NOW(), NOW())
+-- Academic subcategories
+INSERT INTO reason_subcategories (category_id, name, sort_order)
+SELECT rc.id, subs.subcategory, subs.sub_sort_order 
+FROM reason_categories rc, 
+  (VALUES 
+    ('Course Selection', 1),
+    ('Study Skills', 2),
+    ('Academic Planning', 3),
+    ('Grade Concerns', 4),
+    ('Test Anxiety', 5),
+    ('Learning Difficulties', 6)
+  ) AS subs(subcategory, sub_sort_order)
+WHERE rc.tenant_id = '00000000-0000-0000-0000-000000000001' AND rc.name = 'Academic'
 ON CONFLICT DO NOTHING;
 
--- Insert subcategories for Academic
-INSERT INTO reason_subcategories (category_id, name, sort_order, created_at, updated_at)
-VALUES
-  ('10000000-0000-0000-0000-000000000001', 'Course Selection', 1, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000001', 'Study Skills', 2, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000001', 'Grade Concerns', 3, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000001', 'Schedule Change', 4, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000001', 'Academic Planning', 5, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000001', 'Tutoring Referral', 6, NOW(), NOW())
+-- Behavioral subcategories
+INSERT INTO reason_subcategories (category_id, name, sort_order)
+SELECT rc.id, subs.subcategory, subs.sub_sort_order 
+FROM reason_categories rc,
+  (VALUES
+    ('Classroom Disruption', 1),
+    ('Attendance Issues', 2),
+    ('Conflict Resolution', 3),
+    ('Bullying', 4),
+    ('Anger Management', 5),
+    ('Peer Relationships', 6)
+  ) AS subs(subcategory, sub_sort_order)
+WHERE rc.tenant_id = '00000000-0000-0000-0000-000000000001' AND rc.name = 'Behavioral'
 ON CONFLICT DO NOTHING;
 
--- Insert subcategories for Behavioral
-INSERT INTO reason_subcategories (category_id, name, sort_order, created_at, updated_at)
-VALUES
-  ('10000000-0000-0000-0000-000000000002', 'Classroom Disruption', 1, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000002', 'Attendance Issues', 2, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000002', 'Conflict Resolution', 3, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000002', 'Disciplinary Follow-up', 4, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000002', 'Peer Mediation', 5, NOW(), NOW())
+-- Social-Emotional subcategories
+INSERT INTO reason_subcategories (category_id, name, sort_order)
+SELECT rc.id, subs.subcategory, subs.sub_sort_order 
+FROM reason_categories rc,
+  (VALUES
+    ('Anxiety', 1),
+    ('Depression', 2),
+    ('Self-Esteem', 3),
+    ('Grief/Loss', 4),
+    ('Stress Management', 5),
+    ('Social Skills', 6),
+    ('Family Issues', 7)
+  ) AS subs(subcategory, sub_sort_order)
+WHERE rc.tenant_id = '00000000-0000-0000-0000-000000000001' AND rc.name = 'Social-Emotional'
 ON CONFLICT DO NOTHING;
 
--- Insert subcategories for Social-Emotional
-INSERT INTO reason_subcategories (category_id, name, sort_order, created_at, updated_at)
-VALUES
-  ('10000000-0000-0000-0000-000000000003', 'Anxiety/Stress', 1, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000003', 'Depression', 2, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000003', 'Peer Relationships', 3, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000003', 'Family Issues', 4, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000003', 'Self-Esteem', 5, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000003', 'Grief/Loss', 6, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000003', 'Anger Management', 7, NOW(), NOW())
+-- Career/College subcategories
+INSERT INTO reason_subcategories (category_id, name, sort_order)
+SELECT rc.id, subs.subcategory, subs.sub_sort_order 
+FROM reason_categories rc,
+  (VALUES
+    ('College Applications', 1),
+    ('Career Exploration', 2),
+    ('Financial Aid', 3),
+    ('Resume/Interview Prep', 4),
+    ('Post-Secondary Planning', 5),
+    ('Scholarship Information', 6)
+  ) AS subs(subcategory, sub_sort_order)
+WHERE rc.tenant_id = '00000000-0000-0000-0000-000000000001' AND rc.name = 'Career/College'
 ON CONFLICT DO NOTHING;
 
--- Insert subcategories for Career/College
-INSERT INTO reason_subcategories (category_id, name, sort_order, created_at, updated_at)
-VALUES
-  ('10000000-0000-0000-0000-000000000004', 'College Applications', 1, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000004', 'Career Exploration', 2, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000004', 'Financial Aid', 3, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000004', 'Scholarship Information', 4, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000004', 'Resume/Interview Prep', 5, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000004', 'Post-Secondary Planning', 6, NOW(), NOW())
+-- Crisis Intervention subcategories
+INSERT INTO reason_subcategories (category_id, name, sort_order)
+SELECT rc.id, subs.subcategory, subs.sub_sort_order 
+FROM reason_categories rc,
+  (VALUES
+    ('Suicide Risk', 1),
+    ('Self-Harm', 2),
+    ('Substance Abuse', 3),
+    ('Trauma', 4),
+    ('Safety Concern', 5),
+    ('Emergency Referral', 6)
+  ) AS subs(subcategory, sub_sort_order)
+WHERE rc.tenant_id = '00000000-0000-0000-0000-000000000001' AND rc.name = 'Crisis Intervention'
 ON CONFLICT DO NOTHING;
 
--- Insert subcategories for Crisis Intervention
-INSERT INTO reason_subcategories (category_id, name, sort_order, created_at, updated_at)
-VALUES
-  ('10000000-0000-0000-0000-000000000005', 'Safety Concern', 1, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000005', 'Self-Harm', 2, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000005', 'Suicidal Ideation', 3, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000005', 'Substance Abuse', 4, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000005', 'Trauma Response', 5, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000005', 'Emergency Referral', 6, NOW(), NOW())
+-- Parent/Guardian Contact subcategories
+INSERT INTO reason_subcategories (category_id, name, sort_order)
+SELECT rc.id, subs.subcategory, subs.sub_sort_order 
+FROM reason_categories rc,
+  (VALUES
+    ('Progress Update', 1),
+    ('Behavior Concern', 2),
+    ('Academic Concern', 3),
+    ('Parent Request', 4),
+    ('Conference', 5),
+    ('Follow-up', 6)
+  ) AS subs(subcategory, sub_sort_order)
+WHERE rc.tenant_id = '00000000-0000-0000-0000-000000000001' AND rc.name = 'Parent/Guardian Contact'
 ON CONFLICT DO NOTHING;
 
--- Insert subcategories for Parent/Guardian Contact
-INSERT INTO reason_subcategories (category_id, name, sort_order, created_at, updated_at)
-VALUES
-  ('10000000-0000-0000-0000-000000000006', 'Progress Update', 1, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000006', 'Concern Discussion', 2, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000006', 'IEP/504 Meeting', 3, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000006', 'Parent Request', 4, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000006', 'Collaborative Planning', 5, NOW(), NOW())
+-- Teacher Consultation subcategories
+INSERT INTO reason_subcategories (category_id, name, sort_order)
+SELECT rc.id, subs.subcategory, subs.sub_sort_order 
+FROM reason_categories rc,
+  (VALUES
+    ('Student Concern', 1),
+    ('Classroom Strategies', 2),
+    ('Accommodation Discussion', 3),
+    ('Behavioral Support', 4),
+    ('Academic Support', 5),
+    ('Collaboration', 6)
+  ) AS subs(subcategory, sub_sort_order)
+WHERE rc.tenant_id = '00000000-0000-0000-0000-000000000001' AND rc.name = 'Teacher Consultation'
 ON CONFLICT DO NOTHING;
 
--- Insert subcategories for Teacher Consultation
-INSERT INTO reason_subcategories (category_id, name, sort_order, created_at, updated_at)
-VALUES
-  ('10000000-0000-0000-0000-000000000007', 'Student Concern', 1, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000007', 'Classroom Strategies', 2, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000007', 'Accommodation Discussion', 3, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000007', 'Behavioral Support', 4, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000007', 'Team Meeting', 5, NOW(), NOW())
-ON CONFLICT DO NOTHING;
-
--- Insert subcategories for Other
-INSERT INTO reason_subcategories (category_id, name, sort_order, created_at, updated_at)
-VALUES
-  ('10000000-0000-0000-0000-000000000008', 'Administrative', 1, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000008', 'Documentation', 2, NOW(), NOW()),
-  ('10000000-0000-0000-0000-000000000008', 'Custom', 3, NOW(), NOW())
+-- Other subcategories
+INSERT INTO reason_subcategories (category_id, name, sort_order)
+SELECT rc.id, subs.subcategory, subs.sub_sort_order 
+FROM reason_categories rc,
+  (VALUES
+    ('General Check-in', 1),
+    ('Administrative', 2),
+    ('Documentation', 3),
+    ('Other', 4)
+  ) AS subs(subcategory, sub_sort_order)
+WHERE rc.tenant_id = '00000000-0000-0000-0000-000000000001' AND rc.name = 'Other'
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- COMMENTS
 -- ============================================================================
 
-COMMENT ON TABLE tenants IS 
-  'Sample tenant created for development and testing purposes';
-
 COMMENT ON TABLE reason_categories IS 
-  'Default reason categories that can be customized by each tenant';
+  'Default categories are provided for demo tenant. Create similar categories for each new tenant.';
 
 COMMENT ON TABLE reason_subcategories IS 
-  'Default subcategories providing detailed classification of interactions';
+  'Default subcategories are provided for demo tenant. Customize for each tenant as needed.';
