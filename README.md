@@ -1,187 +1,291 @@
 # School Counselor Ledger
 
-A comprehensive application for school counselors to track student interactions, manage contacts, and generate reports.
+A comprehensive multi-tenant application for school counselors to track student interactions, manage contacts, and generate reports with enterprise-grade privacy and security.
 
-## 🚀 Quick Start (Simplified Setup)
-
-This version has been simplified for immediate deployment without complex multi-tenant setup.
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+- Node.js 18+
+- Supabase account (or use mock data for development)
 
 ### Installation
 
-1. **Clone and install:**
-   ```bash
-   git clone <repository-url>
-   cd counselor-ledger
-   npm install
-   ```
+```bash
+# Clone and install
+git clone <repository-url>
+cd counselor-ledger
+npm install
 
-2. **Start development:**
-   ```bash
-   npm run dev
-   ```
+# Configure environment
+cp .env.example .env.local
+# Edit .env.local with your settings
 
-3. **Access the app:**
-   - Open http://localhost:5174
-   - Click "Create one" to register a new account
-   - Or use demo credentials: `admin@school.edu` / `password123`
+# Start development
+npm run dev
+```
 
-That's it! No database setup, no complex configuration needed.
+### Development Modes
+
+**Mock Data Mode** (No backend needed):
+```bash
+# In .env.local
+VITE_USE_MOCK_DATA=true
+```
+Access at http://localhost:5173 with demo credentials: `admin@school.edu` / `password123`
+
+**Supabase Mode** (Production):
+```bash
+# In .env.local
+VITE_USE_MOCK_DATA=false
+VITE_SUPABASE_URL=your_project_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
 
 ## Features
 
 ### Core Functionality
-- **Interaction Tracking** - Record and manage student counseling sessions
-- **Student Management** - Comprehensive student profiles and history
-- **Contact Management** - Track interactions with parents, teachers, and staff
-- **Calendar Integration** - Visual scheduling and appointment management
+- **Interaction Tracking** - Record counseling sessions with students and contacts
+- **Student Management** - Comprehensive profiles with interaction history
+- **Contact Management** - Track parents, teachers, and external contacts
+- **Calendar Integration** - Visual scheduling with FullCalendar
 - **Follow-up System** - Automated reminders and task tracking
-- **Reporting Suite** - Comprehensive analytics and data export
+- **Reporting Suite** - Analytics with CSV/PDF export
 
 ### Privacy & Security
-- **Counselor Privacy** - Interactions remain private to the creating counselor
-- **Collaborative Data** - Shared student/contact information within schools
-- **Admin Oversight** - Aggregated reporting without privacy violations
-- **Multi-Tenant Security** - Complete data isolation between schools
-- **Audit Logging** - Comprehensive security event tracking
-- **FERPA Compliance** - Built-in support for educational privacy requirements
+- **Multi-Tenant Architecture** - Complete data isolation between schools
+- **Counselor Privacy** - Interactions remain private to the creator
+- **Admin Oversight** - Aggregated reporting with audit logging
+- **Row Level Security** - Database-enforced access control
+- **FERPA Compliance** - Educational privacy requirements built-in
+- **Security Event Logging** - Comprehensive audit trail
 
-### Technical Features
-- **Real-time Updates** - Live data synchronization
-- **Offline Capability** - Works with intermittent connectivity
-- **Mobile Responsive** - Full functionality on all devices
-- **Data Export** - CSV and PDF report generation
-- **Role-Based Access** - Granular permission system
+### User Roles
+- **Admin** - Organization-wide reports, user management, system configuration
+- **Counselor** - Personal interactions, student management, individual reports
 
 ## Tech Stack
 
 - **Frontend**: React 19 + TypeScript + Vite
-- **Styling**: Tailwind CSS
+- **Styling**: Tailwind CSS + Shadcn/ui
 - **Backend**: Supabase (PostgreSQL + Auth + Real-time)
 - **State Management**: React Query
 - **Calendar**: FullCalendar
 - **Charts**: Recharts
-- **UI Components**: Shadcn/ui
-- **Form Validation**: Zod
+- **Validation**: Zod
 
 ## Project Structure
 
 ```
 src/
-├── components/       # React components organized by feature
-│   ├── common/      # Reusable UI components
-│   ├── layout/      # Layout components (sidebar, header)
-│   ├── dashboard/   # Dashboard components
-│   ├── interactions/# Interaction tracking components
-│   ├── calendar/    # Calendar view components
-│   ├── students/    # Student management components
-│   ├── contacts/    # Contact management components
-│   ├── reports/     # Reporting components
-│   └── admin/       # Admin-only components
-├── hooks/           # Custom React hooks
-├── services/        # API services and Supabase client
-├── mocks/           # Mock data for local development
-│   ├── factories/   # Data factories using Faker.js
-│   └── data/        # Seed data
-├── types/           # TypeScript type definitions
-└── utils/           # Utility functions
+├── components/          # React components by feature
+│   ├── admin/          # Admin-only components
+│   ├── calendar/       # Calendar views
+│   ├── common/         # Reusable UI components
+│   ├── contacts/       # Contact management
+│   ├── dashboard/      # Dashboard widgets
+│   ├── interactions/   # Interaction tracking
+│   ├── layout/         # Layout components
+│   ├── reports/        # Reporting components
+│   ├── students/       # Student management
+│   └── ui/            # Base UI components (Shadcn)
+├── contexts/           # React contexts (Auth, etc.)
+├── hooks/              # Custom React hooks
+├── services/           # API services and Supabase client
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions
+└── mocks/              # Mock data for development
+
+supabase/
+└── migrations/         # Database migrations
+    ├── 001_core_schema.sql
+    ├── 002_security_policies.sql
+    ├── 003_seed_data.sql
+    ├── 004_setup_invitations.sql
+    └── 005_security_audit.sql
 ```
 
-## Getting Started
+## Available Scripts
 
-### Prerequisites
-
-- Node.js 18+ and npm
-- Supabase account (for production) or use mock data for development
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Copy the environment variables:
-   ```bash
-   cp .env.example .env.local
-   ```
-
-4. Configure environment variables in `.env.local`:
-   - For **mock data development** (recommended for initial setup):
-     ```
-     VITE_USE_MOCK_DATA=true
-     ```
-   - For **Supabase backend**:
-     ```
-     VITE_USE_MOCK_DATA=false
-     VITE_SUPABASE_URL=your_supabase_project_url
-     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-     ```
-
-### Development
-
-Start the development server:
 ```bash
-npm run dev
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run lint:fix     # Fix ESLint errors
+npm run format       # Format code with Prettier
+npm run type-check   # TypeScript type checking
 ```
 
-The application will be available at `http://localhost:5173`
+## Onboarding a New School
 
-### Available Scripts
+### Step 1: Generate Setup Token (System Admin)
+```sql
+SELECT * FROM create_setup_token(
+  'School Name',
+  'subdomain',
+  'admin@school.edu',
+  24  -- hours until expiration
+);
+```
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint errors
-- `npm run format` - Format code with Prettier
-- `npm run format:check` - Check code formatting
-- `npm run type-check` - Run TypeScript type checking
+### Step 2: School Admin Completes Setup
+- Admin receives email with setup link
+- Completes form to create tenant and admin account
+- Automatically logged in
 
-## Development Modes
+### Step 3: Admin Invites Users
+- Navigate to Admin → User Management
+- Click "Invite User"
+- Fill form (email, name, role)
+- User receives invitation email
 
-### Mock Data Mode (Default)
+### Step 4: Users Accept Invitations
+- Click invitation link
+- Create account with password
+- Automatically logged in and ready to use
 
-Set `VITE_USE_MOCK_DATA=true` in `.env.local` to use Mock Service Worker (MSW) for API mocking. This allows you to develop without setting up Supabase.
-
-Benefits:
-- No backend setup required
-- Fast iteration
-- Realistic test data with Faker.js
-- Data persists in localStorage
-
-### Supabase Mode
-
-Set `VITE_USE_MOCK_DATA=false` and configure Supabase credentials to connect to a real backend.
-
-## Code Quality
-
-- **ESLint**: Configured with TypeScript, React, and Prettier rules
-- **Prettier**: Automatic code formatting
-- **TypeScript**: Strict type checking enabled
+**See TECHNICAL_GUIDE.md for detailed onboarding process**
 
 ## Multi-Tenant Architecture
 
-The application uses Row Level Security (RLS) in Supabase to ensure complete data isolation between different school tenants.
+Each school is a completely isolated tenant with:
+- Separate data (students, interactions, contacts)
+- Own admin team and counselors
+- Complete privacy via Row Level Security (RLS)
+- Independent reporting and analytics
 
-### Privacy Controls
+**Key Security Features:**
+- Counselors only see their own interactions
+- Admins see organization-wide data (with audit logging)
+- Cross-tenant access is impossible
+- All admin actions are logged
 
-The system implements comprehensive privacy controls to protect counselor interactions:
+## Environment Variables
 
-- **Counselor Privacy**: Interaction records remain private to the counselor who created them
-- **Shared Collaboration**: Student and contact information is shared within the school
-- **Admin Oversight**: Administrators can view aggregated data without accessing private details
-- **Audit Logging**: All data access is logged for security and compliance
-- **Multi-Layer Security**: Database, API, and UI layers all enforce privacy boundaries
+```bash
+# Required for Supabase mode
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 
-For detailed information, see:
-- [Privacy User Guide](./docs/PRIVACY_USER_GUIDE.md) - Understanding privacy features
-- [Privacy Controls Documentation](./docs/PRIVACY_CONTROLS.md) - Technical implementation details
+# Development mode
+VITE_USE_MOCK_DATA=false  # true for mock data, false for Supabase
+
+# Optional
+VITE_APP_NAME=School Counselor Ledger
+VITE_SUPPORT_EMAIL=support@example.com
+```
+
+## Database Setup
+
+### Run Migrations
+```bash
+# Using Supabase CLI
+supabase db push
+
+# Or manually in Supabase SQL Editor
+# Run migrations in order: 001, 002, 003, 004, 005
+```
+
+### Verify Setup
+```sql
+-- Check tables exist
+SELECT table_name FROM information_schema.tables 
+WHERE table_schema = 'public' 
+ORDER BY table_name;
+
+-- Check RLS is enabled
+SELECT tablename, rowsecurity 
+FROM pg_tables 
+WHERE schemaname = 'public';
+```
+
+## Development Guidelines
+
+### Code Quality
+- ESLint with TypeScript and React rules
+- Prettier for consistent formatting
+- Strict TypeScript type checking
+- Component-based architecture
+
+### Privacy Best Practices
+- Always filter by tenant_id
+- Use RLS policies for data access
+- Log admin access to counselor data
+- Display privacy indicators in UI
+
+### Testing
+- Test with mock data first
+- Verify RLS policies work correctly
+- Test cross-tenant isolation
+- Validate role-based access
+
+## Common Tasks
+
+### Add a New User (Admin UI)
+1. Admin → User Management → Invite User
+2. Fill form and send invitation
+3. User accepts and creates account
+
+### Change User Role
+```sql
+UPDATE users SET role = 'ADMIN'  -- or 'COUNSELOR'
+WHERE email = 'user@email.com' AND tenant_id = 'TENANT_ID';
+```
+
+### Deactivate User
+```sql
+UPDATE users SET is_active = false
+WHERE email = 'user@email.com' AND tenant_id = 'TENANT_ID';
+```
+
+### Resend Invitation
+1. Admin → User Management → Pending Invitations
+2. Find invitation → Click "Resend"
+3. New email sent with fresh token
+
+## Troubleshooting
+
+### Can't log in
+- Verify account exists in User Management
+- Check is_active = true
+- Try password reset
+
+### User didn't receive invitation
+- Check spam folder
+- Verify email address is correct
+- Resend invitation from UI
+
+### Data not showing
+- Verify RLS policies are enabled
+- Check tenant_id matches
+- Confirm user role has access
+
+### Setup token expired
+- Generate new token with SQL
+- Send new link to admin
+
+## Documentation
+
+- **TECHNICAL_GUIDE.md** - Complete technical documentation including:
+  - Database schema and migrations
+  - Multi-tenant architecture
+  - Security and privacy implementation
+  - Onboarding process details
+  - API reference
+  - Troubleshooting guide
+
+## Support
+
+For issues or questions:
+1. Check TECHNICAL_GUIDE.md for detailed documentation
+2. Review error messages in browser console
+3. Verify environment variables are set correctly
+4. Check Supabase logs for backend errors
 
 ## License
 
 Private - All rights reserved
+
+---
+
+**Built with ❤️ for school counselors**
