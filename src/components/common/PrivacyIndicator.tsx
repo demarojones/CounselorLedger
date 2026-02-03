@@ -104,7 +104,7 @@ export function PrivacyIndicator({
   if (variant === 'inline') {
     return (
       <span
-        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ${className}`}
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 ${className}`}
       >
         {isAdmin ? 'All Data' : 'Private'}
       </span>
@@ -114,20 +114,20 @@ export function PrivacyIndicator({
   if (variant === 'compact') {
     return (
       <div className={`flex items-center gap-2 text-sm ${className}`}>
-        <div className="text-blue-600">{getIcon()}</div>
-        <span className="font-medium text-blue-800">{content.title}</span>
+        <div className="text-primary-600">{getIcon()}</div>
+        <span className="font-medium text-primary-800">{content.title}</span>
       </div>
     );
   }
 
   // Default variant
   return (
-    <div className={`bg-blue-50 border border-blue-200 rounded-lg p-4 ${className}`}>
+    <div className={`bg-primary-50 border border-primary-200 rounded-lg p-4 ${className}`}>
       <div className="flex items-center gap-3">
-        <div className="text-blue-600">{getIcon()}</div>
+        <div className="text-primary-600">{getIcon()}</div>
         <div>
-          <h3 className="text-sm font-semibold text-blue-800">{content.title}</h3>
-          <p className="text-xs text-blue-600">{content.description}</p>
+          <h3 className="text-sm font-semibold text-primary-800">{content.title}</h3>
+          <p className="text-xs text-primary-600">{content.description}</p>
         </div>
       </div>
     </div>

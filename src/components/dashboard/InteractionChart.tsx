@@ -5,16 +5,16 @@ interface InteractionChartProps {
   categoryBreakdown: CategoryBreakdown[];
 }
 
-// Default colors for categories if not specified
+// Default colors for categories if not specified - using logo color palette
 const DEFAULT_COLORS = [
-  '#3b82f6', // blue
-  '#10b981', // green
-  '#f59e0b', // amber
-  '#ef4444', // red
-  '#8b5cf6', // purple
-  '#ec4899', // pink
-  '#06b6d4', // cyan
-  '#f97316', // orange
+  '#4a90e2', // primary blue (logo)
+  '#5ab76c', // success green (logo)
+  '#3a7bc8', // darker blue
+  '#87d797', // lighter green
+  '#2e5c8a', // dark blue (logo)
+  '#4a9659', // darker green
+  '#75bde7', // lighter blue
+  '#a5e1b1', // light green
 ];
 
 export function InteractionChart({ categoryBreakdown }: InteractionChartProps) {
@@ -61,7 +61,7 @@ export function InteractionChart({ categoryBreakdown }: InteractionChartProps) {
                       {category.count} ({Math.round(percentage)}%)
                     </span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-primary-100">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{

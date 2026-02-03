@@ -53,7 +53,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.2, ease: 'easeOut' as const }}
         className={cn(
-          'relative z-50 flex flex-col w-full max-w-lg border border-slate-200 bg-white shadow-2xl rounded-xl overflow-hidden',
+          'relative z-50 flex flex-col w-full max-w-lg border border-primary-200 bg-white shadow-2xl rounded-xl overflow-hidden',
           className
         )}
       >
@@ -69,7 +69,7 @@ interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
 const DialogHeader: React.FC<DialogHeaderProps> = ({ className, ...props }) => (
   <div
     className={cn(
-      'flex flex-col space-y-2 text-center sm:text-left px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white',
+      'flex flex-col space-y-2 text-center sm:text-left px-6 py-4 border-b border-primary-100 bg-gradient-to-r from-primary-50/30 to-white',
       className
     )}
     {...props}
@@ -82,7 +82,7 @@ interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
 const DialogFooter: React.FC<DialogFooterProps> = ({ className, ...props }) => (
   <div
     className={cn(
-      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 px-6 py-4 border-t border-slate-100 bg-gradient-to-r from-white to-slate-50',
+      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 px-6 py-4 border-t border-primary-100 bg-gradient-to-r from-white to-primary-50/30',
       className
     )}
     {...props}
@@ -117,7 +117,7 @@ interface DialogBodyProps extends React.HTMLAttributes<HTMLDivElement> {}
 const DialogBody: React.FC<DialogBodyProps> = ({ className, ...props }) => (
   <div
     className={cn(
-      'flex-1 overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300',
+      'flex-1 overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-300',
       className
     )}
     {...props}

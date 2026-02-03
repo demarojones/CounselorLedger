@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#4A90E2" opacity="0.1"/>
+  
+  <!-- Main circle background -->
+  <circle cx="100" cy="100" r="80" fill="#4A90E2"/>
+  
+  <!-- Clipboard base -->
+  <rect x="65" y="55" width="70" height="90" rx="4" fill="#FFFFFF"/>
+  
+  <!-- Clipboard clip -->
+  <rect x="85" y="50" width="30" height="12" rx="3" fill="#2E5C8A"/>
+  <rect x="88" y="53" width="24" height="6" rx="2" fill="#E8F4F8"/>
+  
+  <!-- Student figure (simplified) -->
+  <circle cx="100" cy="80" r="8" fill="#4A90E2"/>
+  <path d="M 100 88 Q 92 88 88 95 L 88 100 L 112 100 L 112 95 Q 108 88 100 88 Z" fill="#4A90E2"/>
+  
+  <!-- Check marks/progress indicators -->
+  <g stroke="#5AB76C" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M 72 115 L 77 120 L 85 110"/>
+    <path d="M 72 128 L 77 133 L 85 123"/>
+  </g>
+  
+  <!-- Lines representing text/data -->
+  <line x1="92" y1="115" x2="123" y2="115" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round"/>
+  <line x1="92" y1="128" x2="118" y2="128" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Accent dot -->
+  <circle cx="100" cy="165" r="2" fill="#FFFFFF" opacity="0.6"/>
+</svg>

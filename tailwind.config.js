@@ -20,32 +20,34 @@ export default {
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49',
+          // Logo Blue #4A90E2 shades
+          50: '#e8f4fb',
+          100: '#d1e9f7',
+          200: '#a3d3ef',
+          300: '#75bde7',
+          400: '#4a90e2', // Main logo color
+          500: '#3a7bc8',
+          600: '#2e5c8a', // Dark blue from logo
+          700: '#234567',
+          800: '#182e45',
+          900: '#0d1722',
+          950: '#070b11',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',
-          700: '#7e22ce',
-          800: '#6b21a8',
-          900: '#581c87',
-          950: '#3b0764',
+          // Success Green #5AB76C shades
+          50: '#f0faf2',
+          100: '#e1f5e5',
+          200: '#c3ebcb',
+          300: '#a5e1b1',
+          400: '#87d797',
+          500: '#5ab76c', // Main green from logo
+          600: '#4a9659',
+          700: '#397546',
+          800: '#295433',
+          900: '#183320',
+          950: '#0c1910',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
@@ -66,6 +68,17 @@ export default {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
+        },
+        // Additional logo-inspired colors
+        'logo-blue': {
+          light: '#e8f4fb',
+          DEFAULT: '#4a90e2',
+          dark: '#2e5c8a',
+        },
+        'logo-green': {
+          light: '#e1f5e5',
+          DEFAULT: '#5ab76c',
+          dark: '#397546',
         },
       },
       borderRadius: {

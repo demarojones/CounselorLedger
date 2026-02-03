@@ -97,7 +97,9 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 transition-all duration-300 ease-in-out shadow-2xl',
+          'fixed top-0 left-0 z-50 h-full transition-all duration-300 ease-in-out shadow-2xl',
+          'bg-gradient-to-b from-[#234567] via-[#2e5c8a] to-[#234567]',
+          'border-r border-white/10',
           sidebarWidth,
           isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0 static'
         )}
@@ -106,40 +108,36 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
           {/* Logo and close button */}
           <div
             className={cn(
-              'flex items-center border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm',
+              'flex items-center border-b border-white/10 bg-white/5 backdrop-blur-sm',
               showLabels ? 'justify-between p-5' : 'justify-center p-4'
             )}
           >
             {showLabels ? (
               <>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/30">
-                    <GraduationCap className="w-6 h-6 text-white" />
-                  </div>
+                  <img src="/counselor_ledger_logo.svg" alt="Counselor Ledger" className="w-10 h-10" />
                   <div>
                     <h1 className="font-bold text-white text-lg leading-tight">Counselor</h1>
-                    <p className="text-xs text-slate-400 font-medium">Ledger</p>
+                    <p className="text-xs text-white font-medium">Ledger</p>
                   </div>
                 </div>
                 {isMobile && (
                   <button
                     onClick={onClose}
-                    className="p-2 rounded-lg hover:bg-slate-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    className="p-2 rounded-lg hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#234567]"
                     aria-label="Close sidebar"
                   >
-                    <X className="w-5 h-5 text-slate-400" />
+                    <X className="w-5 h-5 text-white" />
                   </button>
                 )}
               </>
             ) : (
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/30">
-                <GraduationCap className="w-6 h-6 text-white" />
-              </div>
+              <img src="/counselor_ledger_logo.svg" alt="Counselor Ledger" className="w-10 h-10" />
             )}
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+          <nav className="flex-1 overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent hover:scrollbar-thumb-white/30">
             <ul className="space-y-1.5">
               {filteredNavItems.map(item => {
                 const Icon = item.icon;
@@ -151,37 +149,34 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
                       to={item.path}
                       onClick={onClose}
                       className={cn(
-                        'flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 group relative overflow-hidden',
+                        'flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#234567] group relative overflow-hidden',
                         showLabels ? 'justify-start' : 'justify-center',
                         isActive
-                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30'
-                          : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                          ? 'bg-white shadow-lg font-semibold'
+                          : 'text-white hover:bg-white/10 hover:shadow-md'
                       )}
                       title={!showLabels ? item.name : undefined}
                     >
-                      {isActive && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent animate-pulse" />
-                      )}
                       <Icon
                         className={cn(
                           'w-5 h-5 transition-transform duration-200 relative z-10',
                           isActive
-                            ? 'text-white scale-110'
-                            : 'text-slate-400 group-hover:text-white group-hover:scale-110'
+                            ? 'text-[#2e5c8a]'
+                            : 'text-white group-hover:scale-105'
                         )}
                       />
                       {showLabels && (
                         <span
                           className={cn(
                             'font-medium text-sm relative z-10',
-                            isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'
+                            isActive ? 'text-[#2e5c8a]' : 'text-white'
                           )}
                         >
                           {item.name}
                         </span>
                       )}
                       {isActive && showLabels && (
-                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-lg shadow-white/50 relative z-10" />
+                        <div className="ml-auto w-2 h-2 rounded-full bg-[#5ab76c] shadow-lg shadow-[#5ab76c]/50 relative z-10" />
                       )}
                     </Link>
                   </li>
@@ -192,9 +187,9 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
 
           {/* User info */}
           {user && showLabels && (
-            <div className="p-4 border-t border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-primary-500/20">
+            <div className="p-4 border-t border-white/10 bg-white/5 backdrop-blur-sm">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5ab76c] to-[#397546] flex items-center justify-center text-white font-semibold text-sm shadow-lg">
                   {user.firstName[0]}
                   {user.lastName[0]}
                 </div>
@@ -202,7 +197,7 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
                   <p className="text-sm font-semibold text-white truncate">
                     {user.firstName} {user.lastName}
                   </p>
-                  <p className="text-xs text-slate-400 capitalize">{user.role.toLowerCase()}</p>
+                  <p className="text-xs text-blue-100 capitalize">{user.role.toLowerCase()}</p>
                 </div>
               </div>
             </div>
@@ -210,8 +205,8 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
 
           {/* Collapsed user avatar */}
           {user && !showLabels && (
-            <div className="p-3 border-t border-slate-700/50 bg-slate-900/50 backdrop-blur-sm flex justify-center">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-primary-500/20">
+            <div className="p-3 border-t border-white/10 bg-white/5 backdrop-blur-sm flex justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5ab76c] to-[#397546] flex items-center justify-center text-white font-semibold text-sm shadow-lg">
                 {user.firstName[0]}
                 {user.lastName[0]}
               </div>

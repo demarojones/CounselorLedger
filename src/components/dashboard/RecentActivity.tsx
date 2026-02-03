@@ -70,7 +70,7 @@ export function RecentActivity({ interactions }: RecentActivityProps) {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="font-medium">{getInteractionName(interaction)}</p>
-                  <span className="rounded-full bg-secondary px-2 py-0.5 text-xs">
+                  <span className="rounded-full bg-secondary-100 text-secondary-700 px-2 py-0.5 text-xs font-medium">
                     {getTypeLabel(interaction)}
                   </span>
                 </div>
