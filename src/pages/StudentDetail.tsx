@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchStudent, fetchStudentInteractions, fetchReasonCategories } from '@/services/api';
+import { fetchStudent, fetchStudentInteractions, fetchReasonCategories, fetchStudents, fetchContacts } from '@/services/api';
+import { supabase } from '@/services/supabase';
 import type { Student } from '@/types/student';
 import type { Interaction } from '@/types/interaction';
 import type { ReasonCategory } from '@/types/reason';
+import type { User } from '@/types/user';
 import { StudentProfile } from '@/components/students/StudentProfile';
 import { InteractionHistory } from '@/components/students/InteractionHistory';
 import { InteractionDetail } from '@/components/interactions/InteractionDetail';
@@ -34,8 +36,15 @@ export function StudentDetail() {
       setLoading(true);
       setError(null);
 
-      // Fetch student using the API
-      const studentResponse = await fetchStudent(id);
+      // Fetch all required data in parallel
+      const [studentResponse, interactionsResponse, categoriesResponse, studentsResponse, contactsResponse, counselorsResponse] = await Promise.all([
+        fetchStudent(id),
+        fetchStudentInteractions(id),
+        fetchReasonCategories(),
+        fetchStudents(),
+        fetchContacts(),
+        supabase.from('users').select('*'),
+      ]);
 
       if (studentResponse.error) {
         throw new Error(studentResponse.error.message);
@@ -45,30 +54,49 @@ export function StudentDetail() {
         throw new Error('Student not found');
       }
 
-      // Fetch interactions for this student using the API
-      const interactionsResponse = await fetchStudentInteractions(id);
-
       if (interactionsResponse.error) {
         throw new Error(interactionsResponse.error.message);
       }
-
-      // Fetch reason categories using the API
-      const categoriesResponse = await fetchReasonCategories();
 
       if (categoriesResponse.error) {
         throw new Error(categoriesResponse.error.message);
       }
 
       const transformedStudent = studentResponse.data;
-      const transformedInteractions = interactionsResponse.data || [];
+      const rawInteractions = interactionsResponse.data || [];
       const transformedCategories = categoriesResponse.data || [];
+      const allStudents = studentsResponse.data || [];
+      const allContacts = contactsResponse.data || [];
+      
+      // Convert counselors data
+      const allCounselors: User[] = (counselorsResponse.data || []).map((user: any) => ({
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name || user.firstName,
+        lastName: user.last_name || user.lastName,
+        role: user.role,
+        tenantId: user.tenant_id || user.tenantId,
+        isActive: user.is_active ?? user.isActive ?? true,
+        createdAt: new Date(user.created_at || user.createdAt || Date.now()),
+        updatedAt: new Date(user.updated_at || user.updatedAt || Date.now()),
+      }));
 
       console.log('Fetched student:', transformedStudent);
-      console.log('Fetched interactions:', transformedInteractions);
+      console.log('Fetched interactions:', rawInteractions);
+
+      // Enrich interactions with nested data for proper display
+      const enrichedInteractions = rawInteractions.map(interaction => ({
+        ...interaction,
+        student: interaction.studentId === id ? transformedStudent : allStudents.find(s => s.id === interaction.studentId),
+        regardingStudent: interaction.regardingStudentId ? allStudents.find(s => s.id === interaction.regardingStudentId) : undefined,
+        contact: interaction.contactId ? allContacts.find(c => c.id === interaction.contactId) : undefined,
+        category: transformedCategories.find(c => c.id === interaction.categoryId),
+        counselor: allCounselors.find(c => c.id === interaction.counselorId),
+      }));
 
       // Calculate stats
-      const interactionCount = transformedInteractions.length;
-      const totalTimeSpent = transformedInteractions.reduce(
+      const interactionCount = enrichedInteractions.length;
+      const totalTimeSpent = enrichedInteractions.reduce(
         (sum, interaction) => sum + interaction.durationMinutes,
         0
       );
@@ -78,7 +106,7 @@ export function StudentDetail() {
         interactionCount,
         totalTimeSpent,
       });
-      setInteractions(transformedInteractions);
+      setInteractions(enrichedInteractions);
       setCategories(transformedCategories);
     } catch (err) {
       console.error('Error fetching student data:', err);
