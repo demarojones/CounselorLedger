@@ -6,6 +6,7 @@ import type { Interaction } from '@/types/interaction';
 import type { ReasonCategory } from '@/types/reason';
 import { StudentProfile } from '@/components/students/StudentProfile';
 import { InteractionHistory } from '@/components/students/InteractionHistory';
+import { InteractionDetail } from '@/components/interactions/InteractionDetail';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -17,6 +18,10 @@ export function StudentDetail() {
   const [categories, setCategories] = useState<ReasonCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Modal state
+  const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => {
     if (studentId) {
@@ -88,6 +93,18 @@ export function StudentDetail() {
     navigate(`/interactions?studentId=${studentId}`);
   };
 
+  const handleInteractionClick = async (interactionId: string) => {
+    // Find the interaction in the already-loaded interactions array
+    const interaction = interactions.find(i => i.id === interactionId);
+    
+    if (interaction) {
+      setSelectedInteraction(interaction);
+      setIsDetailModalOpen(true);
+    } else {
+      console.error('Interaction not found:', interactionId);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6">
@@ -116,11 +133,6 @@ export function StudentDetail() {
     );
   }
 
-  const handleInteractionClick = (interactionId: string) => {
-    // Navigate to interaction detail (to be implemented)
-    navigate(`/interactions/${interactionId}`);
-  };
-
   return (
     <div className="p-6">
       <Button variant="ghost" onClick={() => navigate('/students')} className="mb-6">
@@ -148,6 +160,13 @@ export function StudentDetail() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Interaction Detail Modal */}
+      <InteractionDetail
+        interaction={selectedInteraction}
+        open={isDetailModalOpen}
+        onOpenChange={setIsDetailModalOpen}
+      />
     </div>
   );
 }

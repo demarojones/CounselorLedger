@@ -9,8 +9,7 @@ import {
   Contact,
   FileText,
   Settings,
-  X,
-  GraduationCap,
+  X
 } from 'lucide-react';
 
 interface SidebarProps {
