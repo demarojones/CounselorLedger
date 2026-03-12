@@ -1,73 +1,37 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ContactList, ContactDetail, ContactForm } from '@/components/contacts';
 import type { Contact } from '@/types/contact';
-import type { Interaction } from '@/types/interaction';
-import {
-  fetchContacts,
-  fetchInteractions,
-  fetchContactInteractions,
-  createContact,
-  updateContact,
-  deleteContact,
-} from '@/services/api';
-import { handleFormSubmission, prepareFormData } from '@/utils/formSubmission';
+import { useContacts, useCreateContact, useUpdateContact, useDeleteContact, useContactInteractions } from '@/hooks/useContacts';
+import { useInteractions } from '@/hooks/useInteractions';
 
 export function Contacts() {
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [interactions, setInteractions] = useState<Interaction[]>([]);
-  const [contactInteractions, setContactInteractions] = useState<Interaction[]>([]);
+  // Use React Query hooks
+  const { data: contacts = [], isLoading: contactsLoading } = useContacts();
+  const { data: interactions = [], isLoading: interactionsLoading } = useInteractions();
+  const createContact = useCreateContact();
+  const updateContact = useUpdateContact();
+  const deleteContact = useDeleteContact();
+
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // Load data from API
-  useEffect(() => {
-    loadData();
-  }, []);
+  // Fetch contact-specific interactions when a contact is selected
+  const { data: contactInteractions = [] } = useContactInteractions(
+    selectedContact?.id || ''
+  );
 
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      const [contactsResponse, interactionsResponse] = await Promise.all([
-        fetchContacts(),
-        fetchInteractions(),
-      ]);
+  const isLoading = contactsLoading || interactionsLoading;
 
-      if (contactsResponse.data) {
-        setContacts(contactsResponse.data);
-      }
-      if (interactionsResponse.data) {
-        setInteractions(interactionsResponse.data);
-      }
-    } catch (error) {
-      console.error('Error loading data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleViewContact = async (contactId: string) => {
+  const handleViewContact = (contactId: string) => {
     const contact = contacts.find(c => c.id === contactId);
     if (contact) {
       setSelectedContact(contact);
       setIsDetailOpen(true);
-
-      // Fetch contact-specific interactions filtered by current counselor
-      try {
-        const response = await fetchContactInteractions(contactId);
-        if (response.data) {
-          setContactInteractions(response.data);
-        } else {
-          setContactInteractions([]);
-        }
-      } catch (error) {
-        console.error('Error loading contact interactions:', error);
-        setContactInteractions([]);
-      }
+      // Contact interactions will be fetched automatically by useContactInteractions hook
     }
   };
 
@@ -87,41 +51,35 @@ export function Contacts() {
   };
 
   const handleFormSubmit = async (formData: any) => {
-    // Validate and sanitize form data
-    const { valid, data, errors } = prepareFormData(formData, [
-      'firstName',
-      'lastName',
-      'relationship',
-    ]);
-    console.log('formData', formData);
-    if (!valid) {
-      console.log('Form data is invalid', errors);
-      setFormErrors(errors);
+    // Basic validation
+    if (!formData.firstName?.trim() || !formData.lastName?.trim() || !formData.relationship?.trim()) {
+      setFormErrors({
+        firstName: !formData.firstName?.trim() ? 'First name is required' : '',
+        lastName: !formData.lastName?.trim() ? 'Last name is required' : '',
+        relationship: !formData.relationship?.trim() ? 'Relationship is required' : '',
+      });
       return;
     }
 
-    if (editingContact) {
-      console.log('editingContact', editingContact);
-      // Update existing contact
-      await handleFormSubmission(() => updateContact(editingContact.id, data as any), {
-        successMessage: 'Contact updated successfully',
-        onSuccess: updatedContact => {
-          setContacts(prev => prev.map(c => (c.id === editingContact.id ? updatedContact : c)));
-          setIsFormOpen(false);
-          setEditingContact(null);
-          setFormErrors({});
-        },
-      });
-    } else {
-      // Create new contact
-      await handleFormSubmission(() => createContact(data as any), {
-        successMessage: 'Contact created successfully',
-        onSuccess: newContact => {
-          setContacts(prev => [...prev, newContact]);
-          setIsFormOpen(false);
-          setFormErrors({});
-        },
-      });
+    try {
+      if (editingContact) {
+        // Update existing contact
+        await updateContact.mutateAsync({
+          id: editingContact.id,
+          ...formData,
+        });
+        setIsFormOpen(false);
+        setEditingContact(null);
+        setFormErrors({});
+      } else {
+        // Create new contact
+        await createContact.mutateAsync(formData);
+        setIsFormOpen(false);
+        setFormErrors({});
+      }
+    } catch (error) {
+      console.error('Error saving contact:', error);
+      // Error toast is handled by the mutation hook
     }
   };
 
@@ -130,14 +88,14 @@ export function Contacts() {
       return;
     }
 
-    await handleFormSubmission(() => deleteContact(contactId), {
-      successMessage: 'Contact deleted successfully',
-      onSuccess: () => {
-        setContacts(prev => prev.filter(c => c.id !== contactId));
-        setIsDetailOpen(false);
-        setSelectedContact(null);
-      },
-    });
+    try {
+      await deleteContact.mutateAsync(contactId);
+      setIsDetailOpen(false);
+      setSelectedContact(null);
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      // Error toast is handled by the mutation hook
+    }
   };
 
   const handleAddInteraction = () => {

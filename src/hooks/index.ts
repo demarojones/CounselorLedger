@@ -9,7 +9,7 @@ export {
 
 export {
   useContacts,
-  useContact,
+  useContactInteractions,
   useCreateContact,
   useUpdateContact,
   useDeleteContact,

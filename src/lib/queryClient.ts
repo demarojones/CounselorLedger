@@ -53,6 +53,7 @@ export const queryKeys = {
   // Contacts
   contacts: ['contacts'] as const,
   contact: (id: string) => ['contacts', id] as const,
+  contactInteractions: (contactId: string) => ['contacts', contactId, 'interactions'] as const,
   contactSearch: (query: string) => ['contacts', 'search', query] as const,
 
   // Reason categories

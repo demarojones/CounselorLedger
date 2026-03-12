@@ -1,75 +1,36 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/services/supabase';
+import {
+  fetchContacts,
+  fetchContactInteractions,
+  createContact as apiCreateContact,
+  updateContact as apiUpdateContact,
+  deleteContact as apiDeleteContact,
+} from '@/services/api';
 import { toast } from '@/utils/toast';
 import { handleApiError } from '@/utils/errorHandling';
 import { queryKeys } from '@/lib/queryClient';
-import type { Contact, ContactDbResponse } from '@/types/contact';
-
-// Helper function to convert snake_case DB response to camelCase
-function convertContactFromDb(dbContact: ContactDbResponse): Contact {
-  return {
-    id: dbContact.id,
-    firstName: dbContact.first_name,
-    lastName: dbContact.last_name,
-    relationship: dbContact.relationship,
-    email: dbContact.email,
-    phone: dbContact.phone,
-    organization: dbContact.organization,
-    notes: dbContact.notes,
-    createdAt: new Date(dbContact.created_at),
-    updatedAt: new Date(dbContact.updated_at),
-  };
-}
-
-// Fetch all contacts
-async function fetchContacts(): Promise<Contact[]> {
-  const { data, error } = await supabase
-    .from('contacts')
-    .select('*')
-    .order('last_name', { ascending: true });
-
-  if (error) throw error;
-  return (data || []).map(convertContactFromDb);
-}
-
-// Fetch single contact by ID
-async function fetchContact(id: string): Promise<Contact> {
-  const { data, error } = await supabase.from('contacts').select('*').eq('id', id).single();
-
-  if (error) throw error;
-  return convertContactFromDb(data);
-}
+import type { Contact } from '@/types/contact';
 
 // Create contact
 interface CreateContactData {
   firstName: string;
   lastName: string;
   relationship: string;
+  organization?: string;
   email?: string;
   phone?: string;
-  organization?: string;
   notes?: string;
 }
 
 async function createContact(data: CreateContactData): Promise<Contact> {
-  const insertData = {
-    first_name: data.firstName,
-    last_name: data.lastName,
-    relationship: data.relationship,
-    email: data.email || null,
-    phone: data.phone || null,
-    organization: data.organization || null,
-    notes: data.notes || null,
-  };
-
-  const { data: newContact, error } = await supabase
-    .from('contacts')
-    .insert(insertData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return convertContactFromDb(newContact);
+  const response = await apiCreateContact(data);
+  if (response.error) {
+    throw new Error(response.error.message);
+  }
+  if (!response.data) {
+    throw new Error('Failed to create contact');
+  }
+  return response.data;
 }
 
 // Update contact
@@ -78,41 +39,47 @@ interface UpdateContactData {
   firstName?: string;
   lastName?: string;
   relationship?: string;
+  organization?: string;
   email?: string;
   phone?: string;
-  organization?: string;
   notes?: string;
 }
 
 async function updateContact(data: UpdateContactData): Promise<Contact> {
   const { id, ...updateFields } = data;
-
-  const updateData: any = {};
-  if (updateFields.firstName !== undefined) updateData.first_name = updateFields.firstName;
-  if (updateFields.lastName !== undefined) updateData.last_name = updateFields.lastName;
-  if (updateFields.relationship !== undefined) updateData.relationship = updateFields.relationship;
-  if (updateFields.email !== undefined) updateData.email = updateFields.email || null;
-  if (updateFields.phone !== undefined) updateData.phone = updateFields.phone || null;
-  if (updateFields.organization !== undefined)
-    updateData.organization = updateFields.organization || null;
-  if (updateFields.notes !== undefined) updateData.notes = updateFields.notes || null;
-
-  const { data: updatedContact, error } = await supabase
-    .from('contacts')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return convertContactFromDb(updatedContact);
+  const response = await apiUpdateContact(id, updateFields);
+  if (response.error) {
+    throw new Error(response.error.message);
+  }
+  if (!response.data) {
+    throw new Error('Failed to update contact');
+  }
+  return response.data;
 }
 
 // Delete contact
 async function deleteContact(id: string): Promise<void> {
-  const { error } = await supabase.from('contacts').delete().eq('id', id);
+  const response = await apiDeleteContact(id);
+  if (response.error) {
+    throw new Error(response.error.message);
+  }
+}
 
-  if (error) throw error;
+// Wrapper functions for the API
+async function fetchContactsWrapper(): Promise<Contact[]> {
+  const response = await fetchContacts();
+  if (response.error) {
+    throw new Error(response.error.message);
+  }
+  return response.data || [];
+}
+
+async function fetchContactInteractionsWrapper(contactId: string) {
+  const response = await fetchContactInteractions(contactId);
+  if (response.error) {
+    throw new Error(response.error.message);
+  }
+  return response.data || [];
 }
 
 /**
@@ -124,35 +91,34 @@ async function deleteContact(id: string): Promise<void> {
 export function useContacts() {
   return useQuery({
     queryKey: queryKeys.contacts,
-    queryFn: fetchContacts,
+    queryFn: fetchContactsWrapper,
   });
 }
 
 /**
- * Hook to fetch a single contact by ID
- * @param {string} id - The contact's unique identifier
- * @returns {UseQueryResult<Contact>} React Query result with contact data
+ * Hook to fetch interactions for a specific contact
+ * @param {string} contactId - The contact's unique identifier
+ * @returns {UseQueryResult<Interaction[]>} React Query result with interactions array
  * @example
- * const { data: contact, isLoading } = useContact(contactId);
+ * const { data: interactions, isLoading } = useContactInteractions(contactId);
  */
-export function useContact(id: string) {
+export function useContactInteractions(contactId: string) {
   return useQuery({
-    queryKey: queryKeys.contact(id),
-    queryFn: () => fetchContact(id),
-    enabled: !!id,
+    queryKey: queryKeys.contactInteractions(contactId),
+    queryFn: () => fetchContactInteractionsWrapper(contactId),
+    enabled: !!contactId,
   });
 }
 
 /**
- * Hook to create a new contact
+ * Hook to create a new contact with optimistic updates
  * @returns {UseMutationResult} React Query mutation with mutate function
  * @example
  * const createContact = useCreateContact();
  * createContact.mutate({
- *   firstName: 'Jane',
- *   lastName: 'Smith',
- *   relationship: 'Parent',
- *   email: 'jane@example.com'
+ *   firstName: 'John',
+ *   lastName: 'Doe',
+ *   relationship: 'Parent'
  * });
  */
 export function useCreateContact() {
@@ -160,16 +126,54 @@ export function useCreateContact() {
 
   return useMutation({
     mutationFn: createContact,
-    onSuccess: newContact => {
-      // Invalidate contacts list to refetch
-      queryClient.invalidateQueries({ queryKey: queryKeys.contacts });
+    onMutate: async newContactData => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: queryKeys.contacts });
 
-      // Optimistically add to cache
-      queryClient.setQueryData(queryKeys.contact(newContact.id), newContact);
+      // Snapshot previous value
+      const previousContacts = queryClient.getQueryData<Contact[]>(queryKeys.contacts);
+
+      // Optimistically add new contact to the list
+      if (previousContacts) {
+        const optimisticContact: Contact = {
+          id: `temp-${Date.now()}`, // Temporary ID
+          ...newContactData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        queryClient.setQueryData<Contact[]>(queryKeys.contacts, [
+          ...previousContacts,
+          optimisticContact,
+        ]);
+      }
+
+      return { previousContacts };
+    },
+    onSuccess: (newContact, _, context) => {
+      // Replace optimistic contact with real data from server
+      const previousContacts = context?.previousContacts;
+
+      if (previousContacts) {
+        // Remove the optimistic entry and add the real one
+        queryClient.setQueryData<Contact[]>(queryKeys.contacts, old => {
+          if (!old) return [newContact];
+          // Filter out any temp entries and add the real contact
+          return [...old.filter(c => !c.id.startsWith('temp-')), newContact];
+        });
+      } else {
+        // Fallback: just invalidate to refetch
+        queryClient.invalidateQueries({ queryKey: queryKeys.contacts });
+      }
 
       toast.success('Contact created successfully');
     },
-    onError: error => {
+    onError: (error, _, context) => {
+      // Rollback on error
+      if (context?.previousContacts) {
+        queryClient.setQueryData(queryKeys.contacts, context.previousContacts);
+      }
+
       const apiError = handleApiError(error, { customMessage: 'Failed to create contact' });
       toast.error(apiError.message);
     },
@@ -183,8 +187,7 @@ export function useCreateContact() {
  * const updateContact = useUpdateContact();
  * updateContact.mutate({
  *   id: 'contact-uuid',
- *   phone: '555-1234',
- *   organization: 'ABC School'
+ *   email: 'newemail@example.com'
  * });
  */
 export function useUpdateContact() {
@@ -194,34 +197,41 @@ export function useUpdateContact() {
     mutationFn: updateContact,
     onMutate: async data => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: queryKeys.contact(data.id) });
+      await queryClient.cancelQueries({ queryKey: queryKeys.contacts });
 
       // Snapshot previous value
-      const previousContact = queryClient.getQueryData(queryKeys.contact(data.id));
+      const previousContacts = queryClient.getQueryData<Contact[]>(queryKeys.contacts);
 
-      // Optimistically update
-      if (previousContact) {
-        queryClient.setQueryData(queryKeys.contact(data.id), {
-          ...previousContact,
-          ...data,
-        });
+      // Optimistically update the contact in the list
+      if (previousContacts) {
+        queryClient.setQueryData<Contact[]>(
+          queryKeys.contacts,
+          previousContacts.map(contact =>
+            contact.id === data.id ? { ...contact, ...data, updatedAt: new Date() } : contact
+          )
+        );
       }
 
-      return { previousContact };
+      return { previousContacts };
     },
     onSuccess: updatedContact => {
       // Update cache with server response
-      queryClient.setQueryData(queryKeys.contact(updatedContact.id), updatedContact);
+      queryClient.setQueryData<Contact[]>(queryKeys.contacts, old => {
+        if (!old) return [updatedContact];
+        return old.map(contact => (contact.id === updatedContact.id ? updatedContact : contact));
+      });
 
-      // Invalidate contacts list
-      queryClient.invalidateQueries({ queryKey: queryKeys.contacts });
+      // Invalidate contact interactions in case they need updating
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.contactInteractions(updatedContact.id),
+      });
 
       toast.success('Contact updated successfully');
     },
-    onError: (error, variables, context) => {
+    onError: (error, _, context) => {
       // Rollback on error
-      if (context?.previousContact) {
-        queryClient.setQueryData(queryKeys.contact(variables.id), context.previousContact);
+      if (context?.previousContacts) {
+        queryClient.setQueryData(queryKeys.contacts, context.previousContacts);
       }
 
       const apiError = handleApiError(error, { customMessage: 'Failed to update contact' });
@@ -247,22 +257,25 @@ export function useDeleteContact() {
       await queryClient.cancelQueries({ queryKey: queryKeys.contacts });
 
       // Snapshot previous value
-      const previousContacts = queryClient.getQueryData(queryKeys.contacts);
+      const previousContacts = queryClient.getQueryData<Contact[]>(queryKeys.contacts);
 
       // Optimistically remove from list
-      queryClient.setQueryData(queryKeys.contacts, (old: Contact[] | undefined) =>
-        old ? old.filter(c => c.id !== id) : []
-      );
+      if (previousContacts) {
+        queryClient.setQueryData<Contact[]>(
+          queryKeys.contacts,
+          previousContacts.filter(c => c.id !== id)
+        );
+      }
 
       return { previousContacts };
     },
     onSuccess: (_, id) => {
       // Remove from cache
-      queryClient.removeQueries({ queryKey: queryKeys.contact(id) });
+      queryClient.removeQueries({ queryKey: queryKeys.contactInteractions(id) });
 
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.contacts });
-      queryClient.invalidateQueries({ queryKey: queryKeys.interactionsByContact(id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.interactions });
 
       toast.success('Contact deleted successfully');
     },
