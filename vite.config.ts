@@ -11,4 +11,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    allowedHosts: [
+      'devserver-main--beaconcounseling.netlify.app',
+    ],
+  },
 });
