@@ -1,6 +1,6 @@
 # Supabase Service Layer
 
-This directory contains the Supabase service layer for the School Counselor Ledger application. The service layer provides a clean abstraction over Supabase operations with built-in error handling, tenant context management, and real-time subscription utilities.
+This directory contains the Supabase service layer for the Beacon application. The service layer provides a clean abstraction over Supabase operations with built-in error handling, tenant context management, and real-time subscription utilities.
 
 ## Files Overview
 

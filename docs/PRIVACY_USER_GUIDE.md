@@ -1,8 +1,8 @@
 # Privacy Features - User Guide
 
-## Quick Start: Understanding Privacy in the School Counselor Ledger
+## Quick Start: Understanding Privacy in the Beacon
 
-The School Counselor Ledger is designed to protect the privacy of your counseling interactions while still allowing you to collaborate effectively with colleagues. This guide explains what you need to know about privacy features.
+The Beacon is designed to protect the privacy of your counseling interactions while still allowing you to collaborate effectively with colleagues. This guide explains what you need to know about privacy features.
 
 ## 🔒 What's Private vs. 👥 What's Shared
 
@@ -408,4 +408,4 @@ A: Contact your administrator for your school's data retention policy.
 - **Stay Informed** - Keep up with privacy training and policy updates
 - **Ask Questions** - Contact your administrator if you're unsure about privacy rules
 
-The privacy features in the School Counselor Ledger are designed to protect sensitive information while enabling effective collaboration. By understanding and following these guidelines, you help maintain a secure and compliant environment for all users.
+The privacy features in the Beacon are designed to protect sensitive information while enabling effective collaboration. By understanding and following these guidelines, you help maintain a secure and compliant environment for all users.

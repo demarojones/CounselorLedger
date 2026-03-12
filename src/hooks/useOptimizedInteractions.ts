@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   fetchOptimizedInteractions,
@@ -23,9 +23,6 @@ import {
   warmInteractionCache,
   prefetchCommonData,
 } from '@/utils/privacyAwareCache';
-import { toast } from '@/utils/toast';
-import { handleApiError } from '@/utils/errorHandling';
-import type { Interaction } from '@/types/interaction';
 
 // ============================================================================
 // OPTIMIZED INTERACTIONS QUERY
@@ -47,7 +44,8 @@ interface UseOptimizedInteractionsOptions {
  */
 export function useOptimizedInteractions(options: UseOptimizedInteractionsOptions = {}) {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  // queryClient is available for future use
+  // const queryClient = useQueryClient();
 
   const userContext = user
     ? {
@@ -105,7 +103,7 @@ export function useInfiniteInteractions(
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.data) return undefined;
-      const { interactions, totalCount } = lastPage.data;
+      const { totalCount } = lastPage.data;
       const loadedCount = allPages.reduce(
         (sum, page) => sum + (page.data?.interactions.length || 0),
         0

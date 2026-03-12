@@ -558,7 +558,7 @@ class EmailService {
    * Get the application name from environment
    */
   private getAppName(): string {
-    return import.meta.env.VITE_APP_NAME || 'School Counselor Ledger';
+    return import.meta.env.VITE_APP_NAME || 'Beacon';
   }
 
   /**

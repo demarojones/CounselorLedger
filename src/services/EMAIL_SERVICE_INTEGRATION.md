@@ -2,7 +2,7 @@
 
 ## Overview
 
-The EmailService has been successfully integrated into the School Counselor Ledger application to handle secure email delivery for invitation and setup emails. This document outlines the implementation and integration details.
+The EmailService has been successfully integrated into the Beacon application to handle secure email delivery for invitation and setup emails. This document outlines the implementation and integration details.
 
 ## Features Implemented
 

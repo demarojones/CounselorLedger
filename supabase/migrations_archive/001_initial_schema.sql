@@ -1,4 +1,4 @@
--- Initial Schema Migration for School Counselor Ledger
+-- Initial Schema Migration for Beacon
 -- This migration creates the core database structure for multi-tenant counseling management
 
 -- Enable UUID extension

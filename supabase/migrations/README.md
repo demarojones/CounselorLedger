@@ -1,6 +1,6 @@
 # Supabase Migrations
 
-Consolidated migration files for the School Counselor Ledger application.
+Consolidated migration files for the Beacon application.
 
 ## Migration Files
 

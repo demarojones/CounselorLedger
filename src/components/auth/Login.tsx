@@ -10,8 +10,8 @@ import { z } from 'zod';
 export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+  const currentYear = new Date().getFullYear();
   const { login, isLoading, error: authError, clearError } = useAuth();
-
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -21,6 +21,11 @@ export function Login() {
     email?: string;
     password?: string;
   }>({});
+
+  // Clear any auth errors when component mounts (e.g., "no session" errors)
+  React.useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -86,8 +91,8 @@ export function Login() {
         
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-8">
-            <img src="/counselor_ledger_logo.svg" alt="Counselor Ledger" className="w-12 h-12" />
-            <span className="text-2xl font-bold text-white">School Counselor Ledger</span>
+            <img src="/counselor_ledger_logo.svg" alt="Beacon" className="w-12 h-12" />
+            <span className="text-2xl font-bold text-white">Beacon</span>
           </div>
           <div className="space-y-6 text-white/90">
             <h1 className="text-4xl font-bold leading-tight text-white">
@@ -135,7 +140,7 @@ export function Login() {
         </div>
         
         <div className="relative z-10 text-white/60 text-sm">
-          © 2024 School Counselor Ledger. All rights reserved.
+          © {currentYear} Beacon. All rights reserved.
         </div>
       </div>
 
@@ -144,7 +149,7 @@ export function Login() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex justify-center mb-8">
-            <img src="/counselor_ledger_logo.svg" alt="Counselor Ledger" className="w-16 h-16" />
+            <img src="/counselor_ledger_logo.svg" alt="Beacon" className="w-16 h-16" />
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
@@ -269,7 +274,7 @@ export function Login() {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">New to Counselor Ledger?</span>
+              <span className="px-4 bg-white text-gray-500">New to Beacon?</span>
             </div>
           </div>
 

@@ -2,11 +2,11 @@
 
 ## Introduction
 
-The School Counselor Ledger application requires enhanced data access controls to ensure that counselor interactions remain private to the counselor who created them, while still allowing appropriate sharing of student and contact information within the same tenant. This feature implements role-based data access controls that maintain counselor privacy while supporting collaborative student support within schools.
+The Beacon application requires enhanced data access controls to ensure that counselor interactions remain private to the counselor who created them, while still allowing appropriate sharing of student and contact information within the same tenant. This feature implements role-based data access controls that maintain counselor privacy while supporting collaborative student support within schools.
 
 ## Glossary
 
-- **System**: The School Counselor Ledger application
+- **System**: The Beacon application
 - **Counselor_User**: A user with counselor privileges who creates and manages student interactions
 - **Interaction**: A recorded session between a counselor and a student or contact
 - **Tenant**: A school or district organization using the system

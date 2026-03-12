@@ -363,7 +363,7 @@ export function optimizeQueryClient(): void {
   });
 
   // Log optimization results in development
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     const newQueryCount = cache.getAll().length;
     console.log(`Query cache optimized: ${queries.length} → ${newQueryCount} queries`);
   }

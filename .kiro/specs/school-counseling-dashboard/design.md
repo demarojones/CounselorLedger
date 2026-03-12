@@ -1,8 +1,8 @@
-# Design Document: School Counselor Ledger
+# Design Document: Beacon
 
 ## Overview
 
-The School Counselor Ledger is a multi-tenant SaaS application built with a modern web stack. The system uses a three-tier architecture with a React-based frontend, Node.js/Express backend API, and PostgreSQL database. The application emphasizes security, scalability, and user experience with role-based access control, real-time data updates, and responsive design.
+The Beacon is a multi-tenant SaaS application built with a modern web stack. The system uses a three-tier architecture with a React-based frontend, Node.js/Express backend API, and PostgreSQL database. The application emphasizes security, scalability, and user experience with role-based access control, real-time data updates, and responsive design.
 
 ### Technology Stack
 

@@ -114,10 +114,10 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
             {showLabels ? (
               <>
                 <div className="flex items-center gap-3">
-                  <img src="/counselor_ledger_logo.svg" alt="Counselor Ledger" className="w-10 h-10" />
+                  <img src="/counselor_ledger_logo.svg" alt="Beacon" className="w-10 h-10" />
                   <div>
-                    <h1 className="font-bold text-white text-lg leading-tight">Counselor</h1>
-                    <p className="text-xs text-white font-medium">Ledger</p>
+                    <h1 className="font-bold text-white text-lg leading-tight">Beacon</h1>
+                    <p className="text-xs text-white font-medium">Counseling Platform</p>
                   </div>
                 </div>
                 {isMobile && (
@@ -131,7 +131,7 @@ export function Sidebar({ isOpen, isCollapsed, isMobile, onClose }: SidebarProps
                 )}
               </>
             ) : (
-              <img src="/counselor_ledger_logo.svg" alt="Counselor Ledger" className="w-10 h-10" />
+              <img src="/counselor_ledger_logo.svg" alt="Beacon" className="w-10 h-10" />
             )}
           </div>
 

@@ -10,13 +10,11 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { QueryClient } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
-import { createOptimizedQueryClient, getQueryClientMetrics } from '@/lib/optimizedQueryClient';
+import { createOptimizedQueryClient } from '@/lib/optimizedQueryClient';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import {
   generatePrivacyCacheKey,
   validateCachePrivacy,
-  getCacheMetrics,
 } from '@/utils/privacyAwareCache';
 import {
   fetchOptimizedInteractions,

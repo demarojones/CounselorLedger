@@ -190,7 +190,7 @@ export async function fetchOptimizedInteractions(
       };
     }
 
-    const interactions = (data || []).map(convertInteractionFromDb);
+    const interactions = (data || []).map(item => convertInteractionFromDb(item as InteractionDbResponse));
 
     // Log bulk interaction access for audit trail (async to not block response)
     if (interactions.length > 0) {
@@ -278,7 +278,7 @@ export async function fetchOptimizedStudentInteractions(
       };
     }
 
-    const interactions = (data || []).map(convertInteractionFromDb);
+    const interactions = (data || []).map(item => convertInteractionFromDb(item as InteractionDbResponse));
     return { data: interactions, error: null };
   } catch (error) {
     return {
@@ -337,7 +337,7 @@ export async function fetchOptimizedContactInteractions(
       };
     }
 
-    const interactions = (data || []).map(convertInteractionFromDb);
+    const interactions = (data || []).map(item => convertInteractionFromDb(item as InteractionDbResponse));
     return { data: interactions, error: null };
   } catch (error) {
     return {
@@ -385,7 +385,7 @@ export async function fetchStudentsMinimal(): Promise<SupabaseResponse<Student[]
       };
     }
 
-    const students = (data || []).map(convertStudentFromDb);
+    const students = (data || []).map(item => convertStudentFromDb(item as StudentDbResponse));
     return { data: students, error: null };
   } catch (error) {
     return {
@@ -429,7 +429,7 @@ export async function fetchContactsMinimal(): Promise<SupabaseResponse<Contact[]
       };
     }
 
-    const contacts = (data || []).map(convertContactFromDb);
+    const contacts = (data || []).map(item => convertContactFromDb(item as ContactDbResponse));
     return { data: contacts, error: null };
   } catch (error) {
     return {

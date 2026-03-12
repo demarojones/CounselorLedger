@@ -2,7 +2,7 @@
 
 ## Overview
 
-The School Counselor Ledger implements comprehensive privacy controls to ensure that counselor interactions remain private to the counselor who created them, while still allowing appropriate sharing of student and contact information within the same tenant (school). This document outlines how these privacy controls work and how they protect sensitive counseling data.
+The Beacon implements comprehensive privacy controls to ensure that counselor interactions remain private to the counselor who created them, while still allowing appropriate sharing of student and contact information within the same tenant (school). This document outlines how these privacy controls work and how they protect sensitive counseling data.
 
 ## Privacy Architecture
 
@@ -421,7 +421,7 @@ To suggest improvements or report issues:
 
 ## Summary
 
-The School Counselor Ledger's privacy controls provide:
+The Beacon's privacy controls provide:
 
 - **Complete Interaction Privacy** - Counselors' interactions remain private
 - **Collaborative Student Support** - Shared student/contact information

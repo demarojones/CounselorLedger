@@ -13,7 +13,6 @@ import {
   completeFollowUp,
   bulkUpdateInteractions,
   bulkDeleteInteractions,
-  bulkCompleteFollowUps,
 } from '../api';
 import { supabase } from '../supabase';
 

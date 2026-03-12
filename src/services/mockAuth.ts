@@ -1,8 +1,8 @@
 import type { User } from '../types/user';
 import type { LoginCredentials, RegisterCredentials, AuthResponse, RegisterResponse } from './auth';
+import { getMockData } from '../mocks/data/seedData';
 
 // Simple in-memory user storage for development
-const MOCK_USERS_KEY = 'mock_users';
 const MOCK_SESSION_KEY = 'mock_session';
 
 interface MockUser {
@@ -18,52 +18,37 @@ interface MockUser {
   updatedAt: string;
 }
 
-// Default tenant ID for simplified setup
-const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000001';
-
-// Initialize with some default users if none exist
-function initializeMockUsers() {
-  const existingUsers = localStorage.getItem(MOCK_USERS_KEY);
-  if (!existingUsers) {
-    const defaultUsers: MockUser[] = [
-      {
-        id: '1',
-        email: 'admin@school.edu',
-        password: 'password123',
-        firstName: 'Admin',
-        lastName: 'User',
-        role: 'ADMIN',
-        tenantId: DEFAULT_TENANT_ID,
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: '2',
-        email: 'counselor@school.edu',
-        password: 'password123',
-        firstName: 'Eleanor',
-        lastName: 'Jones',
-        role: 'COUNSELOR',
-        tenantId: DEFAULT_TENANT_ID,
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ];
-    localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(defaultUsers));
-  }
-}
-
+// Get users from seed data instead of separate localStorage
 function getMockUsers(): MockUser[] {
-  initializeMockUsers();
-  const users = localStorage.getItem(MOCK_USERS_KEY);
-  return users ? JSON.parse(users) : [];
+  console.log('🔍 getMockUsers called');
+  const mockData = getMockData();
+  console.log('📦 Mock data loaded, users count:', mockData.users?.length || 0);
+  
+  if (!mockData.users || mockData.users.length === 0) {
+    console.error('❌ No users found in mock data!');
+    return [];
+  }
+  
+  // Convert seed data users to MockUser format
+  // In mock mode, any password is accepted
+  const users = mockData.users.map(u => ({
+    id: u.id,
+    email: u.email,
+    password: 'any', // Accept any password in mock mode
+    firstName: u.firstName,
+    lastName: u.lastName,
+    role: u.role,
+    tenantId: u.tenantId,
+    isActive: u.isActive,
+    createdAt: u.createdAt,
+    updatedAt: u.updatedAt,
+  }));
+  
+  console.log('✅ Converted users:', users.map(u => u.email));
+  return users;
 }
 
-function saveMockUsers(users: MockUser[]) {
-  localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
-}
+// Note: We don't save users in mock mode, they come from seed data
 
 function transformMockUser(mockUser: MockUser): User {
   return {
@@ -86,55 +71,48 @@ export async function mockRegisterUser(
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   const users = getMockUsers();
-  console.log('Mock registration attempt:', credentials.email);
+  console.log('🔐 Mock registration attempt:', credentials.email);
 
   // Check if user already exists
   if (users.find(user => user.email === credentials.email)) {
-    console.log('User already exists:', credentials.email);
+    console.log('❌ User already exists:', credentials.email);
     return {
       success: false,
       error: 'User with this email already exists',
     };
   }
 
-  // Create new user
-  const newUser: MockUser = {
-    id: Date.now().toString(),
-    email: credentials.email,
-    password: credentials.password,
-    firstName: credentials.firstName,
-    lastName: credentials.lastName,
-    role: credentials.role,
-    tenantId: credentials.tenantId || DEFAULT_TENANT_ID,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+  // In mock mode, we can't actually add users to seed data
+  // Just simulate success
+  console.log('✅ Mock registration successful (simulated):', credentials.email);
+  console.log('⚠️  Note: New users are not persisted in mock mode. Use existing seed data users.');
+
+  return { 
+    success: false,
+    error: 'Registration is disabled in mock mode. Please use existing test accounts.' 
   };
-
-  users.push(newUser);
-  saveMockUsers(users);
-  console.log('New user created:', newUser.email, 'ID:', newUser.id);
-
-  return { success: true };
 }
 
 export async function mockSignIn(credentials: LoginCredentials): Promise<AuthResponse> {
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 800));
 
+  console.log('🔐 Mock sign in attempt:', credentials.email);
+  console.log('🔍 Checking VITE_USE_MOCK_DATA:', import.meta.env.VITE_USE_MOCK_DATA);
+  
   const users = getMockUsers();
-  console.log('Mock sign in attempt:', credentials.email);
+  console.log('📊 Total users loaded:', users.length);
   console.log(
-    'Available users:',
-    users.map(u => ({ email: u.email, id: u.id }))
+    '📋 Available users:',
+    users.map(u => ({ email: u.email, role: u.role }))
   );
 
-  const user = users.find(
-    u => u.email === credentials.email && u.password === credentials.password
-  );
+  // In mock mode, accept any password - just check if email exists
+  const user = users.find(u => u.email === credentials.email);
 
   if (!user) {
-    console.log('User not found or password mismatch');
+    console.log('❌ User not found:', credentials.email);
+    console.log('💡 Available emails:', users.map(u => u.email).join(', '));
     return {
       user: null,
       error: {
@@ -148,6 +126,7 @@ export async function mockSignIn(credentials: LoginCredentials): Promise<AuthRes
   }
 
   if (!user.isActive) {
+    console.log('❌ Account is inactive:', credentials.email);
     return {
       user: null,
       error: {
@@ -167,7 +146,7 @@ export async function mockSignIn(credentials: LoginCredentials): Promise<AuthRes
     expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
   };
   localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(session));
-  console.log('Mock session created for user:', user.email);
+  console.log('✅ Mock session created for user:', user.email, `(${user.role})`);
 
   return {
     user: transformMockUser(user),

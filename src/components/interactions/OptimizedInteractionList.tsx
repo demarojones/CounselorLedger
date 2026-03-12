@@ -10,7 +10,8 @@
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { FixedSizeList as List } from 'react-window';
+// TODO: Install react-window package for virtual scrolling
+// import { FixedSizeList as List } from 'react-window';
 import {
   Table,
   TableBody,
@@ -552,14 +553,29 @@ export function OptimizedInteractionList({
           {/* Virtualized or Regular Table Body */}
           {enableVirtualization && filteredInteractions.length > 20 ? (
             <div style={{ height: maxHeight, overflow: 'auto' }}>
+              {/* TODO: Uncomment when react-window is installed
               <List
                 height={maxHeight}
                 itemCount={filteredInteractions.length}
-                itemSize={60} // Approximate row height
+                itemSize={60}
                 itemData={virtualizedData}
               >
                 {VirtualizedInteractionItem}
               </List>
+              */}
+              {/* Fallback to regular rendering */}
+              <Table>
+                <TableBody>
+                  {filteredInteractions.map(interaction => (
+                    <InteractionRow
+                      key={interaction.id}
+                      interaction={interaction}
+                      onView={onView}
+                      onEdit={onEdit}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           ) : (
             <Table>

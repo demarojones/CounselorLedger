@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 export function Register() {
   const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
@@ -89,8 +90,8 @@ export function Register() {
         
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-8">
-            <img src="/counselor_ledger_logo.svg" alt="Counselor Ledger" className="w-12 h-12" />
-            <span className="text-2xl font-bold text-white">School Counselor Ledger</span>
+            <img src="/counselor_ledger_logo.svg" alt="Beacon" className="w-12 h-12" />
+            <span className="text-2xl font-bold text-white">Beacon</span>
           </div>
           <div className="space-y-6 text-white/90">
             <h1 className="text-4xl font-bold leading-tight text-white">
@@ -138,7 +139,7 @@ export function Register() {
         </div>
         
         <div className="relative z-10 text-white/60 text-sm">
-          © 2024 School Counselor Ledger. All rights reserved.
+          © {currentYear} Beacon. All rights reserved.
         </div>
       </div>
 
@@ -147,7 +148,7 @@ export function Register() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex justify-center mb-8">
-            <img src="/counselor_ledger_logo.svg" alt="Counselor Ledger" className="w-16 h-16" />
+            <img src="/counselor_ledger_logo.svg" alt="Beacon" className="w-16 h-16" />
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">

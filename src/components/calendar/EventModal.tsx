@@ -36,19 +36,19 @@ export function EventModal({
   const initialData: Partial<InteractionFormData> | undefined = interaction
     ? {
         type: interaction.studentId ? 'student' : 'contact',
-        studentId: interaction.studentId,
-        contactId: interaction.contactId,
+        studentId: interaction.studentId ?? undefined,
+        contactId: interaction.contactId ?? undefined,
         categoryId: interaction.categoryId,
-        subcategoryId: interaction.subcategoryId,
-        customReason: interaction.customReason,
+        subcategoryId: interaction.subcategoryId ?? undefined,
+        customReason: interaction.customReason ?? undefined,
         startTime: new Date(interaction.startTime).toISOString().slice(0, 16),
         durationMinutes: interaction.durationMinutes,
-        notes: interaction.notes,
+        notes: interaction.notes ?? undefined,
         needsFollowUp: interaction.needsFollowUp,
         followUpDate: interaction.followUpDate
           ? new Date(interaction.followUpDate).toISOString().slice(0, 10)
           : undefined,
-        followUpNotes: interaction.followUpNotes,
+        followUpNotes: interaction.followUpNotes ?? undefined,
       }
     : prefilledDate
       ? {

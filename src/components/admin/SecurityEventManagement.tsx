@@ -45,6 +45,18 @@ const EVENT_TYPE_LABELS: Record<SecurityEventType, string> = {
   TOKEN_MANIPULATION: 'Token Manipulation',
   DUPLICATE_EMAIL_ATTEMPT: 'Duplicate Email Attempt',
   INVALID_TOKEN_ACCESS: 'Invalid Token Access',
+  INTERACTION_ACCESS: 'Interaction Access',
+  INTERACTION_CREATE: 'Interaction Create',
+  INTERACTION_UPDATE: 'Interaction Update',
+  INTERACTION_DELETE: 'Interaction Delete',
+  INTERACTION_BULK_ACCESS: 'Interaction Bulk Access',
+  PRIVACY_VIOLATION_ATTEMPT: 'Privacy Violation Attempt',
+  UNAUTHORIZED_INTERACTION_ACCESS: 'Unauthorized Interaction Access',
+  CROSS_COUNSELOR_ACCESS_DENIED: 'Cross Counselor Access Denied',
+  ADMIN_AGGREGATED_ACCESS: 'Admin Aggregated Access',
+  INTERACTION_SEARCH: 'Interaction Search',
+  STUDENT_INTERACTION_HISTORY_ACCESS: 'Student Interaction History Access',
+  CONTACT_INTERACTION_HISTORY_ACCESS: 'Contact Interaction History Access',
 };
 
 const SEVERITY_COLORS: Record<SecurityEventSeverity, string> = {

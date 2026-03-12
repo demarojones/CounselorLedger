@@ -1,6 +1,6 @@
 # Authentication System
 
-This directory contains the authentication components for the School Counselor Ledger application.
+This directory contains the authentication components for the Beacon application.
 
 ## Components
 

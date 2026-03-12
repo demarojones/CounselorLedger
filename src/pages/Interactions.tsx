@@ -45,7 +45,7 @@ export function Interactions() {
     setIsFormOpen(true);
   };
 
-  const handleStudentAdded = (newStudent: Student) => {
+  const handleStudentAdded = (_newStudent: Student) => {
     // Refresh the interactions data to get the updated student list
     refreshInteractions();
   };
@@ -145,19 +145,19 @@ export function Interactions() {
   const getInitialFormData = (interaction: Interaction): Partial<InteractionFormData> => {
     return {
       type: interaction.studentId ? 'student' : 'contact',
-      studentId: interaction.studentId,
-      contactId: interaction.contactId,
+      studentId: interaction.studentId ?? undefined,
+      contactId: interaction.contactId ?? undefined,
       categoryId: interaction.categoryId,
-      subcategoryId: interaction.subcategoryId,
-      customReason: interaction.customReason,
+      subcategoryId: interaction.subcategoryId ?? undefined,
+      customReason: interaction.customReason ?? undefined,
       startTime: new Date(interaction.startTime).toISOString().slice(0, 16),
       durationMinutes: interaction.durationMinutes,
-      notes: interaction.notes,
+      notes: interaction.notes ?? undefined,
       needsFollowUp: interaction.needsFollowUp,
       followUpDate: interaction.followUpDate
         ? new Date(interaction.followUpDate).toISOString().split('T')[0]
         : undefined,
-      followUpNotes: interaction.followUpNotes,
+      followUpNotes: interaction.followUpNotes ?? undefined,
     };
   };
 

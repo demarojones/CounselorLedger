@@ -43,7 +43,14 @@ export interface SessionData {
  */
 async function getApplicationUser(authUserId: string): Promise<User | null> {
   try {
-    const { data, error } = await supabase
+    console.log('📊 Fetching user data from database for ID:', authUserId);
+    
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Database query timeout')), 5000);
+    });
+
+    const queryPromise = supabase
       .from('users')
       .select(
         `
@@ -61,10 +68,19 @@ async function getApplicationUser(authUserId: string): Promise<User | null> {
       .eq('id', authUserId)
       .single();
 
-    if (error || !data) {
+    const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+
+    if (error) {
+      console.error('❌ Database error fetching user:', error);
       return null;
     }
 
+    if (!data) {
+      console.warn('⚠️ No user data found in database for ID:', authUserId);
+      return null;
+    }
+
+    console.log('✅ User data fetched successfully');
     return {
       id: data.id,
       email: data.email,
@@ -77,7 +93,7 @@ async function getApplicationUser(authUserId: string): Promise<User | null> {
       updatedAt: new Date(data.updated_at),
     };
   } catch (error) {
-    console.error('Error fetching application user:', error);
+    console.error('❌ Error fetching application user:', error);
     return null;
   }
 }
@@ -269,16 +285,20 @@ export async function getCurrentUser(): Promise<AuthResponse> {
   }
 
   try {
+    console.log('🔍 Getting current user from Supabase...');
     const { data, error } = await supabase.auth.getUser();
 
     if (error) {
+      console.error('❌ Supabase auth error:', error);
       return { user: null, error };
     }
 
     if (!data.user) {
+      console.log('ℹ️ No authenticated user found');
       return { user: null, error: null };
     }
 
+    console.log('👤 Supabase user found, transforming to app user...');
     const user = await transformSupabaseUser(
       data.user as {
         id: string;
@@ -288,8 +308,11 @@ export async function getCurrentUser(): Promise<AuthResponse> {
         user_metadata?: Record<string, unknown>;
       }
     );
+    
+    console.log('✅ User transformation complete');
     return { user, error: null };
   } catch (error) {
+    console.error('❌ Unexpected error in getCurrentUser:', error);
     return {
       user: null,
       error: {

@@ -13,7 +13,7 @@ import {
   ExternalLink,
   Trash2,
 } from 'lucide-react';
-import type { Notification, NotificationPriority } from '@/types/notification';
+import type { Notification } from '@/types/notification';
 
 interface NotificationDropdownProps {
   notifications: Notification[];

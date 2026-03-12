@@ -120,7 +120,7 @@ export function useIsPrivacyError(errorCode?: string): boolean {
     ErrorCodes.TENANT_ACCESS_DENIED,
   ];
 
-  return errorCode ? privacyErrorCodes.includes(errorCode) : false;
+  return errorCode ? privacyErrorCodes.includes(errorCode as typeof privacyErrorCodes[number]) : false;
 }
 
 /**

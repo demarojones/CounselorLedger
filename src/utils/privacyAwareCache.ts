@@ -73,7 +73,12 @@ export const privacyAwareQueryKeys = {
     userContext: { userId: string; tenantId: string; role: 'ADMIN' | 'COUNSELOR' },
     startDate?: string,
     endDate?: string
-  ) => generatePrivacyCacheKey(queryKeys.dashboardStats(startDate, endDate), userContext),
+  ) => {
+    const baseKey = queryKeys.dashboardStats(startDate, endDate);
+    // Filter out undefined values
+    const filteredKey = baseKey.filter((k): k is string => k !== undefined);
+    return generatePrivacyCacheKey(filteredKey, userContext);
+  },
 
   // Follow-ups (counselor-scoped)
   followUps: (userContext: { userId: string; tenantId: string; role: 'ADMIN' | 'COUNSELOR' }) =>

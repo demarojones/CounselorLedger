@@ -1,6 +1,6 @@
-# School Counselor Ledger - Documentation
+# Beacon - Documentation
 
-Welcome to the School Counselor Ledger documentation! This directory contains comprehensive guides for developers and users.
+Welcome to the Beacon documentation! This directory contains comprehensive guides for developers and users.
 
 ## Documentation Index
 

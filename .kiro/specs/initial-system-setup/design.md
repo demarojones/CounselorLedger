@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Initial System Setup and User Onboarding feature addresses the critical gap in the current School Counselor Ledger application where no mechanism exists for initial admin registration. This design implements a secure, multi-step onboarding process that enables schools and districts to establish their tenant, create their first admin user, and subsequently invite additional users through a robust invitation system.
+The Initial System Setup and User Onboarding feature addresses the critical gap in the current Beacon application where no mechanism exists for initial admin registration. This design implements a secure, multi-step onboarding process that enables schools and districts to establish their tenant, create their first admin user, and subsequently invite additional users through a robust invitation system.
 
 The solution maintains the existing multi-tenant architecture while adding secure token-based flows for initial setup and user invitations. It integrates with Supabase Auth for user authentication while extending the application's user management capabilities.
 

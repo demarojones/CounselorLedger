@@ -1,6 +1,6 @@
 # Component Documentation
 
-This document provides detailed information about the key components in the School Counselor Ledger application.
+This document provides detailed information about the key components in the Beacon application.
 
 ## Table of Contents
 

@@ -2,11 +2,11 @@
 
 ## Introduction
 
-The School Counselor Ledger application currently has a chicken-and-egg problem where admin users are required to create new users, but there is no mechanism for the initial admin user to register themselves. This feature addresses the complete initial system setup and user onboarding workflow, enabling schools and districts to get started with the application seamlessly while maintaining security and proper tenant isolation.
+The Beacon application currently has a chicken-and-egg problem where admin users are required to create new users, but there is no mechanism for the initial admin user to register themselves. This feature addresses the complete initial system setup and user onboarding workflow, enabling schools and districts to get started with the application seamlessly while maintaining security and proper tenant isolation.
 
 ## Glossary
 
-- **System**: The School Counselor Ledger application
+- **System**: The Beacon application
 - **Tenant**: A school or district organization using the system
 - **Admin_User**: A user with administrative privileges who can manage other users
 - **Counselor_User**: A user with counselor privileges who can manage student interactions

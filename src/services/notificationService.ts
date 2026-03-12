@@ -46,7 +46,7 @@ export function generateNotifications(
         message: `Follow-up ${daysDiff < 0 ? 'overdue' : 'due'} for ${studentName}${daysDiff < 0 ? ` (${Math.abs(daysDiff)} days ago)` : daysDiff === 0 ? ' today' : ` in ${daysDiff} days`}`,
         actionUrl: `/students/${interaction.studentId}`,
         actionLabel: 'View Student',
-        relatedId: interaction.studentId,
+        relatedId: interaction.studentId ?? undefined,
         relatedType: 'student',
         isRead: false,
         createdAt: now,

@@ -17,7 +17,6 @@ import {
   logInteractionAccess,
   logPrivacyViolation,
   logBulkInteractionAccess,
-  logInteractionSearch,
 } from './auditService';
 import type { Student, StudentDbResponse } from '@/types/student';
 import type { Contact, ContactDbResponse } from '@/types/contact';
@@ -32,7 +31,7 @@ import type { Interaction, InteractionFormData, InteractionDbResponse } from '@/
  */
 async function validateInteractionAccess(
   interactionId: string,
-  operation: 'read' | 'update' | 'delete',
+  _operation: 'read' | 'update' | 'delete',
   context?: TenantContext
 ): Promise<{ isValid: boolean; error?: SupabaseResponse<null>['error'] }> {
   try {
@@ -111,7 +110,7 @@ async function validateInteractionAccess(
  */
 async function validateBulkInteractionAccess(
   interactionIds: string[],
-  operation: 'read' | 'update' | 'delete',
+  _operation: 'read' | 'update' | 'delete',
   context?: TenantContext
 ): Promise<{ isValid: boolean; error?: SupabaseResponse<null>['error']; invalidIds?: string[] }> {
   try {

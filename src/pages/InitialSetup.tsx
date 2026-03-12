@@ -28,8 +28,6 @@ function InitialSetupContent() {
   const { cachedValidation, cacheValidation, handleNavigation, clearSession } = useTokenPersistence(
     {
       token,
-      type: 'setup',
-      autoUpdateOnNavigation: true,
       clearOnUnmount: true,
     }
   );
@@ -204,7 +202,7 @@ function InitialSetupContent() {
         return;
       }
 
-      toast.success('Setup completed successfully! Welcome to School Counselor Ledger.');
+      toast.success('Setup completed successfully! Welcome to Beacon.');
 
       // Clear session data after successful setup
       clearSession();

@@ -175,90 +175,122 @@ export function StudentFormModal({ open, onOpenChange, student, onSuccess }: Stu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Student' : 'Add New Student'}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
+        <DialogHeader className="space-y-3 pb-4 border-b">
+          <DialogTitle className="text-2xl font-semibold tracking-tight">
+            {isEditing ? 'Edit Student' : 'Add New Student'}
+          </DialogTitle>
+          <DialogDescription className="text-base text-muted-foreground">
             {isEditing
               ? "Update the student's information below. Fields marked with * are required."
               : "Enter the student's information below. Fields marked with * are required."}
           </DialogDescription>
         </DialogHeader>
 
-        <DialogBody>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <FormInput
-              label="Student ID"
-              placeholder="e.g., S12345"
-              value={formData.studentId}
-              onChange={e => handleChange('studentId', e.target.value)}
-              error={errors.studentId}
-              required
-            />
-
-            <div className="grid grid-cols-2 gap-4">
+        <DialogBody className="overflow-y-auto">
+          <form onSubmit={handleSubmit} className="space-y-6 py-2">
+            {/* Student ID - Full Width */}
+            <div className="space-y-1.5">
               <FormInput
-                label="First Name"
-                placeholder="John"
-                value={formData.firstName}
-                onChange={e => handleChange('firstName', e.target.value)}
-                error={errors.firstName}
-                required
-              />
-
-              <FormInput
-                label="Last Name"
-                placeholder="Doe"
-                value={formData.lastName}
-                onChange={e => handleChange('lastName', e.target.value)}
-                error={errors.lastName}
+                label="Student ID"
+                placeholder="e.g., S12345"
+                value={formData.studentId}
+                onChange={e => handleChange('studentId', e.target.value)}
+                error={errors.studentId}
                 required
               />
             </div>
 
-            <FormSelect
-              label="Grade Level"
-              value={formData.gradeLevel}
-              onChange={e => handleChange('gradeLevel', e.target.value)}
-              error={errors.gradeLevel}
-              required
-            >
-              <option value="">Select grade level</option>
-              <option value="9">9th Grade</option>
-              <option value="10">10th Grade</option>
-              <option value="11">11th Grade</option>
-              <option value="12">12th Grade</option>
-            </FormSelect>
+            {/* Name Fields - Side by Side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <FormInput
+                  label="First Name"
+                  placeholder="John"
+                  value={formData.firstName}
+                  onChange={e => handleChange('firstName', e.target.value)}
+                  error={errors.firstName}
+                  required
+                />
+              </div>
 
-            <FormInput
-              label="Email"
-              type="email"
-              placeholder="student@school.edu"
-              value={formData.email}
-              onChange={e => handleChange('email', e.target.value)}
-              error={errors.email}
-            />
+              <div className="space-y-1.5">
+                <FormInput
+                  label="Last Name"
+                  placeholder="Doe"
+                  value={formData.lastName}
+                  onChange={e => handleChange('lastName', e.target.value)}
+                  error={errors.lastName}
+                  required
+                />
+              </div>
+            </div>
 
-            <FormInput
-              label="Phone"
-              type="tel"
-              placeholder="(555) 123-4567"
-              value={formData.phone}
-              onChange={e => handleChange('phone', e.target.value)}
-              error={errors.phone}
-            />
+            {/* Grade Level - Full Width */}
+            <div className="space-y-1.5">
+              <FormSelect
+                label="Grade Level"
+                value={formData.gradeLevel}
+                onChange={e => handleChange('gradeLevel', e.target.value)}
+                error={errors.gradeLevel}
+                required
+              >
+                <option value="">Select grade level</option>
+                <option value="9">9th Grade</option>
+                <option value="10">10th Grade</option>
+                <option value="11">11th Grade</option>
+                <option value="12">12th Grade</option>
+              </FormSelect>
+            </div>
+
+            {/* Contact Information Section */}
+            <div className="pt-4 border-t space-y-4">
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                Contact Information
+              </h3>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <FormInput
+                    label="Email"
+                    type="email"
+                    placeholder="student@school.edu"
+                    value={formData.email}
+                    onChange={e => handleChange('email', e.target.value)}
+                    error={errors.email}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <FormInput
+                    label="Phone"
+                    type="tel"
+                    placeholder="(555) 123-4567"
+                    value={formData.phone}
+                    onChange={e => handleChange('phone', e.target.value)}
+                    error={errors.phone}
+                  />
+                </div>
+              </div>
+            </div>
           </form>
         </DialogBody>
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={handleCancel} disabled={isPending}>
+        <DialogFooter className="pt-4 border-t flex-col-reverse sm:flex-row gap-2">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={handleCancel} 
+            disabled={isPending}
+            className="w-full sm:w-auto transition-all duration-200 hover:bg-muted"
+          >
             Cancel
           </Button>
           <Button 
             type="submit" 
             disabled={isPending}
             onClick={handleSubmit}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200"
+            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isEditing ? 'Update Student' : 'Add Student'}

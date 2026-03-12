@@ -28,8 +28,6 @@ function InvitationAcceptContent() {
   const { cachedValidation, cacheValidation, handleNavigation, clearSession } = useTokenPersistence(
     {
       token,
-      type: 'invitation',
-      autoUpdateOnNavigation: true,
       clearOnUnmount: true,
     }
   );
@@ -191,7 +189,7 @@ function InvitationAcceptContent() {
 
       // Show success message with appropriate feedback about auto-login
       if (result.data.autoLoginSuccess !== false) {
-        toast.success('Account created successfully! Welcome to School Counselor Ledger.');
+        toast.success('Account created successfully! Welcome to Beacon.');
       } else {
         toast.success('Account created successfully! Please log in with your new credentials.');
       }

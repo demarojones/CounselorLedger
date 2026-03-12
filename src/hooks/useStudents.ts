@@ -121,16 +121,60 @@ export function useCreateStudent() {
 
   return useMutation({
     mutationFn: createStudent,
-    onSuccess: newStudent => {
-      // Invalidate students list to refetch
-      queryClient.invalidateQueries({ queryKey: queryKeys.students });
+    onMutate: async newStudentData => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: queryKeys.students });
 
-      // Optimistically add to cache
+      // Snapshot previous value
+      const previousStudents = queryClient.getQueryData<Student[]>(queryKeys.students);
+
+      // Optimistically add new student to the list
+      if (previousStudents) {
+        const optimisticStudent: Student = {
+          id: `temp-${Date.now()}`, // Temporary ID
+          tenantId: '', // Will be set by server
+          ...newStudentData,
+          needsFollowUp: false,
+          followUpNotes: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        queryClient.setQueryData<Student[]>(queryKeys.students, [
+          ...previousStudents,
+          optimisticStudent,
+        ]);
+      }
+
+      return { previousStudents };
+    },
+    onSuccess: (newStudent, _, context) => {
+      // Replace optimistic student with real data from server
+      const previousStudents = context?.previousStudents;
+      
+      if (previousStudents) {
+        // Remove the optimistic entry and add the real one
+        queryClient.setQueryData<Student[]>(queryKeys.students, old => {
+          if (!old) return [newStudent];
+          // Filter out any temp entries and add the real student
+          return [...old.filter(s => !s.id.startsWith('temp-')), newStudent];
+        });
+      } else {
+        // Fallback: just invalidate to refetch
+        queryClient.invalidateQueries({ queryKey: queryKeys.students });
+      }
+
+      // Add to individual student cache
       queryClient.setQueryData(queryKeys.student(newStudent.id), newStudent);
 
       toast.success('Student created successfully');
     },
-    onError: error => {
+    onError: (error, _, context) => {
+      // Rollback on error
+      if (context?.previousStudents) {
+        queryClient.setQueryData(queryKeys.students, context.previousStudents);
+      }
+
       const apiError = handleApiError(error, { customMessage: 'Failed to create student' });
       toast.error(apiError.message);
     },
@@ -202,7 +246,7 @@ export function useDeleteStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (_id: string) => {
       // For now, just throw an error since delete is not implemented in mock mode
       throw new Error('Delete student functionality not implemented in mock mode');
     },

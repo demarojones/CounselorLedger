@@ -6,7 +6,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { fetchInteractions, fetchStudentInteractions, fetchContactInteractions } from '../api';
+import {
+  fetchInteractions,
+  fetchStudentInteractions,
+} from '../api';
 
 // Mock the supabase helpers
 vi.mock('../supabaseHelpers', () => ({

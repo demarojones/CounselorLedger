@@ -87,7 +87,7 @@ class PerformanceMonitor {
     }
 
     // Log slow queries in development
-    if (process.env.NODE_ENV === 'development' && executionTime > this.slowQueryThreshold) {
+    if (import.meta.env.DEV && executionTime > this.slowQueryThreshold) {
       console.warn(`Slow query detected: ${metric.queryKey} (${executionTime}ms)`);
     }
   }
@@ -380,7 +380,7 @@ export function useQueryPerformanceTracker(queryKey: readonly unknown[]) {
  * Log performance report to console (development only)
  */
 export function logPerformanceReport(): void {
-  if (process.env.NODE_ENV !== 'development') return;
+  if (!import.meta.env.DEV) return;
 
   const report = performanceMonitor.generateReport();
 

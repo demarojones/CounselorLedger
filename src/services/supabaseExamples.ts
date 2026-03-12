@@ -2,7 +2,7 @@
  * Supabase Helper Usage Examples
  *
  * This file demonstrates how to use the Supabase helper functions
- * for common operations in the School Counselor Ledger application.
+ * for common operations in the Beacon application.
  *
  * NOTE: This file is for reference only and should not be imported in production code.
  */

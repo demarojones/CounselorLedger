@@ -1,6 +1,6 @@
 # Custom Hooks Documentation
 
-This document provides detailed information about custom React hooks used in the School Counselor Ledger application.
+This document provides detailed information about custom React hooks used in the Beacon application.
 
 ## Table of Contents
 

@@ -441,7 +441,7 @@ export function OptimizedDashboardStats({
       )}
 
       {/* Performance Metrics (Development Only) */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <Card className="border-gray-200 bg-gray-50">
           <CardHeader>
             <CardTitle className="text-xs text-gray-600">Performance Metrics</CardTitle>

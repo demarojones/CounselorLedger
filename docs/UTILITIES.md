@@ -1,6 +1,6 @@
 # Utility Functions Documentation
 
-This document provides detailed information about utility functions used throughout the School Counselor Ledger application.
+This document provides detailed information about utility functions used throughout the Beacon application.
 
 ## Table of Contents
 

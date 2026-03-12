@@ -1,4 +1,4 @@
-# School Counselor Ledger
+# Beacon
 
 A comprehensive multi-tenant application for school counselors to track student interactions, manage contacts, and generate reports with enterprise-grade privacy and security.
 
@@ -13,7 +13,7 @@ A comprehensive multi-tenant application for school counselors to track student 
 ```bash
 # Clone and install
 git clone <repository-url>
-cd counselor-ledger
+cd beacon
 npm install
 
 # Configure environment
@@ -171,7 +171,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_USE_MOCK_DATA=false  # true for mock data, false for Supabase
 
 # Optional
-VITE_APP_NAME=School Counselor Ledger
+VITE_APP_NAME=Beacon
 VITE_SUPPORT_EMAIL=support@example.com
 ```
 

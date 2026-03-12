@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The School Counselor Ledger is a comprehensive SaaS application designed to help schools and school districts manage their counseling operations efficiently. The system provides role-based access for administrators and counselors, enabling them to track student interactions, manage contacts, generate reports, and maintain organized records of counseling activities. The application features a modern, responsive interface with calendar integration, advanced search capabilities, and comprehensive reporting tools.
+Beacon is a comprehensive SaaS application designed to help schools and school districts manage their counseling operations efficiently. The system provides role-based access for administrators and counselors, enabling them to track student interactions, manage contacts, generate reports, and maintain organized records of counseling activities. The application features a modern, responsive interface with calendar integration, advanced search capabilities, and comprehensive reporting tools.
 
 ## Requirements
 

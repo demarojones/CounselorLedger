@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'counselor-ledger-mock-data';
+const STORAGE_KEY = 'beacon-mock-data';
 const STORAGE_VERSION = '1.0';
 
 export interface StoredMockData {

@@ -17,6 +17,12 @@ export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKe
   },
 });
 
+// Expose supabase client for debugging in development
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as any).supabase = supabase;
+  console.log('🔧 Supabase client available at window.supabase');
+}
+
 // Export Supabase types for convenience
 export type { SupabaseUser, AuthError };
 

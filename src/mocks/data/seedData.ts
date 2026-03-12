@@ -44,22 +44,22 @@ function createTenant(name: string, subdomain: string): MockTenant {
 
 function generateSeedData(): MockData {
   // Create tenants
-  const tenant1 = createTenant('Lincoln High School', 'lincoln-hs');
+  const tenant1 = createTenant('Mayfield Elementary School', 'mayfield-el');
   const tenant2 = createTenant('Washington Middle School', 'washington-ms');
 
   const tenants = [tenant1, tenant2];
 
   // Create users for each tenant
   const tenant1Admin = createAdmin(tenant1.id, {
-    email: 'admin@lincoln-hs.edu',
-    firstName: 'Sarah',
-    lastName: 'Johnson',
+    email: 'admin@mayfield.edu',
+    firstName: 'Kadyn',
+    lastName: 'Jones',
   });
 
   const tenant1Counselors = [
     createCounselor(tenant1.id, {
-      email: 'mjones@lincoln-hs.edu',
-      firstName: 'Michael',
+      email: 'counselor@lincoln-hs.edu',
+      firstName: 'Demaro',
       lastName: 'Jones',
     }),
     createCounselor(tenant1.id, {
@@ -144,11 +144,17 @@ function generateSeedData(): MockData {
 let mockDataInstance: MockData | null = null;
 
 export function initializeMockData(): MockData {
+  console.log('🔧 initializeMockData called');
+  
   // Check if data exists in localStorage
   if (hasMockDataInStorage()) {
+    console.log('📂 Found existing data in localStorage');
     const storedData = loadMockDataFromStorage();
     if (storedData) {
       console.log('✅ Loaded mock data from localStorage');
+      console.log('   - Users:', storedData.users?.length || 0);
+      console.log('   - Students:', storedData.students?.length || 0);
+      console.log('   - Interactions:', storedData.interactions?.length || 0);
       mockDataInstance = storedData as MockData;
       return mockDataInstance;
     }
@@ -157,6 +163,8 @@ export function initializeMockData(): MockData {
   // Generate fresh seed data
   console.log('🌱 Generating fresh mock data...');
   mockDataInstance = generateSeedData();
+  console.log('   - Generated users:', mockDataInstance.users.length);
+  console.log('   - User emails:', mockDataInstance.users.map(u => u.email).join(', '));
 
   // Save to localStorage for persistence
   saveMockDataToStorage(mockDataInstance);

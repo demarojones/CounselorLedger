@@ -508,7 +508,7 @@ export function createPrivacyViolationError(
 export function createUnauthorizedAccessError(
   interactionId?: string,
   operation?: string,
-  denialReason?: string
+  _denialReason?: string
 ): AppError {
   // Log the unauthorized access attempt
   logSecurityEvent({

@@ -1,6 +1,6 @@
-# School Counselor Ledger - User Guide
+# Beacon - User Guide
 
-Welcome to the School Counselor Ledger! This guide will help you understand and use the key features of the application.
+Welcome to the Beacon! This guide will help you understand and use the key features of the application.
 
 ## Table of Contents
 

@@ -28,6 +28,7 @@ import './App.css';
 // Import integration verification for development
 import './utils/integrationVerification';
 import './utils/debugAuth';
+import './utils/testConnection';
 
 // Component to handle authenticated user redirects for setup/invitation pages
 function AuthenticatedRedirect({ children }: { children: React.ReactNode }) {

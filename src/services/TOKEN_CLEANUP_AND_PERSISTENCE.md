@@ -1,6 +1,6 @@
 # Token Cleanup and Persistence Implementation
 
-This document describes the implementation of background token cleanup and navigation persistence features for the School Counselor Ledger application.
+This document describes the implementation of background token cleanup and navigation persistence features for the Beacon application.
 
 ## Overview
 
