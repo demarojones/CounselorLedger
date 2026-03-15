@@ -85,9 +85,6 @@ function InitialSetupContent() {
         }));
 
         setIsValidatingToken(false);
-
-        // Update navigation tracking
-        handleNavigation(token, 'setup');
         return;
       }
 
@@ -121,7 +118,7 @@ function InitialSetupContent() {
         });
 
         // Track navigation
-        handleNavigation(token, 'setup');
+        handleNavigation(token);
 
         setIsValidatingToken(false);
       } catch (error) {

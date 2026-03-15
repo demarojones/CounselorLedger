@@ -16,7 +16,7 @@ export function Students() {
 
   // Use React Query hooks instead of local state
   const { data: students = [], isLoading: studentsLoading, error: studentsError } = useStudents();
-  const { data: interactions = [], isLoading: interactionsLoading } = useInteractions();
+  const { interactions = [], isLoading: interactionsLoading } = useInteractions();
 
   const loading = studentsLoading || interactionsLoading;
   const error = studentsError ? (studentsError as Error).message : null;

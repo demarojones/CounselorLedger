@@ -145,7 +145,7 @@ export async function logInteractionAccess(
 export async function logPrivacyViolation(
   resourceType: 'interaction' | 'student' | 'contact',
   resourceId: string,
-  violationType: 'cross_counselor_access' | 'cross_tenant_access' | 'unauthorized_bulk_operation',
+  violationType: 'cross_counselor_access' | 'cross_tenant_access' | 'unauthorized_bulk_operation' | 'bulk_access_violation',
   attemptedOperation: string,
   metadata?: Record<string, any>
 ): Promise<SupabaseResponse<string>> {
@@ -516,7 +516,7 @@ export async function generatePrivacyComplianceReport(
       ) || {};
 
     const mostAccessedResourceType =
-      Object.entries(resourceTypeCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || 'interaction';
+      Object.entries(resourceTypeCounts).sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || 'interaction';
 
     // Calculate top users by access count
     const userAccessCounts =
@@ -539,8 +539,8 @@ export async function generatePrivacyComplianceReport(
     const topUsers = Object.entries(userAccessCounts)
       .map(([userId, counts]) => ({
         userId,
-        accessCount: counts.accessCount,
-        violationCount: counts.violationCount,
+        accessCount: (counts as { accessCount: number; violationCount: number }).accessCount,
+        violationCount: (counts as { accessCount: number; violationCount: number }).violationCount,
       }))
       .sort((a, b) => b.accessCount - a.accessCount)
       .slice(0, 10);

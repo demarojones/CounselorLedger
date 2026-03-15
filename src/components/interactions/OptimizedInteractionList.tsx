@@ -395,15 +395,7 @@ export function OptimizedInteractionList({
     });
   }, []);
 
-  // Virtualization data
-  const virtualizedData = useMemo(
-    () => ({
-      interactions: filteredInteractions,
-      onView,
-      onEdit,
-    }),
-    [filteredInteractions, onView, onEdit]
-  );
+  // Virtualization data is consumed directly via filteredInteractions below
 
   if (isLoading) {
     return (

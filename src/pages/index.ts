@@ -8,3 +8,5 @@ export { Reports } from './Reports';
 export { Admin } from './Admin';
 export { NotFound } from './NotFound';
 export { Unauthorized } from './Unauthorized';
+export { InitialSetup } from './InitialSetup';
+export { InvitationAccept } from './InvitationAccept';

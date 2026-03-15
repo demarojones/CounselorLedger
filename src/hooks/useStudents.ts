@@ -132,7 +132,6 @@ export function useCreateStudent() {
       if (previousStudents) {
         const optimisticStudent: Student = {
           id: `temp-${Date.now()}`, // Temporary ID
-          tenantId: '', // Will be set by server
           ...newStudentData,
           needsFollowUp: false,
           followUpNotes: null,

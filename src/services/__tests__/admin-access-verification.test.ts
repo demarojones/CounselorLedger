@@ -19,12 +19,12 @@ describe('Admin Access Logic Verification', () => {
 
     // Simulate admin access (should see all interactions)
     const adminUserId = 'admin-user';
-    const adminRole = 'ADMIN';
+    const adminRole = 'ADMIN' as string;
 
-    let adminInteractions = allInteractions;
-    if (adminRole === 'COUNSELOR') {
-      adminInteractions = allInteractions.filter(i => i.counselor_id === adminUserId);
-    }
+    // Admin sees all interactions (no counselor filter applied)
+    const adminInteractions = adminRole === 'COUNSELOR'
+      ? allInteractions.filter(i => i.counselor_id === adminUserId)
+      : allInteractions;
 
     expect(adminInteractions).toHaveLength(4);
     expect(adminInteractions.map(i => i.counselor_id)).toEqual([
@@ -101,7 +101,7 @@ describe('Admin Access Logic Verification', () => {
   });
 
   it('should demonstrate student interaction filtering for admin vs counselor', () => {
-    const studentId = 'student-1';
+    // studentId = 'student-1' is the subject of this test scenario
     const allStudentInteractions = [
       {
         id: '1',
@@ -124,13 +124,10 @@ describe('Admin Access Logic Verification', () => {
     ];
 
     // Admin should see all interactions for the student
-    const adminRole = 'ADMIN';
-    let adminStudentInteractions = allStudentInteractions;
-    if (adminRole === 'COUNSELOR') {
-      adminStudentInteractions = allStudentInteractions.filter(
-        i => i.counselor_id === 'admin-user'
-      );
-    }
+    const adminRole = 'ADMIN' as string;
+    const adminStudentInteractions = adminRole === 'COUNSELOR'
+      ? allStudentInteractions.filter(i => i.counselor_id === 'admin-user')
+      : allStudentInteractions;
 
     expect(adminStudentInteractions).toHaveLength(3);
 

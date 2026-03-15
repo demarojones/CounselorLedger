@@ -1,14 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface TokenValidation {
   isValid: boolean;
   tenantId?: string;
   email?: string;
-  token?: string;
+  token?: string;        // the raw token string, stored for cache-hit comparison
   tenantName?: string;
   adminEmail?: string;
-  expiresAt?: string;
+  expiresAt?: Date;      // kept as Date so callers don't need to re-parse
   role?: string;
 }
 
@@ -23,7 +22,6 @@ interface UseTokenPersistenceOptions {
  * Hook for managing token persistence
  */
 export function useTokenPersistence(options?: UseTokenPersistenceOptions) {
-  const navigate = useNavigate();
   const [cachedValidation, setCachedValidation] = useState<TokenValidation | null>(null);
 
   const persistToken = useCallback(() => {
@@ -41,14 +39,17 @@ export function useTokenPersistence(options?: UseTokenPersistenceOptions) {
     return sessionStorage.getItem('setup_token');
   }, []);
 
-  const cacheValidation = useCallback((validation: TokenValidation, _token?: string) => {
-    setCachedValidation(validation);
-    sessionStorage.setItem('token_validation', JSON.stringify(validation));
+  const cacheValidation = useCallback((token: string, validation: Omit<TokenValidation, 'token'>) => {
+    const withToken: TokenValidation = { ...validation, token };
+    setCachedValidation(withToken);
+    sessionStorage.setItem('token_validation', JSON.stringify(withToken));
   }, []);
 
-  const handleNavigation = useCallback((path: string) => {
-    navigate(path);
-  }, [navigate]);
+  // handleNavigation is intentionally a no-op for tracking purposes;
+  // actual navigation is handled by the page itself.
+  const handleNavigation = useCallback((_token: string, _context?: string) => {
+    // no-op — kept for API compatibility
+  }, []);
 
   const clearSession = useCallback(() => {
     clearToken();
@@ -60,7 +61,12 @@ export function useTokenPersistence(options?: UseTokenPersistenceOptions) {
     const cached = sessionStorage.getItem('token_validation');
     if (cached) {
       try {
-        setCachedValidation(JSON.parse(cached));
+        const parsed = JSON.parse(cached);
+        // Re-hydrate expiresAt as a Date if present
+        if (parsed.expiresAt) {
+          parsed.expiresAt = new Date(parsed.expiresAt);
+        }
+        setCachedValidation(parsed);
       } catch {
         // Invalid cache, ignore
       }

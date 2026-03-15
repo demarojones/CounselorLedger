@@ -58,27 +58,9 @@ export function createOptimizedQueryClient(userContext?: {
         },
 
         // Dynamic garbage collection time based on privacy scope
-        gcTime: context => {
-          const key = context.queryKey;
-          const keyString = key.join('.');
-
-          // Counselor-specific data - shorter cache time for privacy
-          if (keyString.includes('counselor') && userContext?.role === 'COUNSELOR') {
-            return 5 * 60 * 1000; // 5 minutes
-          }
-
-          // Shared data - longer cache time
-          if (
-            keyString.includes('tenant') ||
-            keyString.includes('students') ||
-            keyString.includes('contacts')
-          ) {
-            return 30 * 60 * 1000; // 30 minutes
-          }
-
-          // Default cache time
-          return 10 * 60 * 1000;
-        },
+        // gcTime does not support a function — use a fixed default; per-query
+        // cache tuning is handled via individual useQuery options instead.
+        gcTime: 10 * 60 * 1000, // 10 minutes default
 
         // Retry configuration optimized for different data types
         retry: (failureCount, error: any) => {
@@ -171,7 +153,7 @@ export function createOptimizedQueryClient(userContext?: {
 
   // Add global error handler for privacy violations
   queryClient.getQueryCache().subscribe(event => {
-    if (event.type === 'queryError' && event.query.state.error) {
+    if (event.type === 'updated' && event.query.state.status === 'error' && event.query.state.error) {
       const error = event.query.state.error as any;
 
       if (error?.code === 'PRIVACY_VIOLATION') {

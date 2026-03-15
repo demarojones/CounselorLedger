@@ -264,6 +264,7 @@ export function enhanceQueryClientWithMonitoring(
   // Wrap the original query function to add performance tracking
   const originalQuery = queryClient.fetchQuery.bind(queryClient);
 
+  // @ts-expect-error — we intentionally widen the signature for monitoring purposes
   queryClient.fetchQuery = async (options: any) => {
     const startTime = performance.now();
     let cacheHit = false;

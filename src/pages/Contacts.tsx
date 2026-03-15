@@ -8,7 +8,7 @@ import { useInteractions } from '@/hooks/useInteractions';
 export function Contacts() {
   // Use React Query hooks
   const { data: contacts = [], isLoading: contactsLoading } = useContacts();
-  const { data: interactions = [], isLoading: interactionsLoading } = useInteractions();
+  const { interactions = [], isLoading: interactionsLoading } = useInteractions();
   const createContact = useCreateContact();
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();

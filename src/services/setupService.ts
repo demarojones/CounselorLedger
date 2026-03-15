@@ -11,12 +11,9 @@ import { sendSetupConfirmationEmail } from './emailService';
 import {
   generateSecureTokenWithMetadata,
   hashTokenSecurely,
-  verifyTokenHash,
   validateTokenSecurity,
 } from '@/utils/tokenSecurity';
 import type {
-  SetupToken,
-  SetupTokenDbResponse,
   SetupTokenValidation,
   TenantSetupData,
   SetupResult,
@@ -66,11 +63,11 @@ export async function validateSetupToken(
       // Log security event but don't reject - could be legitimate older token
     }
 
-    // Get all setup tokens and verify using secure comparison
-    const { data: setupTokens, error } = await supabase
-      .from('setup_tokens')
-      .select('*')
-      .is('used_at', null);
+    // Use RPC to validate the token server-side, bypassing RLS on setup_tokens
+    // (anon users cannot read setup_tokens directly due to RLS policies)
+    const { data: rpcResult, error } = await supabase.rpc('validate_setup_token', {
+      p_token: token,
+    });
 
     if (error) {
       return {
@@ -79,28 +76,9 @@ export async function validateSetupToken(
       };
     }
 
-    // Find matching setup token using secure token verification
-    let matchingToken = null;
-    for (const st of setupTokens || []) {
-      if (await verifyTokenHash(token, st.token)) {
-        matchingToken = st;
-        break;
-      }
-    }
-
-    if (!matchingToken) {
+    if (!rpcResult || !rpcResult.is_valid) {
       return {
-        data: { isValid: false, error: 'Invalid or expired setup token' },
-        error: null,
-      };
-    }
-
-    const setupToken = convertSetupTokenFromDb(matchingToken);
-
-    // Check if token is expired
-    if (setupToken.expiresAt < new Date()) {
-      return {
-        data: { isValid: false, error: 'Setup token has expired' },
+        data: { isValid: false, error: rpcResult?.error || 'Invalid or expired setup token' },
         error: null,
       };
     }
@@ -108,9 +86,9 @@ export async function validateSetupToken(
     return {
       data: {
         isValid: true,
-        tenantName: setupToken.tenantName,
-        adminEmail: setupToken.adminEmail,
-        expiresAt: setupToken.expiresAt,
+        tenantName: rpcResult.tenant_name,
+        adminEmail: rpcResult.admin_email,
+        expiresAt: new Date(rpcResult.expires_at),
       },
       error: null,
     };
@@ -216,33 +194,9 @@ export async function createTenantAndAdmin(
     }
 
     // Step 2: Create tenant and application user record using the auth user ID
-    // Find the setup token using secure token verification
-    const { data: setupTokens } = await supabase
-      .from('setup_tokens')
-      .select('*')
-      .is('used_at', null);
-
-    let matchingToken = null;
-    for (const st of setupTokens || []) {
-      if (await verifyTokenHash(token, st.token)) {
-        matchingToken = st;
-        break;
-      }
-    }
-
-    if (!matchingToken) {
-      console.error('No matching setup token found during tenant creation');
-      return {
-        data: {
-          success: false,
-          error: 'Invalid setup token',
-        },
-        error: null,
-      };
-    }
-
+    // Pass the raw token to the RPC — it will verify the hash server-side
     const { data: result, error } = await supabase.rpc('complete_initial_setup', {
-      p_token: matchingToken.token, // Use the stored hash directly
+      p_token: token,
       p_auth_user_id: authData.user.id,
       p_tenant_name: setupData.tenantName,
       p_subdomain: setupData.subdomain,
@@ -442,16 +396,3 @@ export async function createSetupToken(
 // DATA CONVERSION HELPERS
 // ============================================================================
 
-function convertSetupTokenFromDb(dbToken: SetupTokenDbResponse): SetupToken {
-  return {
-    id: dbToken.id,
-    token: dbToken.token,
-    tenantName: dbToken.tenant_name,
-    tenantSubdomain: dbToken.tenant_subdomain,
-    adminEmail: dbToken.admin_email,
-    expiresAt: new Date(dbToken.expires_at),
-    usedAt: dbToken.used_at ? new Date(dbToken.used_at) : undefined,
-    createdAt: new Date(dbToken.created_at),
-    updatedAt: new Date(dbToken.updated_at),
-  };
-}

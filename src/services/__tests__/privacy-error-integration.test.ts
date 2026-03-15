@@ -30,7 +30,7 @@ describe('Privacy Error Integration', () => {
       const currentUser = {
         tenantId: 'tenant-123',
         userId: 'counselor-1',
-        userRole: 'COUNSELOR' as const,
+        userRole: 'COUNSELOR' as 'ADMIN' | 'COUNSELOR',
       };
 
       const interaction = {
@@ -112,7 +112,7 @@ describe('Privacy Error Integration', () => {
       const currentUser = {
         tenantId: 'tenant-123',
         userId: 'counselor-1',
-        userRole: 'COUNSELOR' as const,
+        userRole: 'COUNSELOR' as 'ADMIN' | 'COUNSELOR',
       };
 
       const interaction = {
@@ -141,7 +141,7 @@ describe('Privacy Error Integration', () => {
       const currentUser = {
         tenantId: 'tenant-123',
         userId: 'counselor-1',
-        userRole: 'COUNSELOR' as const,
+        userRole: 'COUNSELOR' as 'ADMIN' | 'COUNSELOR',
       };
 
       const interactions = [
@@ -279,7 +279,7 @@ describe('Privacy Error Integration', () => {
           await logPrivacyViolation(
             'interaction',
             'test-id',
-            'test-violation',
+            'cross_counselor_access',
             'test-operation',
             {}
           );

@@ -22,6 +22,8 @@ import {
   Admin,
   NotFound,
   Unauthorized,
+  InitialSetup,
+  InvitationAccept,
 } from './pages';
 import './App.css';
 
@@ -96,6 +98,22 @@ function AnimatedRoutes() {
           }
         />
         <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route
+          path="/setup/:token"
+          element={
+            <AuthenticatedRedirect>
+              <InitialSetup />
+            </AuthenticatedRedirect>
+          }
+        />
+        <Route
+          path="/invitation/:token"
+          element={
+            <AuthenticatedRedirect>
+              <InvitationAccept />
+            </AuthenticatedRedirect>
+          }
+        />
 
         {/* Protected routes with layout */}
         <Route

@@ -13,7 +13,6 @@ import {
   getTenantContext,
   handleSupabaseError,
   type SupabaseResponse,
-  type TenantContext,
 } from './supabaseHelpers';
 import { logBulkInteractionAccess } from './auditService';
 import type { Interaction, InteractionDbResponse } from '@/types/interaction';
@@ -37,10 +36,14 @@ const INTERACTION_LIST_FIELDS = `
   start_time,
   duration_minutes,
   end_time,
+  notes,
   needs_follow_up,
   follow_up_date,
+  follow_up_notes,
   is_follow_up_complete,
-  created_at
+  follow_up_completed_at,
+  created_at,
+  updated_at
 `;
 
 // Full fields for detail views
@@ -190,7 +193,7 @@ export async function fetchOptimizedInteractions(
       };
     }
 
-    const interactions = (data || []).map(item => convertInteractionFromDb(item as InteractionDbResponse));
+    const interactions = (data || []).map(item => convertInteractionFromDb(item as unknown as InteractionDbResponse));
 
     // Log bulk interaction access for audit trail (async to not block response)
     if (interactions.length > 0) {
@@ -278,7 +281,7 @@ export async function fetchOptimizedStudentInteractions(
       };
     }
 
-    const interactions = (data || []).map(item => convertInteractionFromDb(item as InteractionDbResponse));
+    const interactions = (data || []).map(item => convertInteractionFromDb(item as unknown as InteractionDbResponse));
     return { data: interactions, error: null };
   } catch (error) {
     return {
@@ -337,7 +340,7 @@ export async function fetchOptimizedContactInteractions(
       };
     }
 
-    const interactions = (data || []).map(item => convertInteractionFromDb(item as InteractionDbResponse));
+    const interactions = (data || []).map(item => convertInteractionFromDb(item as unknown as InteractionDbResponse));
     return { data: interactions, error: null };
   } catch (error) {
     return {
