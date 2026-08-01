@@ -5,13 +5,15 @@ import type { Student } from '@/types/student';
 import { StudentList } from '@/components/students/StudentList';
 import { StudentSearch } from '@/components/students/StudentSearch';
 import { StudentFormModal } from '@/components/students/StudentFormModal';
+import { ImportStudentsModal } from '@/components/students/ImportStudentsModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PageTransition, TableSkeleton } from '@/components/common';
-import { Plus } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 
 export function Students() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   // Use React Query hooks instead of local state
@@ -61,11 +63,21 @@ export function Students() {
               Manage student profiles and interaction history.
             </p>
           </div>
-          <Button onClick={() => setIsAddModalOpen(true)} className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Add Student</span>
-            <span className="sm:hidden">Add</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsImportModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              <span className="hidden sm:inline">Import</span>
+            </Button>
+            <Button onClick={() => setIsAddModalOpen(true)} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Add Student</span>
+              <span className="sm:hidden">Add</span>
+            </Button>
+          </div>
         </div>
 
         {/* Search Card */}
@@ -94,6 +106,9 @@ export function Students() {
 
         {/* Add Student Modal */}
         <StudentFormModal open={isAddModalOpen} onOpenChange={setIsAddModalOpen} />
+
+        {/* Import Students Modal */}
+        <ImportStudentsModal open={isImportModalOpen} onOpenChange={setIsImportModalOpen} />
 
         {/* Edit Student Modal */}
         <StudentFormModal

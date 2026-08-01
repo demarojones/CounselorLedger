@@ -453,6 +453,83 @@ export async function createStudent(studentData: {
 }
 
 /**
+ * Batch create multiple students at once (used by CSV/Excel import)
+ */
+export async function createStudentsBatch(
+  students: {
+    studentId: string;
+    firstName: string;
+    lastName: string;
+    gradeLevel: string;
+    email?: string;
+    phone?: string;
+  }[]
+): Promise<SupabaseResponse<Student[]>> {
+  try {
+    // Handle mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      const mockStudents: Student[] = students.map((s, i) => ({
+        id: `mock-${Date.now()}-${i}`,
+        studentId: s.studentId,
+        firstName: s.firstName,
+        lastName: s.lastName,
+        gradeLevel: s.gradeLevel,
+        email: s.email || null,
+        phone: s.phone || null,
+        needsFollowUp: false,
+        followUpNotes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }));
+      return { data: mockStudents, error: null };
+    }
+
+    const context = await getTenantContext();
+    if (!context) {
+      return {
+        data: null,
+        error: {
+          code: 'AUTH_ERROR',
+          message: 'User not authenticated',
+        },
+      };
+    }
+
+    const insertData = students.map(s => ({
+      tenant_id: context.tenantId,
+      student_id: s.studentId,
+      first_name: s.firstName,
+      last_name: s.lastName,
+      grade_level: s.gradeLevel,
+      email: s.email || null,
+      phone: s.phone || null,
+    }));
+
+    const { data, error } = await supabase.from('students').insert(insertData).select();
+
+    if (error) {
+      return {
+        data: null,
+        error: handleSupabaseError(error),
+      };
+    }
+
+    return {
+      data: (data || []).map(convertStudentFromDb),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      data: null,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Failed to import students',
+      },
+    };
+  }
+}
+
+/**
  * Update an existing student
  */
 export async function updateStudent(

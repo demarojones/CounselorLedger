@@ -7,6 +7,8 @@ export {
   useDeleteStudent,
 } from './useStudents';
 
+export { useImportStudents } from './useImportStudents';
+
 export {
   useContacts,
   useContactInteractions,
