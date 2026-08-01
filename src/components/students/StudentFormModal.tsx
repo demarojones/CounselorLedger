@@ -41,19 +41,11 @@ export function StudentFormModal({ open, onOpenChange, student, onSuccess }: Stu
   // Populate form when editing
   useEffect(() => {
     if (student) {
-      // Convert grade level from "9th Grade" format to "9" format for the form
-      const convertGradeLevel = (gradeLevel: string) => {
-        if (gradeLevel.includes('th Grade')) {
-          return gradeLevel.replace('th Grade', '');
-        }
-        return gradeLevel;
-      };
-
       setFormData({
         studentId: student.studentId || '',
         firstName: student.firstName || '',
         lastName: student.lastName || '',
-        gradeLevel: convertGradeLevel(student.gradeLevel || ''),
+        gradeLevel: student.gradeLevel || '',
         email: student.email || '',
         phone: student.phone || '',
       });
@@ -108,19 +100,12 @@ export function StudentFormModal({ open, onOpenChange, student, onSuccess }: Stu
       return;
     }
 
-    // Convert grade level back to full format
-    const convertGradeLevelToFull = (gradeLevel: string) => {
-      if (gradeLevel && !gradeLevel.includes('Grade')) {
-        return `${gradeLevel}th Grade`;
-      }
-      return gradeLevel;
-    };
-
+    // Grade level is already in full format from the dropdown
     const submissionData = {
       studentId: formData.studentId,
       firstName: formData.firstName,
       lastName: formData.lastName,
-      gradeLevel: convertGradeLevelToFull(formData.gradeLevel),
+      gradeLevel: formData.gradeLevel,
       email: formData.email || undefined,
       phone: formData.phone || undefined,
     };
@@ -236,10 +221,20 @@ export function StudentFormModal({ open, onOpenChange, student, onSuccess }: Stu
                 required
               >
                 <option value="">Select grade level</option>
-                <option value="9">9th Grade</option>
-                <option value="10">10th Grade</option>
-                <option value="11">11th Grade</option>
-                <option value="12">12th Grade</option>
+                <option value="Pre-K">Pre-K</option>
+                <option value="Kindergarten">Kindergarten</option>
+                <option value="1st Grade">1st Grade</option>
+                <option value="2nd Grade">2nd Grade</option>
+                <option value="3rd Grade">3rd Grade</option>
+                <option value="4th Grade">4th Grade</option>
+                <option value="5th Grade">5th Grade</option>
+                <option value="6th Grade">6th Grade</option>
+                <option value="7th Grade">7th Grade</option>
+                <option value="8th Grade">8th Grade</option>
+                <option value="9th Grade">9th Grade</option>
+                <option value="10th Grade">10th Grade</option>
+                <option value="11th Grade">11th Grade</option>
+                <option value="12th Grade">12th Grade</option>
               </FormSelect>
             </div>
 
