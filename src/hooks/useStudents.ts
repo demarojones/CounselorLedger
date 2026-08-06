@@ -12,7 +12,7 @@ import type { Student } from '@/types/student';
 
 // Create student
 interface CreateStudentData {
-  studentId: string;
+  studentId?: string;
   firstName: string;
   lastName: string;
   gradeLevel: string;
@@ -132,7 +132,12 @@ export function useCreateStudent() {
       if (previousStudents) {
         const optimisticStudent: Student = {
           id: `temp-${Date.now()}`, // Temporary ID
-          ...newStudentData,
+          studentId: newStudentData.studentId || 'Generating...',
+          firstName: newStudentData.firstName,
+          lastName: newStudentData.lastName,
+          gradeLevel: newStudentData.gradeLevel,
+          email: newStudentData.email,
+          phone: newStudentData.phone,
           needsFollowUp: false,
           followUpNotes: null,
           createdAt: new Date(),

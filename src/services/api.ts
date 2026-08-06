@@ -18,6 +18,7 @@ import {
   logPrivacyViolation,
   logBulkInteractionAccess,
 } from './auditService';
+import { generateStudentId } from '@/utils/studentImport';
 import type { Student, StudentDbResponse } from '@/types/student';
 import type { Contact, ContactDbResponse } from '@/types/contact';
 import type { Interaction, InteractionFormData, InteractionDbResponse } from '@/types/interaction';
@@ -376,7 +377,7 @@ export async function fetchStudent(id: string): Promise<SupabaseResponse<Student
  * Create a new student
  */
 export async function createStudent(studentData: {
-  studentId: string;
+  studentId?: string;
   firstName: string;
   lastName: string;
   gradeLevel: string;
@@ -384,12 +385,15 @@ export async function createStudent(studentData: {
   phone?: string;
 }): Promise<SupabaseResponse<Student>> {
   try {
+    // Auto-generate student ID if not provided
+    const studentId = studentData.studentId?.trim() || generateStudentId();
+
     // Handle mock mode
     if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
       // Create a new mock student
       const newStudent: Student = {
         id: Date.now().toString(), // Simple ID generation for mock
-        studentId: studentData.studentId,
+        studentId,
         firstName: studentData.firstName,
         lastName: studentData.lastName,
         gradeLevel: studentData.gradeLevel,
@@ -420,7 +424,7 @@ export async function createStudent(studentData: {
 
     const insertData = {
       tenant_id: context.tenantId,
-      student_id: studentData.studentId,
+      student_id: studentId,
       first_name: studentData.firstName,
       last_name: studentData.lastName,
       grade_level: studentData.gradeLevel,
@@ -457,7 +461,7 @@ export async function createStudent(studentData: {
  */
 export async function createStudentsBatch(
   students: {
-    studentId: string;
+    studentId?: string;
     firstName: string;
     lastName: string;
     gradeLevel: string;
@@ -466,9 +470,15 @@ export async function createStudentsBatch(
   }[]
 ): Promise<SupabaseResponse<Student[]>> {
   try {
+    // Auto-generate student IDs for any that are missing
+    const studentsWithIds = students.map(s => ({
+      ...s,
+      studentId: s.studentId?.trim() || generateStudentId(),
+    }));
+
     // Handle mock mode
     if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-      const mockStudents: Student[] = students.map((s, i) => ({
+      const mockStudents: Student[] = studentsWithIds.map((s, i) => ({
         id: `mock-${Date.now()}-${i}`,
         studentId: s.studentId,
         firstName: s.firstName,
@@ -495,7 +505,7 @@ export async function createStudentsBatch(
       };
     }
 
-    const insertData = students.map(s => ({
+    const insertData = studentsWithIds.map(s => ({
       tenant_id: context.tenantId,
       student_id: s.studentId,
       first_name: s.firstName,

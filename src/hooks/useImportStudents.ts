@@ -5,7 +5,7 @@ import { queryKeys } from '@/lib/queryClient';
 import type { Student } from '@/types/student';
 
 interface ImportStudentData {
-  studentId: string;
+  studentId?: string;
   firstName: string;
   lastName: string;
   gradeLevel: string;

@@ -22,9 +22,10 @@ export const gradeLevelSchema = z.enum([
 export const studentFormSchema = z.object({
   studentId: z
     .string()
-    .min(1, 'Student ID is required')
     .max(20, 'Student ID must be less than 20 characters')
-    .trim(),
+    .trim()
+    .optional()
+    .or(z.literal('')),
   firstName: z
     .string()
     .min(1, 'First name is required')

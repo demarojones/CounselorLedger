@@ -1,7 +1,7 @@
 // Student types
 export interface Student {
   id: string;
-  studentId: string;
+  studentId: string; // Auto-generated (CL-XXXXXXXX) if not provided by the user
   firstName: string;
   lastName: string;
   gradeLevel: string;
