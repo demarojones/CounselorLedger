@@ -9,11 +9,11 @@ const generateId = customAlphabet(
 );
 
 /**
- * Generate a system-assigned student ID with CL- prefix.
- * Format: CL-XXXXXXXX (11 chars total, fits within 20-char limit)
+ * Generate a system-assigned student ID with STU- prefix.
+ * Format: STU-XXXXXXXX (12 chars total, fits within 20-char limit)
  */
 export function generateStudentId(): string {
-  return `CL-${generateId()}`;
+  return `STU-${generateId()}`;
 }
 
 // Valid grade levels matching the Zod schema

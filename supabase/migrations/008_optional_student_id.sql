@@ -5,7 +5,7 @@
 -- available. This migration makes it nullable and sets up a trigger to
 -- auto-generate a unique identifier when one is not provided.
 --
--- Format: CL-XXXXXXXX (8 random alphanumeric characters)
+-- Format: STU-XXXXXXXX (8 random alphanumeric characters)
 -- Record uniqueness is guaranteed by the UUID primary key (id column).
 -- The UNIQUE(tenant_id, student_id) constraint still applies for non-null values.
 -- ============================================================================
@@ -24,7 +24,7 @@ BEGIN
   -- Only generate if student_id is NULL or empty
   IF NEW.student_id IS NULL OR NEW.student_id = '' THEN
     LOOP
-      new_id := 'CL-';
+      new_id := 'STU-';
       FOR i IN 1..8 LOOP
         new_id := new_id || substr(chars, floor(random() * length(chars) + 1)::int, 1);
       END LOOP;
@@ -61,4 +61,4 @@ CREATE UNIQUE INDEX idx_students_tenant_student_id
 
 -- Step 5: Add a comment documenting the behavior
 COMMENT ON COLUMN students.student_id IS 
-  'School-assigned external student identifier. Auto-generated in CL-XXXXXXXX format if not provided.';
+  'School-assigned external student identifier. Auto-generated in STU-XXXXXXXX format if not provided.';
